@@ -25,21 +25,21 @@ val AVAILABLE_MODELS = listOf(
         name = "TinyLlama 1.1B (Q4_K_M)",
         description = "Super fast, ~670 MB. Great for testing on any device.",
         sizeBytes = 669_000_000L,
-        downloadUrl = "https:
+        downloadUrl = "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
     ),
     AvailableModel(
         id = "phi3-mini-q4",
         name = "Phi-3 Mini 3.8B (Q4_K_M)",
         description = "Smart and small, ~2.2 GB. Needs 4 GB+ RAM.",
         sizeBytes = 2_200_000_000L,
-        downloadUrl = "https:
+        downloadUrl = "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf"
     ),
     AvailableModel(
         id = "gemma3-1b-q8",
         name = "Gemma 3 1B (Q8)",
         description = "Google's compact model, ~1 GB. Good quality for its size.",
         sizeBytes = 1_000_000_000L,
-        downloadUrl = "https:
+        downloadUrl = "https://huggingface.co/lmstudio-community/gemma-3-1b-it-GGUF/resolve/main/gemma-3-1b-it-Q8_0.gguf"
     )
 )
 

@@ -4,7 +4,6 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
-import com.abrarshakhi.mishti.presentation.screens.ChatHistoryScreen
 import com.abrarshakhi.mishti.presentation.screens.ChatScreen
 import com.abrarshakhi.mishti.presentation.screens.ModelPickerScreen
 import com.abrarshakhi.mishti.presentation.screens.SettingsScreen
@@ -15,51 +14,32 @@ import com.abrarshakhi.mishti.presentation.screens.SettingsScreen
  * This is passed to [NavDisplay] as the `entryProvider` lambda.
  * Adding a new screen = add a route in [NavRoutes] + a branch here.
  *
- * @param key: [NavKey] current navKey.
+ * @param route: [NavRoutes] current navKey.
  * @param backStack: [NavBackStack] reference to the live back-stack so screens can navigate.
  */
 fun mishtiEntryProvider(
-    key: NavKey,
+    route: NavRoutes,
     backStack: NavBackStack<NavKey>
 ): NavEntry<NavKey> =
-    when (key) {
-        is NavRoutes.Chat -> NavEntry(key) {
+    when (route) {
+        is NavRoutes.Chat -> NavEntry(route) {
             ChatScreen(
-                onOpenHistory = { backStack.add(NavRoutes.ChatHistory) },
-                onOpenModels = { backStack.add(NavRoutes.ModelPicker) },
-                onNewChat = { /* TODO: clear current chat state */ },
+                onOpenHistory = { },
+                onOpenModels = { },
+                onNewChat = { },
             )
         }
 
-        is NavRoutes.ChatHistory -> NavEntry(key) {
-            ChatHistoryScreen(
-                onClose = { backStack.removeLastOrNull() },
-                onOpenSettings = {
-                    backStack.removeLastOrNull()
-                    backStack.add(NavRoutes.Settings)
-                },
-                onSelectChat = {
-                    backStack.removeLastOrNull()
-                    // TODO: tell ChatViewModel to load chatId
-                },
-            )
-        }
-
-        is NavRoutes.ModelPicker -> NavEntry(key) {
+        is NavRoutes.ModelPicker -> NavEntry(route) {
             ModelPickerScreen(
-                onDismiss = { backStack.removeLastOrNull() },
-                onModelSelected = { /*modelId ->*/
-                    backStack.removeLastOrNull()
-                    // TODO: tell ChatViewModel to switch model
-                },
+                onDismiss = { },
+                onModelSelected = { },
             )
         }
 
-        is NavRoutes.Settings -> NavEntry(key) {
+        is NavRoutes.Settings -> NavEntry(route) {
             SettingsScreen(
-                onBack = { backStack.removeLastOrNull() },
+                onBack = { },
             )
         }
-
-        else -> throw RuntimeException("Invalid NavKey: $key")
     }

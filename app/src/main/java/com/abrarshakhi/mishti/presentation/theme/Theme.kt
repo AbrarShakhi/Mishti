@@ -11,26 +11,31 @@ import androidx.compose.ui.graphics.Color
 object MishtiSpacing {
     const val xs = 4
     const val sm = 8
-    const val md = 12
-    const val lg = 16
-    const val xl = 20
-    const val xxl = 24
-    const val xxxl = 32
+    const val md = 16   // updated: was 12, Flutter theme uses 16
+    const val lg = 24
+    const val xl = 32
+    const val xxl = 48  // updated: was 24, Flutter theme uses 48
+    const val xxxl = 80 // updated: was 32, Flutter theme uses 80
 
-    const val pageHorizontal = 24
-    const val pageVertical = 24
-    const val inputHorizontal = 16
-    const val inputVertical = 16
-    const val buttonVertical = 18
-    const val cardPadding = 12
-    const val messageBubbleInset = 80
+    const val pageHorizontal      = 20  // pageGutterMobile equivalent
+    const val pageVertical        = 24
+    const val inputHorizontal     = 16
+    const val inputVertical       = 16
+    const val buttonVertical      = 18
+    const val cardPadding         = 12
+    const val messageBubbleInset  = 80
 }
 
 object MishtiCornerRadius {
+    const val sm     = 8    // button, input
     const val button = 8
-    const val input = 8
-    const val card = 12
-    const val toast = 12
+    const val input  = 8
+    const val md     = 12   // card, toast
+    const val card   = 12
+    const val toast  = 12
+    const val lg     = 16
+    const val xl     = 24
+    const val pill   = 999
     const val codeBlock = 10
 }
 
@@ -45,47 +50,45 @@ fun MishtiTheme(content: @Composable () -> Unit) {
 }
 
 private fun lightMishtiColorScheme(): ColorScheme = lightColorScheme(
-    primary = MishtiColor.accentLight,
-    onPrimary = Color.Black,
+    primary          = MishtiColor.accentLight,
+    onPrimary        = MishtiColor.onAccentLight,
 
-    secondary = MishtiColor.fillFaintLight,
-    onSecondary = MishtiColor.textPrimaryLight,
+    secondary        = MishtiColor.accentLight,
+    onSecondary      = MishtiColor.onAccentLight,
 
-    background = MishtiColor.backgroundBaseLight,
-    onBackground = MishtiColor.textPrimaryLight,
+    background       = MishtiColor.backgroundBaseLight,
+    onBackground     = MishtiColor.textPrimaryLight,
 
-    surface = MishtiColor.fillFaintLight,
-    onSurface = MishtiColor.textPrimaryLight,
+    surface          = MishtiColor.surfaceLight,
+    onSurface        = MishtiColor.textPrimaryLight,
 
-    // Important for default M3 components (e.g. TextField placeholder/label colors).
-    // If not set, Material uses its default palette (purple-ish).
-    surfaceVariant = MishtiColor.fillFaintLight,
-    onSurfaceVariant = MishtiColor.textMutedLight,
+    surfaceVariant   = MishtiColor.surfaceMutedLight,
+    onSurfaceVariant = MishtiColor.textSecondaryLight,
 
-    outline = MishtiColor.borderLight,
-    outlineVariant = MishtiColor.borderLight,
+    outline          = MishtiColor.borderLight,
+    outlineVariant   = MishtiColor.borderLight,
 
-    error = MishtiColor.error
+    error            = MishtiColor.error
 )
 
 private fun darkMishtiColorScheme(): ColorScheme = darkColorScheme(
-    primary = MishtiColor.accentDark,
-    onPrimary = Color.Black,
+    primary          = MishtiColor.accentDark,
+    onPrimary        = MishtiColor.onAccentDark,
 
-    secondary = MishtiColor.fillFaintDark,
-    onSecondary = MishtiColor.textPrimaryDark,
+    secondary        = MishtiColor.accentDark,
+    onSecondary      = MishtiColor.onAccentDark,
 
-    background = MishtiColor.backgroundBaseDark,
-    onBackground = MishtiColor.textPrimaryDark,
+    background       = MishtiColor.backgroundBaseDark,
+    onBackground     = MishtiColor.textPrimaryDark,
 
-    surface = MishtiColor.fillFaintDark,
-    onSurface = MishtiColor.textPrimaryDark,
+    surface          = MishtiColor.surfaceDark,
+    onSurface        = MishtiColor.textPrimaryDark,
 
-    surfaceVariant = MishtiColor.fillFaintDark,
-    onSurfaceVariant = MishtiColor.textMutedDark,
+    surfaceVariant   = MishtiColor.surfaceMutedDark,
+    onSurfaceVariant = MishtiColor.textSecondaryDark,
 
-    outline = MishtiColor.borderDark,
-    outlineVariant = MishtiColor.borderDark,
+    outline          = MishtiColor.borderDark,
+    outlineVariant   = MishtiColor.borderDark,
 
-    error = MishtiColor.error
+    error            = MishtiColor.error
 )

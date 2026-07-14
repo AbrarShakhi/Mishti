@@ -27,16 +27,18 @@ import androidx.navigation3.ui.NavDisplay
 @Composable
 fun MishtiNavHost() {
     val backStack = rememberNavBackStack(NavRoutes.Chat)
-
     NavDisplay(
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
         ),
         entryProvider = {
-            mishtiEntryProvider(key = it, backStack = backStack)
+            when (it) {
+                is NavRoutes -> mishtiEntryProvider(route = it, backStack = backStack)
+                else -> throw RuntimeException("Invalid NavKey: $it")
+            }
         }
     )
 }

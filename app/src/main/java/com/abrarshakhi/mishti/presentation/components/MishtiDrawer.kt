@@ -1,27 +1,30 @@
 package com.abrarshakhi.mishti.presentation.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,11 +33,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Data
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * A single past conversation shown in the drawer list.
- *
- * In a real app this would come from the database via ViewModel.
- * For now, it's a simple data holder so the UI is already shaped correctly.
  */
 data class ConversationItem(
     val id: String,
@@ -42,36 +46,43 @@ data class ConversationItem(
 )
 
 /**
- * Groups of conversations shown in the drawer, mirroring Claude's recency sections.
+ * A recency-grouped bucket of conversations.
+ * Labels are typically "Today", "Yesterday", "Last 7 days", "Last 30 days".
  */
 data class ConversationGroup(
-    val label: String,               // e.g. "Today", "Yesterday", "Last 7 days"
+    val label: String,
     val conversations: List<ConversationItem>,
 )
 
+// ─────────────────────────────────────────────────────────────────────────────
+// MishtiDrawer
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
- * Claude-style navigation drawer for Mishti.
+ * Navigation drawer for Mishti — three fixed structural zones separated
+ * by [HorizontalDivider]s, matching the pattern used by Claude, ChatGPT,
+ * and Gemini:
  *
- * Layout (top → bottom):
- *   ┌──────────────────────────────┐
- *   │  ＋  New chat                │  ← tappable row
- *   ├──────────────────────────────┤
- *   │  Today                       │
- *   │    Conversation title 1      │
- *   │    Conversation title 2      │
- *   │  Yesterday                   │
- *   │    …                         │
- *   │  Last 7 days                 │
- *   │    …                         │  ← scrollable middle zone
- *   ├──────────────────────────────┤
- *   │  ⚙  Settings                 │  ← always visible at bottom
- *   └──────────────────────────────┘
+ *   ┌────────────────────────┐
+ *   │  Mishti          (app name header)
+ *   ├────────────────────────┤
+ *   │  ✎  New chat
+ *   │
+ *   │  TODAY
+ *   │    Conversation A      ← active (accent pill)
+ *   │    Conversation B
+ *   │  YESTERDAY
+ *   │    Conversation C
+ *   │    …                   ← scrollable
+ *   ├────────────────────────┤
+ *   │  ⚙  Settings
+ *   └────────────────────────┘
  *
- * @param groups            Recency-grouped conversation history.
- * @param activeId          ID of the currently open conversation (highlighted).
- * @param onNewChat         "New chat" row tapped.
- * @param onConversationClick  A past conversation row tapped.
- * @param onSettingsClick   Settings row tapped.
+ * @param groups               Recency-grouped conversation history from ViewModel.
+ * @param activeId             ID of the conversation currently open (receives accent pill).
+ * @param onNewChat            "New chat" row tapped.
+ * @param onConversationClick  A history row tapped.
+ * @param onSettingsClick      Settings row tapped.
  */
 @Composable
 fun MishtiDrawer(
@@ -85,56 +96,47 @@ fun MishtiDrawer(
         modifier = Modifier.fillMaxHeight(),
         drawerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(vertical = 12.dp),
-        ) {
+        Column(modifier = Modifier.fillMaxHeight()) {
 
-            DrawerRow(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                onClick = onNewChat,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Add,
-                    contentDescription = "New chat",
-                    modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = "New chat",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = 12.dp),
-                )
-            }
+            // ── Zone 1 — App name ─────────────────────────────────────────
+            AppNameHeader()
 
-            Spacer(Modifier.height(8.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
+            // ── Zone 2 — New chat + scrollable history ────────────────────
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
             ) {
-                groups.forEach { group ->
-                    item(key = "header-${group.label}") {
+                // "New chat" is the first item so it scrolls away if the
+                // history list is very long — same behaviour as Claude/ChatGPT.
+                item(key = "new-chat") {
+                    DrawerRow(
+                        onClick = onNewChat,
+                        modifier = Modifier.padding(top = 4.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Create,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.width(12.dp))
                         Text(
-                            text = group.label,
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 11.sp,
-                                letterSpacing = 0.6.sp,
-                            ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(
-                                start = 20.dp,
-                                end = 16.dp,
-                                top = 16.dp,
-                                bottom = 4.dp,
-                            ),
+                            text = "New chat",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
+                }
 
+                // History groups
+                groups.forEach { group ->
+                    item(key = "header-${group.label}") {
+                        GroupLabel(group.label)
+                    }
                     items(group.conversations, key = { it.id }) { convo ->
                         ConversationRow(
                             item = convo,
@@ -145,26 +147,24 @@ fun MishtiDrawer(
                 }
             }
 
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                color = MaterialTheme.colorScheme.outlineVariant,
-            )
+            // ── Zone 3 — Settings ─────────────────────────────────────────
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             DrawerRow(
-                modifier = Modifier.padding(horizontal = 8.dp),
                 onClick = onSettingsClick,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Settings,
-                    contentDescription = "Settings",
-                    modifier = Modifier.size(20.dp),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                Spacer(Modifier.width(12.dp))
                 Text(
                     text = "Settings",
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = 12.dp),
                 )
             }
         }
@@ -172,40 +172,51 @@ fun MishtiDrawer(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Private helpers
+// Private composables
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Shared row layout used by "New chat", Settings, and individual conversations.
- * Gives each row a consistent height, padding, and the pill highlight on press.
+ * Zone 1 — app name. Purely a brand anchor; not tappable.
  */
 @Composable
-private fun DrawerRow(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    isHighlighted: Boolean = false,
-    content: @Composable () -> Unit,
-) {
-    val bgColor = if (isHighlighted)
-        MaterialTheme.colorScheme.secondaryContainer
-    else
-        MaterialTheme.colorScheme.surfaceContainerLow
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(bgColor)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-    ) {
-        content()
-    }
+private fun AppNameHeader() {
+    Text(
+        text = "Mishti",
+        style = MaterialTheme.typography.titleLarge.copy(
+            fontWeight = FontWeight.SemiBold,
+        ),
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+    )
 }
 
 /**
- * A single conversation entry row.
+ * Uppercase recency label — "TODAY", "YESTERDAY", "LAST 7 DAYS".
+ * Intentionally muted and small; it separates groups without competing
+ * with conversation titles.
+ */
+@Composable
+private fun GroupLabel(label: String) {
+    Text(
+        text = label.uppercase(),
+        style = MaterialTheme.typography.labelSmall.copy(
+            fontWeight = FontWeight.Medium,
+            fontSize = 10.sp,
+            letterSpacing = 0.8.sp,
+        ),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(
+            start = 10.dp,
+            end = 10.dp,
+            top = 16.dp,
+            bottom = 2.dp,
+        ),
+    )
+}
+
+/**
+ * A single conversation row. Active row gets an accent-tinted pill background;
+ * inactive rows have no background fill — just the ripple on tap.
  */
 @Composable
 private fun ConversationRow(
@@ -214,9 +225,8 @@ private fun ConversationRow(
     onClick: () -> Unit,
 ) {
     DrawerRow(
-        modifier = Modifier.padding(horizontal = 8.dp),
         onClick = onClick,
-        isHighlighted = isActive,
+        isActive = isActive,
     ) {
         Text(
             text = item.title,
@@ -228,5 +238,47 @@ private fun ConversationRow(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+    }
+}
+
+/**
+ * Base touchable row shared by "New chat", conversation entries, and Settings.
+ *
+ * - No background by default (inactive state is just the ripple).
+ * - Active state gets [MaterialTheme.colorScheme.secondaryContainer] as a
+ *   pill highlight — same token Material 3 uses for NavigationDrawerItem.
+ * - The ripple is bounded to the pill shape so it doesn't bleed outside.
+ */
+@Composable
+private fun DrawerRow(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isActive: Boolean = false,
+    content: @Composable () -> Unit,
+) {
+    val shape = RoundedCornerShape(8.dp)
+    val containerColor = if (isActive)
+        MaterialTheme.colorScheme.secondaryContainer
+    else
+        MaterialTheme.colorScheme.surfaceContainerLow  // transparent-ish, matches sheet bg
+
+    Surface(
+        color = containerColor,
+        shape = shape,
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple(bounded = true),
+                onClick = onClick,
+            ),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
+        ) {
+            content()
+        }
     }
 }

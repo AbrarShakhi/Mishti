@@ -1,4 +1,4 @@
-package com.abrarshakhi.mishti.presentation.screens
+package com.abrarshakhi.mishti.presentation.chat
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box

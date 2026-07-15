@@ -1,4 +1,4 @@
-package com.abrarshakhi.mishti.presentation.components
+package com.abrarshakhi.mishti.presentation.chat
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -33,59 +33,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Data
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * A single past conversation shown in the drawer list.
- */
 data class ConversationItem(
     val id: String,
     val title: String,
 )
 
-/**
- * A recency-grouped bucket of conversations.
- * Labels are typically "Today", "Yesterday", "Last 7 days", "Last 30 days".
- */
 data class ConversationGroup(
     val label: String,
     val conversations: List<ConversationItem>,
 )
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MishtiDrawer
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Navigation drawer for Mishti — three fixed structural zones separated
- * by [HorizontalDivider]s, matching the pattern used by Claude, ChatGPT,
- * and Gemini:
- *
- *   ┌────────────────────────┐
- *   │  Mishti          (app name header)
- *   ├────────────────────────┤
- *   │  ✎  New chat
- *   │
- *   │  TODAY
- *   │    Conversation A      ← active (accent pill)
- *   │    Conversation B
- *   │  YESTERDAY
- *   │    Conversation C
- *   │    …                   ← scrollable
- *   ├────────────────────────┤
- *   │  ⚙  Settings
- *   └────────────────────────┘
- *
- * @param groups               Recency-grouped conversation history from ViewModel.
- * @param activeId             ID of the conversation currently open (receives accent pill).
- * @param onNewChat            "New chat" row tapped.
- * @param onConversationClick  A history row tapped.
- * @param onSettingsClick      Settings row tapped.
- */
 @Composable
-fun MishtiDrawer(
+fun ChatDrawer(
     groups: List<ConversationGroup>,
     activeId: String?,
     onNewChat: () -> Unit,
@@ -98,20 +57,16 @@ fun MishtiDrawer(
     ) {
         Column(modifier = Modifier.fillMaxHeight()) {
 
-            // ── Zone 1 — App name ─────────────────────────────────────────
             AppNameHeader()
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-            // ── Zone 2 — New chat + scrollable history ────────────────────
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),
             ) {
-                // "New chat" is the first item so it scrolls away if the
-                // history list is very long — same behaviour as Claude/ChatGPT.
                 item(key = "new-chat") {
                     DrawerRow(
                         onClick = onNewChat,
@@ -131,8 +86,6 @@ fun MishtiDrawer(
                         )
                     }
                 }
-
-                // History groups
                 groups.forEach { group ->
                     item(key = "header-${group.label}") {
                         GroupLabel(group.label)
@@ -171,13 +124,6 @@ fun MishtiDrawer(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Private composables
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Zone 1 — app name. Purely a brand anchor; not tappable.
- */
 @Composable
 private fun AppNameHeader() {
     Text(
@@ -190,11 +136,6 @@ private fun AppNameHeader() {
     )
 }
 
-/**
- * Uppercase recency label — "TODAY", "YESTERDAY", "LAST 7 DAYS".
- * Intentionally muted and small; it separates groups without competing
- * with conversation titles.
- */
 @Composable
 private fun GroupLabel(label: String) {
     Text(
@@ -214,10 +155,6 @@ private fun GroupLabel(label: String) {
     )
 }
 
-/**
- * A single conversation row. Active row gets an accent-tinted pill background;
- * inactive rows have no background fill — just the ripple on tap.
- */
 @Composable
 private fun ConversationRow(
     item: ConversationItem,
@@ -241,14 +178,6 @@ private fun ConversationRow(
     }
 }
 
-/**
- * Base touchable row shared by "New chat", conversation entries, and Settings.
- *
- * - No background by default (inactive state is just the ripple).
- * - Active state gets [MaterialTheme.colorScheme.secondaryContainer] as a
- *   pill highlight — same token Material 3 uses for NavigationDrawerItem.
- * - The ripple is bounded to the pill shape so it doesn't bleed outside.
- */
 @Composable
 private fun DrawerRow(
     onClick: () -> Unit,

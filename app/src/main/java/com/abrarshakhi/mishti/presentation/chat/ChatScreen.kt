@@ -20,36 +20,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.abrarshakhi.mishti.presentation.components.ConversationGroup
-import com.abrarshakhi.mishti.presentation.components.ConversationItem
-import com.abrarshakhi.mishti.presentation.components.MishtiDrawer
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-/**
- * Main chat screen — root destination.
- *
- * Top bar layout (left → right):
- *   [☰ Menu]  ←───────── [Model name] ─────────→  [＋ New chat]
- *
- * The navigation drawer is [MishtiDrawer]; this screen owns only
- * the drawer open/close state, everything else is delegated upward
- * via the callback parameters.
- *
- * @param conversationGroups  History passed down from ViewModel (empty list = no history yet).
- * @param activeConversationId  ID of the currently visible conversation; used to highlight the
- *                              correct row in the drawer.
- * @param onNewChat           Plus icon or drawer "New chat" tapped → start a fresh conversation.
- * @param onConversationClick A past conversation row tapped → load that conversation.
- * @param onOpenModels        Model name in the top bar tapped → open ModelPicker.
- * @param onOpenSettings      Settings entry in the drawer tapped → open Settings.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    conversationGroups: List<ConversationGroup> = emptyList(),
-    activeConversationId: String? = null,
-    onNewChat: () -> Unit,
-    onConversationClick: (ConversationItem) -> Unit = {},
+    state: ChatUiState,
+    effect: Flow<ChatEffect>,
+    onIntent: (ChatIntent) -> Unit,
     onOpenModels: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -59,16 +38,16 @@ fun ChatScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            MishtiDrawer(
-                groups = conversationGroups,
-                activeId = activeConversationId,
+            ChatDrawer(
+                groups = state.conversationGroups,
+                activeId = state.activeConversationId,
                 onNewChat = {
                     scope.launch { drawerState.close() }
-                    onNewChat()
+                    onIntent(ChatIntent.NewChat)
                 },
                 onConversationClick = { convo ->
                     scope.launch { drawerState.close() }
-                    onConversationClick(convo)
+                    // TODO: onConversationClick(convo)
                 },
                 onSettingsClick = {
                     scope.launch { drawerState.close() }
@@ -94,7 +73,7 @@ fun ChatScreen(
                         )
                     },
                     actions = {
-                        IconButton(onClick = onNewChat) {
+                        IconButton(onClick = { onIntent(ChatIntent.NewChat) }) {
                             Icon(Icons.Outlined.Add, contentDescription = "New chat")
                         }
                     },

@@ -13,12 +13,11 @@ fun ChatRoute(
     val viewModel: ChatViewModel = viewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-//    ChatScreen(
-//        conversationGroups = state.conversationGroups,
-//        activeConversationId = state.activeConversationId,
-//        onNewChat = viewModel::newChat,
-//        onConversationClick = viewModel::openConversation,
-//        onOpenModels = onOpenModels,
-//        onOpenSettings = onOpenSettings,
-//    )
+    ChatScreen(
+        state,
+        effect = viewModel.effect,
+        onIntent = viewModel::onIntent,
+        onOpenModels = onOpenModels,
+        onOpenSettings = onOpenSettings,
+    )
 }

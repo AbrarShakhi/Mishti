@@ -57,6 +57,7 @@ fun ChatDrawer(
     ) {
         Column(modifier = Modifier.fillMaxHeight()) {
 
+            // Zone 1 — App name
             AppNameHeader()
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -86,25 +87,25 @@ fun ChatDrawer(
                         )
                     }
                 }
+
                 groups.forEach { group ->
                     item(key = "header-${group.label}") {
                         GroupLabel(group.label)
                     }
                     items(group.conversations, key = { it.id }) { convo ->
                         ConversationRow(
-                            item = convo,
+                            item     = convo,
                             isActive = convo.id == activeId,
-                            onClick = { onConversationClick(convo) },
+                            onClick  = { onConversationClick(convo) },
                         )
                     }
                 }
             }
 
-            // ── Zone 3 — Settings ─────────────────────────────────────────
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             DrawerRow(
-                onClick = onSettingsClick,
+                onClick  = onSettingsClick,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 Icon(
@@ -128,9 +129,7 @@ fun ChatDrawer(
 private fun AppNameHeader() {
     Text(
         text = "Mishti",
-        style = MaterialTheme.typography.titleLarge.copy(
-            fontWeight = FontWeight.SemiBold,
-        ),
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
     )
@@ -146,12 +145,7 @@ private fun GroupLabel(label: String) {
             letterSpacing = 0.8.sp,
         ),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(
-            start = 10.dp,
-            end = 10.dp,
-            top = 16.dp,
-            bottom = 2.dp,
-        ),
+        modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 16.dp, bottom = 2.dp),
     )
 }
 
@@ -161,10 +155,7 @@ private fun ConversationRow(
     isActive: Boolean,
     onClick: () -> Unit,
 ) {
-    DrawerRow(
-        onClick = onClick,
-        isActive = isActive,
-    ) {
+    DrawerRow(onClick = onClick, isActive = isActive) {
         Text(
             text = item.title,
             style = MaterialTheme.typography.bodyMedium,
@@ -189,7 +180,7 @@ private fun DrawerRow(
     val containerColor = if (isActive)
         MaterialTheme.colorScheme.secondaryContainer
     else
-        MaterialTheme.colorScheme.surfaceContainerLow  // transparent-ish, matches sheet bg
+        MaterialTheme.colorScheme.surfaceContainerLow
 
     Surface(
         color = containerColor,

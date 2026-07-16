@@ -39,17 +39,17 @@ fun ChatScreen(
         drawerState = drawerState,
         drawerContent = {
             ChatDrawer(
-                groups = state.conversationGroups,
-                activeId = state.activeConversationId,
-                onNewChat = {
+                groups           = state.conversationGroups,
+                activeId         = state.activeConversationId,
+                onNewChat        = {
                     scope.launch { drawerState.close() }
                     onIntent(ChatIntent.NewChat)
                 },
                 onConversationClick = { convo ->
                     scope.launch { drawerState.close() }
-                    // TODO: onConversationClick(convo)
+                    onIntent(ChatIntent.SelectConversation(convo.id))
                 },
-                onSettingsClick = {
+                onSettingsClick  = {
                     scope.launch { drawerState.close() }
                     onOpenSettings()
                 },
@@ -65,10 +65,8 @@ fun ChatScreen(
                         }
                     },
                     title = {
-                        // Tapping the model name opens the model picker.
-                        // Replace "TinyLlama" with the active model name from ViewModel.
                         Text(
-                            text = "TinyLlama",
+                            text = state.activeModelName,
                             modifier = Modifier.noRippleClickable { onOpenModels() },
                         )
                     },
@@ -80,8 +78,6 @@ fun ChatScreen(
                 )
             },
         ) { innerPadding ->
-            // ── Chat content goes here ────────────────────────────────────────
-            // Replace with your message list + input bar once ready.
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -94,15 +90,6 @@ fun ChatScreen(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Utility
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Makes any [Modifier] clickable without the ripple ink splash.
- * Used for the model-name tap target in the top bar, where a ripple
- * would look odd on text.
- */
 private fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier =
     this.then(
         Modifier.clickable(

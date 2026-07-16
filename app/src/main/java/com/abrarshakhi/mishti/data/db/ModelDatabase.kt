@@ -3,22 +3,12 @@ package com.abrarshakhi.mishti.data.db
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete
-import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
-import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
+import com.abrarshakhi.mishti.data.entity.ModelEntity
 import kotlinx.coroutines.flow.Flow
-
-@Entity(tableName = "models")
-data class ModelEntity(
-    @PrimaryKey val id: String,
-    val name: String,
-    val filePath: String,
-    val sizeBytes: Long,
-    val downloadedAt: Long = System.currentTimeMillis()
-)
 
 @Dao
 interface ModelDao {

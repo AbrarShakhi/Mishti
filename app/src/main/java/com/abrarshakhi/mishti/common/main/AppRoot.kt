@@ -15,16 +15,25 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.abrarshakhi.mishti.common.mvi.CollectEffects
 import com.abrarshakhi.mishti.common.navigation.AppNavigation
 import com.abrarshakhi.mishti.common.navigation.AppRouteKey
 import com.abrarshakhi.mishti.common.navigation.currentRoute
+import com.abrarshakhi.mishti.common.navigation.navigateTo
 import com.abrarshakhi.mishti.common.navigation.rememberAppBackStack
+import com.abrarshakhi.mishti.common.navigation.switchTapTo
 import com.abrarshakhi.mishti.common.ui.snackbar.SnackbarDispatcher
+import com.abrarshakhi.mishti.features.chat.presentation.SessionsEffect
+import com.abrarshakhi.mishti.features.chat.presentation.SessionsIntent
+import com.abrarshakhi.mishti.features.chat.presentation.SessionsViewModel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 @Composable
@@ -37,6 +46,9 @@ fun AppRoot(startRoute: AppRouteKey, mainAppViewModel: MainAppViewModel) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
+    val sessionsViewModel: SessionsViewModel = koinViewModel()
+    val sessionsState by sessionsViewModel.state.collectAsStateWithLifecycle()
+
     val snackbarHostState = remember { SnackbarHostState() }
     val snackbarDispatcher: SnackbarDispatcher = koinInject()
     LaunchedEffect(snackbarDispatcher) {
@@ -46,6 +58,18 @@ fun AppRoot(startRoute: AppRouteKey, mainAppViewModel: MainAppViewModel) {
                 withDismissAction = message.duration != SnackbarDuration.Short,
                 duration = message.duration,
             )
+        }
+    }
+
+    val visibleSessionId =
+        (current as? AppRouteKey.Chat)?.sessionId ?: sessionsState.sessions.firstOrNull()?.id
+
+    CollectEffects(sessionsViewModel.effects) { effect ->
+        when (effect) {
+            is SessionsEffect.OpenSession -> {
+                drawerState.close()
+                backStack.switchTapTo(AppRouteKey.Chat(effect.sessionId))
+            }
         }
     }
 
@@ -69,7 +93,42 @@ fun AppRoot(startRoute: AppRouteKey, mainAppViewModel: MainAppViewModel) {
     ModalNavigationDrawer(
         drawerState = drawerState,
         gesturesEnabled = current is AppRouteKey.Chat || drawerState.isOpen,
-        drawerContent = {},
+        drawerContent = {
+            AppDrawer(
+                sessions = sessionsState.sessions,
+                currentSessionId = visibleSessionId,
+                actionsFor = sessionsState.actionsFor,
+                renaming = sessionsState.renaming,
+                deleting = sessionsState.deleting,
+                onSessionClick = { sessionsViewModel.onIntent(SessionsIntent.SessionSelected(it)) },
+                onSessionLongPress = {
+                    sessionsViewModel.onIntent(SessionsIntent.SessionLongPressed(it))
+                },
+                onActionsDismiss = { sessionsViewModel.onIntent(SessionsIntent.ActionsDismissed) },
+                onRenameRequest = { sessionsViewModel.onIntent(SessionsIntent.RenameRequested) },
+                onRenameTitleChange = {
+                    sessionsViewModel.onIntent(SessionsIntent.RenameTitleChanged(it))
+                },
+                onRenameConfirm = { sessionsViewModel.onIntent(SessionsIntent.RenameConfirmed) },
+                onRenameCancel = { sessionsViewModel.onIntent(SessionsIntent.RenameCancelled) },
+                onDeleteRequest = { sessionsViewModel.onIntent(SessionsIntent.DeleteRequested) },
+                onDeleteConfirm = {
+                    sessionsViewModel.onIntent(SessionsIntent.DeleteConfirmed(visibleSessionId))
+                },
+                onDeleteCancel = { sessionsViewModel.onIntent(SessionsIntent.DeleteCancelled) },
+                onNewChatClick = {
+                    sessionsViewModel.onIntent(SessionsIntent.NewChatClicked)
+                },
+                onModelsClick = {
+                    coroutineScope.launch { drawerState.close() }
+                    backStack.navigateTo(AppRouteKey.Models)
+                },
+                onSettingsClick = {
+                    coroutineScope.launch { drawerState.close() }
+                    backStack.navigateTo(AppRouteKey.Settings)
+                },
+            )
+        },
     ) {
         Scaffold(
             modifier = Modifier

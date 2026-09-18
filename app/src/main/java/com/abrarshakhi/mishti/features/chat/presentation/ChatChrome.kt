@@ -27,6 +27,7 @@ import org.koin.androidx.compose.koinViewModel
 fun chatChrome(): ScreenChrome = ScreenChrome(
     title = "Chat",
     topBar = { scope ->
+        val sessionsViewModel: SessionsViewModel = koinViewModel()
         val mainAppViewModel: MainAppViewModel = koinViewModel()
         val engineState by mainAppViewModel.engineState.collectAsStateWithLifecycle()
 
@@ -43,7 +44,7 @@ fun chatChrome(): ScreenChrome = ScreenChrome(
             },
             actions = {
                 IconButton(
-                    onClick = {  },
+                    onClick = { sessionsViewModel.onIntent(SessionsIntent.NewChatClicked) },
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Add,

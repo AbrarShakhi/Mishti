@@ -1,5 +1,7 @@
 package com.abrarshakhi.mishti.common.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
@@ -13,6 +15,8 @@ import com.abrarshakhi.mishti.features.models.presentation.ModelsRoute
 import com.abrarshakhi.mishti.features.onboarding.presentation.OnboardingRoute
 import com.abrarshakhi.mishti.features.settings.presentation.SettingsRoute
 
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AppNavigation(
     backStack: SnapshotStateList<AppRouteKey>,

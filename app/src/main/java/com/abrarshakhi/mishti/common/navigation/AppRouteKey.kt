@@ -13,4 +13,7 @@ sealed interface AppRouteKey : NavKey {
 
     @Serializable
     data object Settings : AppRouteKey
+
+    @Serializable
+    data object Models : AppRouteKey
 }

@@ -8,6 +8,10 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.abrarshakhi.mishti.common.main.MainAppViewModel
+import com.abrarshakhi.mishti.features.chat.presentation.ChatRoute
+import com.abrarshakhi.mishti.features.models.presentation.ModelsRoute
+import com.abrarshakhi.mishti.features.onboarding.presentation.OnboardingRoute
+import com.abrarshakhi.mishti.features.settings.presentation.SettingsRoute
 
 @Composable
 fun AppNavigation(
@@ -23,7 +27,21 @@ fun AppNavigation(
             rememberViewModelStoreNavEntryDecorator(),
         ),
         entryProvider = entryProvider {
+            entry<AppRouteKey.Chat> { key ->
+                ChatRoute(sessionId = key.sessionId)
+            }
+            entry<AppRouteKey.Settings> {
+                SettingsRoute(onNavigateToModels = { backStack.navigateTo(AppRouteKey.Models) })
+            }
 
+            entry<AppRouteKey.Models> {
+                ModelsRoute()
+            }
+            entry<AppRouteKey.Onboarding> {
+                OnboardingRoute(
+                    onFinished = { backStack.switchTapTo(AppRouteKey.Chat()) },
+                )
+            }
         },
     )
 }

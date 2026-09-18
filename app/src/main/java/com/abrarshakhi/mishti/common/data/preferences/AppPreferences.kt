@@ -26,5 +26,7 @@ interface AppPreferences {
 
     suspend fun setSelectedModelId(modelId: String?)
 
+    val inferenceSettings: Flow<InferenceSettings>
+
     suspend fun setInferenceSettings(settings: InferenceSettings)
 }

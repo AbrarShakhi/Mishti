@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- The window theme once Compose is drawing. Applies only to the window itself;
+         everything the app renders uses the Material 3 scheme in ui/theme/Theme.kt. -->
+    <style name="Theme.Mishti" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
 
-    <style name="Theme.Mishti" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- The launch theme. core-splashscreen holds this on screen until MainActivity has
+         read the onboarding preference, then swaps in postSplashScreenTheme. The background
+         is night-qualified so the launch frame does not flash white in dark mode. -->
+    <style name="Theme.Mishti.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/window_background</item>
+        <!-- No windowSplashScreenAnimatedIcon: the system then composes the manifest
+             android:icon (the adaptive launcher icon, background layer included). Pointing
+             it at the bare foreground drawable instead renders as a blank splash, because
+             that layer is light artwork with no background and Android 12 crops it to the
+             inner third of the icon canvas. -->
+        <item name="postSplashScreenTheme">@style/Theme.Mishti</item>
+    </style>
 </resources>

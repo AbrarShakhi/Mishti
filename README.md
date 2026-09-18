@@ -1,3 +1,5 @@
 
 ## `Mishti` is an android app that will run LLM on your local phone offline.
-Project is under development.
+
+## Credits
+ * <a href="https://www.flaticon.com/free-icons/sweet" title="sweet icons">Sweet icons created by Magnific - Flaticon</a>

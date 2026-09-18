@@ -9,9 +9,7 @@ sealed interface AppRouteKey : NavKey {
     data object Onboarding : AppRouteKey
 
     @Serializable
-    data class Chat(
-        val chatId: Int? = null // Replace with chat ID which will be better.
-    ) : AppRouteKey
+    data class Chat(val sessionId: String? = null) : AppRouteKey
 
     @Serializable
     data object Settings : AppRouteKey

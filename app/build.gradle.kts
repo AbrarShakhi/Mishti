@@ -64,7 +64,11 @@ android {
         }
     }
 
-    buildTypes { release { optimization { enable = false } } }
+    buildTypes {
+        release {
+            optimization { enable = false }
+        }
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -72,7 +76,12 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 kotlin {

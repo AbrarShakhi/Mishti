@@ -13,13 +13,17 @@ import com.abrarshakhi.mishti.common.main.MainAppViewModel
 fun AppNavigation(
     backStack: SnapshotStateList<AppRouteKey>,
     modifier: Modifier = Modifier,
-    mainAppViewModel: MainAppViewModel
+    mainAppViewModel: MainAppViewModel,
 ) {
     NavDisplay(
-        backStack = backStack, modifier = modifier, entryDecorators = listOf(
+        backStack = backStack,
+        modifier = modifier,
+        entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator()
-        ), entryProvider = entryProvider {
+            rememberViewModelStoreNavEntryDecorator(),
+        ),
+        entryProvider = entryProvider {
 
-        })
+        },
+    )
 }

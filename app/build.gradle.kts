@@ -48,6 +48,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.lottie)
+    implementation(libs.material.kolor)
+    implementation(libs.compose.shimmer)
 }
 
 android {

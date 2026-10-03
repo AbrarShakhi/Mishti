@@ -1,8 +1,9 @@
 package com.abrarshakhi.mishti.features.settings.presentation
 
+import com.abrarshakhi.mishti.common.llm.EngineState
+import com.abrarshakhi.mishti.common.llm.InferenceSettings
 import com.abrarshakhi.mishti.common.mvi.UiEffect
 import com.abrarshakhi.mishti.common.mvi.UiIntent
-import com.abrarshakhi.mishti.common.llm.InferenceSettings
 import com.abrarshakhi.mishti.common.mvi.UiState
 import com.abrarshakhi.mishti.common.ui.theme.AppColorScheme
 import com.abrarshakhi.mishti.common.ui.theme.AppFont
@@ -12,6 +13,7 @@ import com.abrarshakhi.mishti.common.ui.theme.ThemeSettings
 data class SettingsUiState(
     val theme: ThemeSettings = ThemeSettings(),
     val inference: InferenceSettings = InferenceSettings(),
+    val engineState: EngineState = EngineState.Idle,
     val isDynamicColorAvailable: Boolean = true,
 ) : UiState {
     val colorSchemes: List<AppColorScheme>

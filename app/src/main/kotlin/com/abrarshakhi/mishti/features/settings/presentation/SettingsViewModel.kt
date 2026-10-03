@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.abrarshakhi.mishti.common.data.preferences.AppPreferences
 import com.abrarshakhi.mishti.common.mvi.MviViewModel
 import com.abrarshakhi.mishti.common.llm.InferenceSettings
+import com.abrarshakhi.mishti.common.llm.LlmEngine
 import com.abrarshakhi.mishti.common.ui.theme.AppColorScheme
 import com.abrarshakhi.mishti.common.ui.theme.AppFont
 import com.abrarshakhi.mishti.common.ui.theme.ThemeMode
@@ -11,6 +12,7 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val preferences: AppPreferences,
+    engine: LlmEngine,
     isDynamicColorAvailable: Boolean,
 ) : MviViewModel<SettingsUiState, SettingsIntent, SettingsEffect>(
     SettingsUiState(isDynamicColorAvailable = isDynamicColorAvailable)
@@ -22,6 +24,9 @@ class SettingsViewModel(
         }
         viewModelScope.launch {
             preferences.inferenceSettings.collect { updateState { copy(inference = it) } }
+        }
+        viewModelScope.launch {
+            engine.state.collect { updateState { copy(engineState = it) } }
         }
     }
 

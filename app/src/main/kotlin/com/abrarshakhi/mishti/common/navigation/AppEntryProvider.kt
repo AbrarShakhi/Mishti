@@ -16,6 +16,7 @@ fun appEntryProvider(
             sessionId = key.sessionId,
             onOpenDrawer = onOpenDrawer,
             onNewChat = onNewChat,
+            onOpenModels = { navigator.navigate(AppRouteKey.Models) },
         )
     }
     entry<AppRouteKey.Settings> {

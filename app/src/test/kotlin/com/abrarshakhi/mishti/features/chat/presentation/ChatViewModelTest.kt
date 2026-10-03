@@ -123,6 +123,18 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun `the title follows the session, renames included`() = runTest {
+        val repository = FakeChatRepository(existingSessionId = null)
+        val vm = viewModel(repository)
+        advanceUntilIdle()
+        assertEquals("New chat", vm.state.value.title)
+
+        repository.renameSession("created-session-1", "Rainbows")
+        advanceUntilIdle()
+        assertEquals("Rainbows", vm.state.value.title)
+    }
+
+    @Test
     fun `loading clears once the first emission arrives`() = runTest {
         val vm = viewModel()
         assertTrue(vm.state.value.isLoading)

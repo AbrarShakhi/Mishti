@@ -28,7 +28,12 @@ class ModelsViewModel(
                 Triple(entries, storage, selected)
             }.collect { (entries, storage, selected) ->
                 updateState {
-                    copy(entries = entries, storage = storage, selectedModelId = selected)
+                    copy(
+                        isLoading = false,
+                        entries = entries,
+                        storage = storage,
+                        selectedModelId = selected,
+                    )
                 }
             }
         }

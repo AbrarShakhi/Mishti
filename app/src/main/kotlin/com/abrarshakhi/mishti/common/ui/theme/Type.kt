@@ -33,24 +33,6 @@ fun AppFont.fontFamily(): FontFamily? = when (this) {
     AppFont.JetBrainsMono -> JetBrainsMonoFamily
 }
 
-fun typographyFor(family: FontFamily?): Typography {
-    val base = Typography()
-    if (family == null) return base
-    return base.copy(
-        displayLarge = base.displayLarge.copy(fontFamily = family),
-        displayMedium = base.displayMedium.copy(fontFamily = family),
-        displaySmall = base.displaySmall.copy(fontFamily = family),
-        headlineLarge = base.headlineLarge.copy(fontFamily = family),
-        headlineMedium = base.headlineMedium.copy(fontFamily = family),
-        headlineSmall = base.headlineSmall.copy(fontFamily = family),
-        titleLarge = base.titleLarge.copy(fontFamily = family),
-        titleMedium = base.titleMedium.copy(fontFamily = family),
-        titleSmall = base.titleSmall.copy(fontFamily = family),
-        bodyLarge = base.bodyLarge.copy(fontFamily = family),
-        bodyMedium = base.bodyMedium.copy(fontFamily = family),
-        bodySmall = base.bodySmall.copy(fontFamily = family),
-        labelLarge = base.labelLarge.copy(fontFamily = family),
-        labelMedium = base.labelMedium.copy(fontFamily = family),
-        labelSmall = base.labelSmall.copy(fontFamily = family),
-    )
-}
+/** Material 3 type scale, regular and emphasized styles alike, set in [family] when given. */
+fun typographyFor(family: FontFamily?): Typography =
+    if (family == null) Typography() else Typography(fontFamily = family)

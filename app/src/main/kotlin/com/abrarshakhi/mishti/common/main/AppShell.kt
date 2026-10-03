@@ -29,6 +29,7 @@ import com.abrarshakhi.mishti.common.navigation.Navigator
 import com.abrarshakhi.mishti.common.navigation.TOP_LEVEL_ROUTES
 import com.abrarshakhi.mishti.common.navigation.appEntryProvider
 import com.abrarshakhi.mishti.common.navigation.rememberNavigationState
+import com.abrarshakhi.mishti.common.navigation.rememberSharedAxisTransition
 import com.abrarshakhi.mishti.common.ui.snackbar.SnackbarDispatcher
 import com.abrarshakhi.mishti.features.chat.presentation.SessionsEffect
 import com.abrarshakhi.mishti.features.chat.presentation.SessionsIntent
@@ -136,12 +137,18 @@ fun AppShell(startRoute: NavKey) {
             ),
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { innerPadding ->
+            val forward = rememberSharedAxisTransition(forward = true)
+            val backward = rememberSharedAxisTransition(forward = false)
+
             NavDisplay(
                 entries = navigationState.toDecoratedEntries(entryProvider),
                 onBack = { navigator.goBack() },
                 modifier = Modifier
                     .padding(innerPadding)
                     .consumeWindowInsets(innerPadding),
+                transitionSpec = { forward },
+                popTransitionSpec = { backward },
+                predictivePopTransitionSpec = { backward },
             )
         }
     }

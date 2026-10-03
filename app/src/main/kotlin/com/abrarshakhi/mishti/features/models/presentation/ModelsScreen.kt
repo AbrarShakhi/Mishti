@@ -1,50 +1,60 @@
 package com.abrarshakhi.mishti.features.models.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.common.device.DeviceCapability
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
+import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.features.models.domain.model.ModelCatalog
 import com.abrarshakhi.mishti.features.models.domain.model.ModelEntry
 import com.abrarshakhi.mishti.features.models.domain.model.ModelStatus
 import com.abrarshakhi.mishti.features.models.domain.repository.StorageUsage
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ModelsScreen(
     state: ModelsUiState,
@@ -52,22 +62,26 @@ fun ModelsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val background = MaterialTheme.colorScheme.surfaceContainer
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = background,
         topBar = {
-            TopAppBar(
+            LargeFlexibleTopAppBar(
                 title = { Text("Models") },
-                scrollBehavior = scrollBehavior,
+                subtitle = { Text("They run entirely on this phone") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
+                scrollBehavior = scrollBehavior,
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = background,
+                    scrolledContainerColor = background,
+                ),
             )
         },
     ) { innerPadding ->
@@ -76,20 +90,32 @@ fun ModelsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(
+                start = Spacing.ScreenMargin,
+                end = Spacing.ScreenMargin,
+                top = Spacing.Small,
+                bottom = Spacing.ExtraExtraLarge,
+            ),
+            verticalArrangement = Arrangement.spacedBy(Spacing.Medium),
         ) {
-            if (state.capability is DeviceCapability.UnsupportedLowMemory) {
-                item { UnsupportedDeviceNotice(state.capability) }
+            if (state.isLoading) {
+                item(key = "placeholder") { ModelsPlaceholder() }
+                return@LazyColumn
             }
 
-            item { StorageSummary(state.storage) }
+            if (state.capability is DeviceCapability.UnsupportedLowMemory) {
+                item(key = "unsupported") { UnsupportedDeviceNotice(state.capability) }
+            }
+
+            item(key = "storage") { StorageSummary(state.storage) }
 
             items(items = state.entries, key = { it.model.id }) { entry ->
                 ModelCard(
                     entry = entry,
                     isSelected = entry.model.id == state.selectedModelId,
+                    deviceMemoryBytes = state.capability.totalMemoryBytes,
                     onIntent = onIntent,
+                    modifier = Modifier.animateItem(),
                 )
             }
         }
@@ -98,11 +124,10 @@ fun ModelsScreen(
     state.deleting?.let { entry ->
         AlertDialog(
             onDismissRequest = { onIntent(ModelsIntent.DeleteCancelled) },
+            icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
             title = { Text("Delete ${entry.model.name}?") },
             text = {
-                Text(
-                    "The file will be removed from this device. You can download it again later."
-                )
+                Text("The file will be removed from this phone. You can download it again later.")
             },
             confirmButton = {
                 TextButton(onClick = { onIntent(ModelsIntent.DeleteConfirmed) }) {
@@ -117,173 +142,116 @@ fun ModelsScreen(
 }
 
 @Composable
+private fun StorageSummary(storage: StorageUsage) {
+    Card(
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(Spacing.Large),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Filled.Storage, contentDescription = null)
+                }
+            }
+            Spacer(Modifier.width(Spacing.Large))
+            Column {
+                Text(
+                    text = "${formatSize(storage.usedBytes)} used by models",
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                Text(
+                    text = "${formatSize(storage.availableBytes)} free on this phone",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+/** Shimmering cards in the shape of the list, until the catalogue and storage are read. */
+@Composable
+private fun ModelsPlaceholder() {
+    val bone = MaterialTheme.colorScheme.surfaceContainerHighest
+
+    Column(
+        modifier = Modifier.shimmer(rememberShimmer(ShimmerBounds.View)),
+        verticalArrangement = Arrangement.spacedBy(Spacing.Medium),
+    ) {
+        PlaceholderCard(height = 72.dp) {
+            Box(Modifier.size(40.dp).background(bone, CircleShape))
+            Spacer(Modifier.width(Spacing.Large))
+            PlaceholderLines(bone, listOf(0.7f, 0.5f))
+        }
+        repeat(3) {
+            PlaceholderCard(height = 196.dp) {
+                Box(Modifier.size(48.dp).background(bone, MaterialTheme.shapes.large))
+                Spacer(Modifier.width(Spacing.Large))
+                PlaceholderLines(bone, listOf(0.8f, 0.55f, 0.95f, 0.6f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun PlaceholderCard(height: Dp, content: @Composable () -> Unit) {
+    Surface(
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height),
+    ) {
+        Row(modifier = Modifier.padding(Spacing.Large)) { content() }
+    }
+}
+
+@Composable
+private fun PlaceholderLines(color: Color, fractions: List<Float>) {
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
+        fractions.forEach { fraction ->
+            Box(
+                Modifier
+                    .fillMaxWidth(fraction)
+                    .height(14.dp)
+                    .background(color, CircleShape),
+            )
+        }
+    }
+}
+
+@Composable
 private fun UnsupportedDeviceNotice(capability: DeviceCapability.UnsupportedLowMemory) {
     Card(
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer,
             contentColor = MaterialTheme.colorScheme.onErrorContainer,
         ),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text("This device is not supported", style = MaterialTheme.typography.titleSmall)
-            Text(
-                text = "Running a model needs about " +
-                    "${formatBytes(capability.requiredMemoryBytes)} of memory; this device has " +
-                    "${formatBytes(capability.totalMemoryBytes)}.",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun StorageSummary(storage: StorageUsage) {
-    Text(
-        text = "${formatBytes(storage.usedBytes)} used · " +
-            "${formatBytes(storage.availableBytes)} free",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 4.dp),
-    )
-}
-
-@Composable
-private fun ModelCard(
-    entry: ModelEntry,
-    isSelected: Boolean,
-    onIntent: (ModelsIntent) -> Unit,
-) {
-    Card(
-        colors = if (isSelected) {
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
-        } else {
-            CardDefaults.cardColors()
-        },
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = entry.model.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = "${entry.model.parameters} · ${entry.model.quantization} · " +
-                            formatBytes(entry.model.sizeBytes),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                ModelAction(entry = entry, isSelected = isSelected, onIntent = onIntent)
-            }
-
-            Text(
-                text = entry.model.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-
-            if (isSelected) {
+        Row(modifier = Modifier.padding(Spacing.Large)) {
+            Icon(Icons.Filled.Warning, contentDescription = null)
+            Spacer(Modifier.width(Spacing.Large))
+            Column {
+                Text("This phone is not supported", style = MaterialTheme.typography.titleMedium)
                 Text(
-                    text = "In use",
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-            }
-
-            when (val status = entry.status) {
-                is ModelStatus.Downloading -> DownloadProgressRow(status)
-                ModelStatus.Verifying -> Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 12.dp),
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.padding(end = 12.dp))
-                    Text("Verifying…", style = MaterialTheme.typography.bodySmall)
-                }
-                is ModelStatus.Failed -> Text(
-                    text = status.reason,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-                else -> Unit
-            }
-        }
-    }
-}
-
-@Composable
-private fun DownloadProgressRow(status: ModelStatus.Downloading) {
-    Column(modifier = Modifier.padding(top = 12.dp)) {
-        LinearProgressIndicator(
-            progress = { status.fraction },
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Text(
-            text = "${formatBytes(status.downloadedBytes)} of ${formatBytes(status.totalBytes)}",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp),
-        )
-    }
-}
-
-@Composable
-private fun ModelAction(
-    entry: ModelEntry,
-    isSelected: Boolean,
-    onIntent: (ModelsIntent) -> Unit,
-) {
-    when (entry.status) {
-        is ModelStatus.Downloading -> IconButton(
-            onClick = { onIntent(ModelsIntent.CancelClicked(entry.model.id)) },
-        ) {
-            Icon(Icons.Filled.Close, contentDescription = "Cancel download")
-        }
-
-        ModelStatus.Verifying -> Unit
-
-        is ModelStatus.Downloaded -> Row(verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(
-                selected = isSelected,
-                onClick = { onIntent(ModelsIntent.SelectClicked(entry.model.id)) },
-            )
-            IconButton(onClick = { onIntent(ModelsIntent.DeleteRequested(entry.model.id)) }) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete model",
-                    tint = MaterialTheme.colorScheme.error,
+                    text = "Running a model needs about ${formatSize(capability.requiredMemoryBytes)} " +
+                        "of memory, and this phone has ${formatSize(capability.totalMemoryBytes)}.",
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }
-
-        else -> FilledTonalButton(
-            onClick = { onIntent(ModelsIntent.DownloadClicked(entry.model.id)) },
-        ) {
-            Text("Download")
-        }
     }
-}
-
-private fun formatBytes(bytes: Long): String {
-    if (bytes <= 0) return "0 B"
-    val units = listOf("B", "KB", "MB", "GB")
-    var value = bytes.toDouble()
-    var unit = 0
-    while (value >= 1024 && unit < units.lastIndex) {
-        value /= 1024
-        unit++
-    }
-    return if (unit == 0) "$bytes B" else "%.1f %s".format(value, units[unit])
 }
 
 @Preview(showBackground = true)
@@ -292,6 +260,7 @@ private fun ModelsScreenPreview() {
     MishtiTheme {
         ModelsScreen(
             state = ModelsUiState(
+                isLoading = false,
                 selectedModelId = ModelCatalog.models[0].id,
                 entries = listOf(
                     ModelEntry(ModelCatalog.models[0], ModelStatus.Downloaded(270_590_880L)),
@@ -309,4 +278,3 @@ private fun ModelsScreenPreview() {
         )
     }
 }
-

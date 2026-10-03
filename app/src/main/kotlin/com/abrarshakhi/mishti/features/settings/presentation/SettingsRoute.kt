@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.abrarshakhi.mishti.BuildConfig
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -17,6 +18,7 @@ fun SettingsRoute(
 
     SettingsScreen(
         state = state,
+        versionName = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
         onIntent = viewModel::onIntent,
         onBack = onBack,
         onNavigateToModels = onNavigateToModels,

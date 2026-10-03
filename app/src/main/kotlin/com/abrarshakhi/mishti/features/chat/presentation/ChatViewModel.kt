@@ -16,6 +16,8 @@ import com.abrarshakhi.mishti.features.chat.domain.repository.ChatRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -66,9 +68,19 @@ class ChatViewModel(
 
         updateState { copy(sessionId = sessionId) }
 
+        viewModelScope.launch { observeTitle(sessionId) }
+
         repository.observeMessages(sessionId).collect { messages ->
             updateState { copy(messages = messages, isLoading = false) }
         }
+    }
+
+    /** Follows the session's title, which the first message sets and a rename changes. */
+    private suspend fun observeTitle(sessionId: String) {
+        repository.observeSessions()
+            .map { sessions -> sessions.firstOrNull { it.id == sessionId }?.title.orEmpty() }
+            .distinctUntilChanged()
+            .collect { title -> updateState { copy(title = title) } }
     }
 
     override fun handleIntent(intent: ChatIntent) {

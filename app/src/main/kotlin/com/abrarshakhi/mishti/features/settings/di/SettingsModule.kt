@@ -9,6 +9,7 @@ val settingsModule = module {
     viewModel {
         SettingsViewModel(
             preferences = get(),
+            engine = get(),
             isDynamicColorAvailable = isDynamicColorAvailable,
         )
     }

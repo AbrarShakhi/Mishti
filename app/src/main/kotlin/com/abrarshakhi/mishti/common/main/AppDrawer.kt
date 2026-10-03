@@ -24,7 +24,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -35,6 +35,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SmallExtendedFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -106,11 +107,8 @@ fun AppDrawer(
     ModalDrawerSheet(modifier = modifier.width(drawerWidth)) {
         DrawerHeader()
 
-        ExtendedFloatingActionButton(
-            text = { Text("New chat") },
-            icon = { Icon(Icons.Filled.Edit, contentDescription = null) },
+        NewChatButton(
             onClick = onNewChatClick,
-            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
             modifier = Modifier.padding(horizontal = Spacing.Medium),
         )
 
@@ -209,6 +207,22 @@ private fun DrawerHeader() {
             color = MaterialTheme.colorScheme.onSurface,
         )
     }
+}
+
+/**
+ * The drawer's primary action: an M3 Expressive small extended FAB (56dp, the size meant for
+ * navigation panes), flat because it sits on the drawer sheet rather than over content.
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun NewChatButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    SmallExtendedFloatingActionButton(
+        text = { Text("New chat") },
+        icon = { Icon(Icons.Filled.Edit, contentDescription = null) },
+        onClick = onClick,
+        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+        modifier = modifier,
+    )
 }
 
 /**

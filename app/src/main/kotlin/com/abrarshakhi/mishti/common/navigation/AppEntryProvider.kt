@@ -1,7 +1,5 @@
 package com.abrarshakhi.mishti.common.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.navigation3.runtime.entryProvider
 import com.abrarshakhi.mishti.features.chat.presentation.ChatRoute
 import com.abrarshakhi.mishti.features.models.presentation.ModelsRoute

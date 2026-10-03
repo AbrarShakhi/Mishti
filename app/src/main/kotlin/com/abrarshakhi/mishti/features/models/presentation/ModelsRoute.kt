@@ -38,7 +38,9 @@ fun ModelsRoute(
         state = state,
         onIntent = { intent ->
             if (intent is ModelsIntent.DownloadClicked && needsNotificationPermission) {
-                notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
             }
             viewModel.onIntent(intent)
         },

@@ -1,13 +1,7 @@
 package com.abrarshakhi.mishti.features.chat.presentation
 
-import android.content.ClipData
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,13 +20,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -42,12 +32,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.common.ui.components.AppMark
 import com.abrarshakhi.mishti.common.ui.components.CookieShape
@@ -58,12 +45,10 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val StreamingItemKey = "streaming"
 private const val MaxBubbleWidthFraction = 0.85f
-private const val CopiedFeedbackMillis = 1_500L
 private const val PlaceholderDelayMillis = 250L
 
 private val AvatarSize = 32.dp
@@ -147,7 +132,7 @@ private fun UserMessage(text: String, modifier: Modifier = Modifier) {
     }
 }
 
-/** A reply: Mishti's mark beside plain text, the way assistant turns read in Material chat UIs. */
+/** A reply: Mishti's mark beside its text, rendered as Markdown, as in Material chat UIs. */
 @Composable
 private fun AssistantMessage(
     text: String,
@@ -161,16 +146,20 @@ private fun AssistantMessage(
     ) {
         AppMark(size = AvatarSize)
 
-        Column(modifier = Modifier.weight(1f).padding(top = Spacing.ExtraSmall)) {
-            if (text.isEmpty()) {
-                ThinkingIndicator()
-            } else {
-                SelectionContainer {
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
+        Column(modifier = Modifier.weight(1f)) {
+            SelectionContainer {
+                if (isStreaming) {
+                    StreamingMarkdownReply(
+                        markdown = text,
+                        placeholder = {
+                            DisableSelection {
+                                // Offset like the reply's first line, to centre it on the avatar.
+                                ThinkingIndicator(modifier = Modifier.padding(top = Spacing.ExtraSmall))
+                            }
+                        },
                     )
+                } else {
+                    MarkdownReply(markdown = text)
                 }
             }
 
@@ -183,8 +172,9 @@ private fun AssistantMessage(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ThinkingIndicator() {
+private fun ThinkingIndicator(modifier: Modifier = Modifier) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.Small),
     ) {
@@ -199,48 +189,13 @@ private fun ThinkingIndicator() {
 
 @Composable
 private fun MessageActions(text: String, tokensPerSecond: Double?) {
-    val clipboard = LocalClipboard.current
-    val scope = rememberCoroutineScope()
-    var copied by remember { mutableStateOf(false) }
-
-    LaunchedEffect(copied) {
-        if (copied) {
-            delay(CopiedFeedbackMillis.milliseconds)
-            copied = false
-        }
-    }
-
     // Pulled back by the icon button's inner padding, so the glyph lines up with the text above.
     Row(
         modifier = Modifier.offset(x = -Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(
-            onClick = {
-                scope.launch {
-                    clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Mishti reply", text)))
-                    copied = true
-                }
-            },
-        ) {
-            AnimatedContent(
-                targetState = copied,
-                transitionSpec = {
-                    (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut())
-                },
-                label = "CopyIcon",
-            ) { isCopied ->
-                if (isCopied) {
-                    Icon(Icons.Filled.Check, contentDescription = "Copied")
-                } else {
-                    Icon(
-                        imageVector = Icons.Filled.ContentCopy,
-                        contentDescription = "Copy reply",
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-            }
-        }
+        // The Markdown as written, so pasting keeps the reply's structure.
+        CopyButton(text = text, contentDescription = "Copy reply")
 
         if (tokensPerSecond != null) {
             Text(

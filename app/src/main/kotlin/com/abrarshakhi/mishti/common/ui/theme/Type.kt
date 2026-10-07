@@ -26,6 +26,9 @@ private val InterFamily by lazy { variableFamily(R.font.inter) }
 private val LoraFamily by lazy { variableFamily(R.font.lora) }
 private val JetBrainsMonoFamily by lazy { variableFamily(R.font.jetbrains_mono) }
 
+/** The face for code, whatever the app's typeface, so its columns always line up. */
+val CodeFontFamily: FontFamily get() = JetBrainsMonoFamily
+
 fun AppFont.fontFamily(): FontFamily? = when (this) {
     AppFont.System -> null
     AppFont.Inter -> InterFamily

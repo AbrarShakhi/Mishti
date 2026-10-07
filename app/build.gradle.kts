@@ -50,6 +50,7 @@ dependencies {
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.lottie.compose)
+    implementation(libs.markdown.renderer.m3)
     implementation(libs.material.kolor)
     implementation(libs.compose.shimmer)
 }

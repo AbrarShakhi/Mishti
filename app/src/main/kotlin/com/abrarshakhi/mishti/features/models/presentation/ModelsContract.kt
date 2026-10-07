@@ -8,6 +8,7 @@ import com.abrarshakhi.mishti.features.models.domain.model.ModelEntry
 import com.abrarshakhi.mishti.features.models.domain.repository.StorageUsage
 
 data class ModelsUiState(
+    val isLoading: Boolean = true,
     val entries: List<ModelEntry> = emptyList(),
     val storage: StorageUsage = StorageUsage(),
     val capability: DeviceCapability = DeviceCapability.Unknown,

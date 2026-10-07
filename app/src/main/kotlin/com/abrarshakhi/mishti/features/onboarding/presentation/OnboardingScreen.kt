@@ -1,198 +1,274 @@
 package com.abrarshakhi.mishti.features.onboarding.presentation
 
+import androidx.activity.compose.BackHandler
+import androidx.annotation.RawRes
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.Image
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.milliseconds
+import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
-private const val StaggerMillis = 110
+private data class OnboardingPage(
+    @RawRes val animation: Int,
+    val title: String,
+    val body: String,
+)
 
+private val Pages = listOf(
+    OnboardingPage(
+        animation = R.raw.onboarding_chat,
+        title = "Meet Mishti",
+        body = "A language model that runs entirely on your phone.",
+    ),
+    OnboardingPage(
+        animation = R.raw.onboarding_private,
+        title = "Private and offline",
+        body = "Conversations never leave this device, and once a model is downloaded no " +
+            "network is needed.",
+    ),
+    OnboardingPage(
+        animation = R.raw.onboarding_personalize,
+        title = "Make it yours",
+        body = "Choose the model, the colours and the typeface, and tune how it answers.",
+    ),
+)
+
+private const val ArtParallax = 0.3f
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun OnboardingScreen(
     onContinue: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val pagerState = rememberPagerState { Pages.size }
+    val scope = rememberCoroutineScope()
+    val isLastPage = pagerState.currentPage == Pages.lastIndex
+
+    BackHandler(enabled = pagerState.currentPage > 0) {
+        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
+    }
+
     Scaffold(modifier = modifier) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 32.dp, vertical = 48.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+                .consumeWindowInsets(innerPadding),
         ) {
-            AppMark()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 56.dp)
+                    .padding(horizontal = Spacing.Small),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                SkipButton(visible = !isLastPage, onClick = onContinue)
+            }
 
-            Spacer(Modifier.height(28.dp))
-
-            EntersAfter(StaggerMillis * 2) {
-                Text(
-                    text = stringResource(R.string.app_name),
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+            ) { page ->
+                PageContent(
+                    page = Pages[page],
+                    isActive = pagerState.settledPage == page,
+                    offset = pagerState.offsetOf(page),
                 )
             }
 
-            Spacer(Modifier.height(12.dp))
-
-            EntersAfter(StaggerMillis * 3) {
-                Text(
-                    text = "A language model that runs entirely on your phone.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Spacing.ExtraLarge, vertical = Spacing.ExtraLarge),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                PageIndicator(
+                    pageCount = Pages.size,
+                    currentPage = pagerState.currentPage,
+                    modifier = Modifier.weight(1f),
                 )
-            }
-
-            Spacer(Modifier.height(40.dp))
-
-            Points.forEachIndexed { index, point ->
-                EntersAfter(StaggerMillis * (4 + index)) {
-                    Point(title = point.first, detail = point.second)
-                }
-            }
-
-            Spacer(Modifier.height(48.dp))
-
-            EntersAfter(StaggerMillis * (4 + Points.size)) {
                 Button(
-                    onClick = onContinue,
-                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        if (isLastPage) {
+                            onContinue()
+                        } else {
+                            scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                        }
+                    },
+                    shapes = ButtonDefaults.shapes(),
+                    contentPadding = ButtonDefaults.contentPaddingFor(ButtonDefaults.MediumContainerHeight),
+                    modifier = Modifier
+                        .heightIn(min = ButtonDefaults.MediumContainerHeight)
+                        .animateContentSize(MaterialTheme.motionScheme.defaultSpatialSpec()),
                 ) {
-                    Text("Continue", modifier = Modifier.padding(vertical = 4.dp))
+                    AnimatedContent(
+                        targetState = isLastPage,
+                        transitionSpec = { fadeIn() togetherWith fadeOut() },
+                        label = "OnboardingButton",
+                    ) { last ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = if (last) "Get started" else "Next",
+                                style = ButtonDefaults.textStyleFor(ButtonDefaults.MediumContainerHeight),
+                            )
+                            if (!last) {
+                                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(
+                                        ButtonDefaults.iconSizeFor(ButtonDefaults.MediumContainerHeight),
+                                    ),
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-private val Points = listOf(
-    "Private" to "Conversations are stored on this device and never sent anywhere.",
-    "Offline" to "Once a model is downloaded, no network is needed to use it.",
-    "Yours" to "Choose the model, the typeface, the colours, and how it answers.",
-)
-
 @Composable
-private fun AppMark() {
-    val scale = remember { Animatable(0.7f) }
-    val alpha = remember { Animatable(0f) }
-
-    LaunchedEffect(Unit) {
-        alpha.animateTo(1f, tween(durationMillis = 400))
-    }
-    LaunchedEffect(Unit) {
-        scale.animateTo(
-            targetValue = 1f,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow,
-            ),
-        )
-    }
-    Surface(
-        color = colorResource(R.color.ic_launcher_background),
-        shape = CircleShape,
-        modifier = Modifier
-            .graphicsLayer {
-                scaleX = scale.value
-                scaleY = scale.value
-                this.alpha = alpha.value
-            }
-            .size(112.dp)
-            .clip(CircleShape),
-    ) {
-        Image(
-            painter = painterResource(R.mipmap.ic_launcher_foreground),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-        )
+private fun SkipButton(visible: Boolean, onClick: () -> Unit) {
+    AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
+        TextButton(onClick = onClick) { Text("Skip") }
     }
 }
 
+private fun PagerState.offsetOf(page: Int): Float =
+    (currentPage - page) + currentPageOffsetFraction
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun Point(title: String, detail: String) {
+private fun PageContent(
+    page: OnboardingPage,
+    isActive: Boolean,
+    offset: Float,
+) {
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp),
+            .fillMaxSize()
+            .padding(horizontal = Spacing.ExtraExtraLarge),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.primary,
+        OnboardingAnimation(
+            animation = page.animation,
+            isActive = isActive,
+            modifier = Modifier
+                .weight(1f, fill = false)
+                .widthIn(max = 360.dp)
+                .aspectRatio(1f, matchHeightConstraintsFirst = true)
+                .graphicsLayer { translationX = offset * size.width * ArtParallax },
         )
+        Spacer(Modifier.height(Spacing.ExtraLarge))
         Text(
-            text = detail,
-            style = MaterialTheme.typography.bodyMedium,
+            text = page.title,
+            style = MaterialTheme.typography.headlineMediumEmphasized,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.graphicsLayer { alpha = 1f - offset.absoluteValue },
+        )
+        Spacer(Modifier.height(Spacing.Medium))
+        Text(
+            text = page.body,
+            style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 2.dp),
+            modifier = Modifier
+                .widthIn(max = 420.dp)
+                .graphicsLayer { alpha = 1f - offset.absoluteValue },
         )
     }
 }
 
 @Composable
-private fun EntersAfter(
-    delayMillis: Int,
-    content: @Composable () -> Unit,
+private fun PageIndicator(
+    pageCount: Int,
+    currentPage: Int,
+    modifier: Modifier = Modifier,
 ) {
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        delay(delayMillis.toLong().milliseconds)
-        visible = true
-    }
-
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(tween(durationMillis = 350)) + slideInVertically(tween(durationMillis = 350)) { height -> height / 3 },
+    Row(
+        modifier = modifier.clearAndSetSemantics {
+            contentDescription = "Page ${currentPage + 1} of $pageCount"
+        },
+        horizontalArrangement = Arrangement.spacedBy(Spacing.Small),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        content()
+        repeat(pageCount) { index ->
+            val selected = index == currentPage
+            val width by animateDpAsState(
+                targetValue = if (selected) 24.dp else 8.dp,
+                animationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
+                label = "IndicatorWidth",
+            )
+            val color by animateColorAsState(
+                targetValue = if (selected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.outlineVariant
+                },
+                animationSpec = MaterialTheme.motionScheme.defaultEffectsSpec(),
+                label = "IndicatorColor",
+            )
+            Box(
+                modifier = Modifier
+                    .size(width = width, height = 8.dp)
+                    .background(color, CircleShape),
+            )
+        }
     }
 }
 

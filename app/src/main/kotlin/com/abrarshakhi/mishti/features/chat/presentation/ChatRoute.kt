@@ -16,6 +16,7 @@ fun ChatRoute(
     sessionId: String?,
     onOpenDrawer: () -> Unit,
     onNewChat: () -> Unit,
+    onOpenModels: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: ChatViewModel = koinViewModel { parametersOf(sessionId) }
@@ -33,6 +34,7 @@ fun ChatRoute(
         onIntent = viewModel::onIntent,
         onOpenDrawer = onOpenDrawer,
         onNewChat = onNewChat,
+        onOpenModels = onOpenModels,
         modifier = modifier,
     )
 }

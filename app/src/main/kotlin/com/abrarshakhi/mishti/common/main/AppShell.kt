@@ -29,6 +29,7 @@ import com.abrarshakhi.mishti.common.navigation.Navigator
 import com.abrarshakhi.mishti.common.navigation.TOP_LEVEL_ROUTES
 import com.abrarshakhi.mishti.common.navigation.appEntryProvider
 import com.abrarshakhi.mishti.common.navigation.rememberNavigationState
+import com.abrarshakhi.mishti.common.navigation.rememberSharedAxisTransition
 import com.abrarshakhi.mishti.common.ui.snackbar.SnackbarDispatcher
 import com.abrarshakhi.mishti.features.chat.presentation.SessionsEffect
 import com.abrarshakhi.mishti.features.chat.presentation.SessionsIntent
@@ -128,20 +129,24 @@ fun AppShell(startRoute: NavKey) {
             )
         },
     ) {
-        // The top inset is left to each screen's own Scaffold, so its top bar can draw behind
-        // the status bar. This one keeps the sides and the bottom (navigation bar and keyboard).
         Scaffold(
             contentWindowInsets = WindowInsets.safeDrawing.only(
                 WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
             ),
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { innerPadding ->
+            val forward = rememberSharedAxisTransition(forward = true)
+            val backward = rememberSharedAxisTransition(forward = false)
+
             NavDisplay(
                 entries = navigationState.toDecoratedEntries(entryProvider),
                 onBack = { navigator.goBack() },
                 modifier = Modifier
                     .padding(innerPadding)
                     .consumeWindowInsets(innerPadding),
+                transitionSpec = { forward },
+                popTransitionSpec = { backward },
+                predictivePopTransitionSpec = { backward },
             )
         }
     }

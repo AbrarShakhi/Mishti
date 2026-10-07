@@ -9,12 +9,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
-/**
- * Swaps `Dispatchers.Main` for a test dispatcher.
- *
- * `viewModelScope` is hardcoded to `Dispatchers.Main`, which has no implementation under a
- * plain JVM test. Without this rule every ViewModel that launches a coroutine throws.
- */
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainDispatcherRule(
     val dispatcher: TestDispatcher = StandardTestDispatcher(),

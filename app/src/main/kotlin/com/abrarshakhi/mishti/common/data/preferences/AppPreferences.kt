@@ -28,5 +28,5 @@ interface AppPreferences {
 
     val inferenceSettings: Flow<InferenceSettings>
 
-    suspend fun setInferenceSettings(settings: InferenceSettings)
+    suspend fun updateInferenceSettings(transform: (InferenceSettings) -> InferenceSettings)
 }

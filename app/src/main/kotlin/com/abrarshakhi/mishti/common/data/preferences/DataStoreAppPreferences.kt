@@ -52,21 +52,14 @@ class DataStoreAppPreferences(context: Context) : AppPreferences {
         }
     }
 
-    override val inferenceSettings: Flow<InferenceSettings> = preferences.map { prefs ->
-        val defaults = InferenceSettings()
-        InferenceSettings(
-            systemPrompt = prefs[Keys.SYSTEM_PROMPT] ?: defaults.systemPrompt,
-            temperature = prefs[Keys.TEMPERATURE] ?: defaults.temperature,
-            topK = prefs[Keys.TOP_K] ?: defaults.topK,
-            topP = prefs[Keys.TOP_P] ?: defaults.topP,
-            maxTokens = prefs[Keys.MAX_TOKENS] ?: defaults.maxTokens,
-            contextTokens = prefs[Keys.CONTEXT_TOKENS] ?: defaults.contextTokens,
-            threads = prefs[Keys.THREADS] ?: defaults.threads,
-        )
-    }
+    override val inferenceSettings: Flow<InferenceSettings> =
+        preferences.map { it.toInferenceSettings() }
 
-    override suspend fun setInferenceSettings(settings: InferenceSettings) {
+    override suspend fun updateInferenceSettings(
+        transform: (InferenceSettings) -> InferenceSettings,
+    ) {
         dataStore.edit { prefs ->
+            val settings = transform(prefs.toInferenceSettings())
             prefs[Keys.SYSTEM_PROMPT] = settings.systemPrompt
             prefs[Keys.TEMPERATURE] = settings.temperature
             prefs[Keys.TOP_K] = settings.topK
@@ -75,6 +68,19 @@ class DataStoreAppPreferences(context: Context) : AppPreferences {
             prefs[Keys.CONTEXT_TOKENS] = settings.contextTokens
             prefs[Keys.THREADS] = settings.threads
         }
+    }
+
+    private fun Preferences.toInferenceSettings(): InferenceSettings {
+        val defaults = InferenceSettings()
+        return InferenceSettings(
+            systemPrompt = this[Keys.SYSTEM_PROMPT] ?: defaults.systemPrompt,
+            temperature = this[Keys.TEMPERATURE] ?: defaults.temperature,
+            topK = this[Keys.TOP_K] ?: defaults.topK,
+            topP = this[Keys.TOP_P] ?: defaults.topP,
+            maxTokens = this[Keys.MAX_TOKENS] ?: defaults.maxTokens,
+            contextTokens = this[Keys.CONTEXT_TOKENS] ?: defaults.contextTokens,
+            threads = this[Keys.THREADS] ?: defaults.threads,
+        )
     }
 
     override suspend fun setOnboardingCompleted(completed: Boolean) {
@@ -109,11 +115,5 @@ class DataStoreAppPreferences(context: Context) : AppPreferences {
     }
 }
 
-/**
- * Enums are stored by name, and an unrecognised one degrades to [fallback].
- *
- * Same rule as the Room mappers: a value written by a newer build — a scheme that has since
- * been renamed or removed — must not crash an older one on read.
- */
 private inline fun <reified E : Enum<E>> String?.toEnum(fallback: E): E =
     this?.let { name -> runCatching { enumValueOf<E>(name) }.getOrNull() } ?: fallback

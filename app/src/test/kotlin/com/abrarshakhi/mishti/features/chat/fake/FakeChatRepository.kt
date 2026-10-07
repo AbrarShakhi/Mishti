@@ -7,12 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
-/**
- * In-memory [ChatRepository].
- *
- * Exists because the ViewModel depends on the interface, not on Room — so its behaviour can
- * be tested without a database, a device, or Robolectric.
- */
 class FakeChatRepository(
     private val existingSessionId: String? = null,
 ) : ChatRepository {
@@ -23,7 +17,6 @@ class FakeChatRepository(
     var createdSessionCount = 0
         private set
 
-    /** When set, every write fails — used to exercise the error path. */
     var failOnAppend: Boolean = false
 
     override fun observeSessions(): Flow<List<ChatSession>> = sessions
@@ -31,8 +24,6 @@ class FakeChatRepository(
     override fun observeMessages(sessionId: String): Flow<List<ChatMessage>> =
         messages.map { it[sessionId].orEmpty() }
 
-    // Mirrors Room's ordering: the most recently touched session, falling back to the id
-    // the test seeded.
     override suspend fun latestSessionId(): String? =
         sessions.value.maxByOrNull { it.updatedAtMillis }?.id ?: existingSessionId
 

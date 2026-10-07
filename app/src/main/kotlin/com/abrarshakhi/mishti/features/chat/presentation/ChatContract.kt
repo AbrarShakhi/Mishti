@@ -8,6 +8,7 @@ import com.abrarshakhi.mishti.features.chat.domain.model.ChatMessage
 
 data class ChatUiState(
     val sessionId: String? = null,
+    val title: String = "",
     val messages: List<ChatMessage> = emptyList(),
     val draft: String = "",
     val streamingResponse: String = "",

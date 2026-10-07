@@ -29,7 +29,6 @@ fun rememberNavigationState(
         mutableStateOf(startRoute)
     }
 
-    // The start route always needs a stack of its own, even when it is not one of the tabs.
     val backStacks = (topLevelRoutes + startRoute).associateWith { route ->
         rememberNavBackStack(route)
     }

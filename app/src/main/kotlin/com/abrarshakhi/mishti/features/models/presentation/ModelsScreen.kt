@@ -178,7 +178,6 @@ private fun StorageSummary(storage: StorageUsage) {
     }
 }
 
-/** Shimmering cards in the shape of the list, until the catalogue and storage are read. */
 @Composable
 private fun ModelsPlaceholder() {
     val bone = MaterialTheme.colorScheme.surfaceContainerHighest

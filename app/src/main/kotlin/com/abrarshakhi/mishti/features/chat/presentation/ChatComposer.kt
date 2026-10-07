@@ -82,7 +82,6 @@ internal fun ChatComposer(
     }
 }
 
-/** Send, or stop while a reply is being written. The shape squeezes when pressed. */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SendButton(

@@ -15,11 +15,6 @@ enum class Recency(val label: String) {
 
 data class SessionGroup(val recency: Recency, val sessions: List<ChatSession>)
 
-/**
- * Buckets [sessions] by the calendar day each was last used, relative to [now] in [zone].
- * Groups come out in the order the sessions arrive, so newest-first input gives newest-first
- * groups.
- */
 fun groupSessionsByRecency(
     sessions: List<ChatSession>,
     now: Long,

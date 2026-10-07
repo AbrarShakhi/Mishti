@@ -93,7 +93,6 @@ class ModelsViewModelTest {
     @Test
     fun `gating is per model, not global`() = runTest {
         val repository = FakeModelRepository()
-        // Enough for the small model, short of the 1B one's floor.
         val vm = viewModel(repository, capability = DeviceCapability.Supported(3_500_000_000L))
         advanceUntilIdle()
 
@@ -147,8 +146,6 @@ class ModelsViewModelTest {
 
     @Test
     fun `selecting a model that is not downloaded is ignored`() = runTest {
-        // Otherwise the engine would be pointed at a file that does not exist and the user
-        // would see a selection that silently does nothing.
         val repository = FakeModelRepository()
         val vm = viewModel(repository)
         advanceUntilIdle()

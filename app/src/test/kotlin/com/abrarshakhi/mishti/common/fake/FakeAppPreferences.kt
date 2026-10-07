@@ -9,7 +9,6 @@ import com.abrarshakhi.mishti.common.ui.theme.ThemeSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-/** In-memory [AppPreferences]; callers depend on the interface, not on DataStore. */
 class FakeAppPreferences(
     initialInference: InferenceSettings = InferenceSettings(),
 ) : AppPreferences {
@@ -31,7 +30,9 @@ class FakeAppPreferences(
     }
     override suspend fun setFont(font: AppFont) { theme.value = theme.value.copy(font = font) }
     override suspend fun setSelectedModelId(modelId: String?) { selected.value = modelId }
-    override suspend fun setInferenceSettings(settings: InferenceSettings) {
-        inference.value = settings
+    override suspend fun updateInferenceSettings(
+        transform: (InferenceSettings) -> InferenceSettings,
+    ) {
+        inference.value = transform(inference.value)
     }
 }

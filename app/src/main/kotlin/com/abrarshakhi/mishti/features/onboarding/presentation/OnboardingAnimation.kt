@@ -26,11 +26,6 @@ import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 private const val IntroMarker = "intro"
 private const val LoopMarker = "loop"
 
-/**
- * The colour roles the onboarding art is drawn in. Each layer in the animations is named after
- * one, and is recoloured from the current scheme, so the art follows the wallpaper, the palette
- * and dark mode.
- */
 private val ArtRoles: List<Pair<String, (ColorScheme) -> Color>> = listOf(
     "primary" to { it.primary },
     "onPrimary" to { it.onPrimary },
@@ -43,10 +38,6 @@ private val ArtRoles: List<Pair<String, (ColorScheme) -> Color>> = listOf(
     "onSurfaceVariant" to { it.onSurfaceVariant },
 )
 
-/**
- * An onboarding illustration. The first time its page settles it plays its "intro" section,
- * then idles in its seamless "loop" section for as long as the page stays in view.
- */
 @Composable
 internal fun OnboardingAnimation(
     @RawRes animation: Int,
@@ -66,7 +57,6 @@ internal fun OnboardingAnimation(
             introPlayed = true
         }
 
-        // Pick the idle loop up where it was left, instead of jumping back to its start.
         val loopStart = loaded.getMarker(LoopMarker)?.startFrame ?: loaded.startFrame
         val loopStartProgress = loaded.getProgressForFrame(loopStart)
         animatable.animate(

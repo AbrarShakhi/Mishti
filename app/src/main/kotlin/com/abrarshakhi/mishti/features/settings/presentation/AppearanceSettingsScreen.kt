@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -26,18 +27,19 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -46,17 +48,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.common.ui.theme.AppColorScheme
 import com.abrarshakhi.mishti.common.ui.theme.AppFont
+import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.common.ui.theme.ThemeMode
-import com.abrarshakhi.mishti.common.ui.theme.ThemeSettings
 import com.abrarshakhi.mishti.common.ui.theme.appColorScheme
 import com.abrarshakhi.mishti.common.ui.theme.fontFamily
 import com.abrarshakhi.mishti.common.ui.theme.isDark
@@ -67,43 +71,67 @@ private val SwatchSize = 56.dp
 private val SwatchRingGap = 4.dp
 private val SwatchRingWidth = 2.dp
 
-internal fun SettingsGroupScope.appearanceRows(
-    theme: ThemeSettings,
-    colorSchemes: List<AppColorScheme>,
+@Composable
+fun AppearanceSettingsScreen(
+    state: SettingsUiState,
     onIntent: (SettingsIntent) -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    row { shapes ->
-        SegmentedCard(shapes) {
-            SettingTitle("Theme")
-            Spacer(Modifier.height(Spacing.Medium))
-            ThemeModeSelector(
-                selected = theme.mode,
-                onSelect = { onIntent(SettingsIntent.ThemeModeSelected(it)) },
-            )
-        }
-    }
-    row { shapes ->
-        PaletteRow(
-            shapes = shapes,
-            schemes = colorSchemes,
-            selected = theme.colorScheme,
-            dark = theme.mode.isDark(),
-            onSelect = { onIntent(SettingsIntent.ColorSchemeSelected(it)) },
-        )
-    }
-    row { shapes ->
-        SegmentedCard(shapes) {
-            SettingTitle("Typeface")
-            Spacer(Modifier.height(Spacing.Medium))
-            FontSelector(
-                selected = theme.font,
-                onSelect = { onIntent(SettingsIntent.FontSelected(it)) },
-            )
+    val theme = state.theme
+
+    SettingsScaffold(
+        title = "Appearance",
+        subtitle = AppearanceSubtitle,
+        onBack = onBack,
+        modifier = modifier,
+    ) {
+        item {
+            SettingsGroup {
+                row { shapes ->
+                    SettingsPanel(shapes = shapes, title = "Theme") {
+                        ThemeModeSelector(
+                            selected = theme.mode,
+                            onSelect = { onIntent(SettingsIntent.ThemeModeSelected(it)) },
+                        )
+                    }
+                }
+                row { shapes ->
+                    SettingsPanel(
+                        shapes = shapes,
+                        title = "Colour",
+                        supporting = if (AppColorScheme.Dynamic in state.colorSchemes) {
+                            "Dynamic takes its colours from your wallpaper"
+                        } else {
+                            null
+                        },
+                        edgeToEdge = true,
+                    ) {
+                        PaletteRow(
+                            schemes = state.colorSchemes,
+                            selected = theme.colorScheme,
+                            dark = theme.mode.isDark(),
+                            onSelect = { onIntent(SettingsIntent.ColorSchemeSelected(it)) },
+                        )
+                    }
+                }
+                row { shapes ->
+                    SettingsPanel(
+                        shapes = shapes,
+                        title = "Typeface",
+                        supporting = "Code always uses JetBrains Mono",
+                    ) {
+                        FontSelector(
+                            selected = theme.font,
+                            onSelect = { onIntent(SettingsIntent.FontSelected(it)) },
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
-/** System, Light and Dark as one connected button group. */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ThemeModeSelector(
@@ -111,6 +139,12 @@ private fun ThemeModeSelector(
     onSelect: (ThemeMode) -> Unit,
 ) {
     val modes = ThemeMode.entries
+    val colors = ToggleButtonDefaults.colors(
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        checkedContainerColor = MaterialTheme.colorScheme.primary,
+        checkedContentColor = MaterialTheme.colorScheme.onPrimary,
+    )
 
     Row(
         modifier = Modifier
@@ -130,50 +164,64 @@ private fun ThemeModeSelector(
                     modes.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
                     else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                 },
+                colors = colors,
+                contentPadding = PaddingValues(
+                    horizontal = Spacing.Small,
+                    vertical = Spacing.Medium,
+                ),
             ) {
-                Text(mode.label, maxLines = 1)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = mode.icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(ToggleButtonDefaults.IconSize),
+                    )
+                    Spacer(Modifier.height(Spacing.ExtraSmall))
+                    Text(
+                        text = mode.label,
+                        style = MaterialTheme.typography.labelLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }
 }
 
+private val ThemeMode.icon: ImageVector
+    get() = when (this) {
+        ThemeMode.System -> Icons.Filled.BrightnessAuto
+        ThemeMode.Light -> Icons.Filled.LightMode
+        ThemeMode.Dark -> Icons.Filled.DarkMode
+    }
+
 @Composable
 private fun PaletteRow(
-    shapes: ListItemShapes,
     schemes: List<AppColorScheme>,
     selected: AppColorScheme,
     dark: Boolean,
     onSelect: (AppColorScheme) -> Unit,
 ) {
-    // The swatches scroll edge to edge inside the card, so the card's side padding is applied
-    // to the title and to the scrolling row's content instead of to the card.
-    SegmentedCard(shapes, contentPadding = PaddingValues(vertical = Spacing.Large)) {
-        SettingTitle("Colour", modifier = Modifier.padding(horizontal = Spacing.Large))
-        Spacer(Modifier.height(Spacing.Medium))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = Spacing.Large)
-                .selectableGroup(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.Medium),
-        ) {
-            schemes.forEach { scheme ->
-                PaletteSwatch(
-                    scheme = scheme,
-                    dark = dark,
-                    selected = scheme == selected,
-                    onClick = { onSelect(scheme) },
-                )
-            }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = Spacing.Large)
+            .selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.Medium),
+    ) {
+        schemes.forEach { scheme ->
+            PaletteSwatch(
+                scheme = scheme,
+                dark = dark,
+                selected = scheme == selected,
+                onClick = { onSelect(scheme) },
+            )
         }
     }
 }
 
-/**
- * A palette previewed the way the system wallpaper picker does it: primary across the top,
- * secondary and tertiary below, generated for the mode the app is in now.
- */
 @Composable
 private fun PaletteSwatch(
     scheme: AppColorScheme,
@@ -181,8 +229,6 @@ private fun PaletteSwatch(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    // Generating five palettes is too much for one frame on a modest phone, so each swatch
-    // builds its colours off the main thread and they fade in once ready.
     val context = LocalContext.current
     val colors by produceState<ColorScheme?>(null, scheme, dark) {
         value = withContext(Dispatchers.Default) { appColorScheme(context, scheme, dark) }
@@ -199,7 +245,6 @@ private fun PaletteSwatch(
         label = "SwatchRing",
     )
 
-    // The whole cell, name included, is the touch target.
     Column(
         modifier = Modifier
             .width(SwatchSize + Spacing.Medium)
@@ -238,7 +283,6 @@ private fun PaletteSwatch(
     }
 }
 
-/** The check that pops onto the chosen swatch, in that palette's own colours. */
 @Composable
 private fun SelectedBadge(
     visible: Boolean,
@@ -262,7 +306,6 @@ private fun SelectedBadge(
     }
 }
 
-/** One chip per typeface, each label set in the face it stands for. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FontSelector(
@@ -270,29 +313,94 @@ private fun FontSelector(
     onSelect: (AppFont) -> Unit,
 ) {
     FlowRow(
-        modifier = Modifier.selectableGroup(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectableGroup(),
+        maxItemsInEachRow = 2,
         horizontalArrangement = Arrangement.spacedBy(Spacing.Small),
         verticalArrangement = Arrangement.spacedBy(Spacing.Small),
     ) {
         AppFont.entries.forEach { font ->
-            val isSelected = font == selected
-            FilterChip(
-                selected = isSelected,
+            FontSample(
+                font = font,
+                selected = font == selected,
                 onClick = { onSelect(font) },
-                label = { Text(font.label, fontFamily = font.fontFamily()) },
-                leadingIcon = if (isSelected) {
-                    {
-                        Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = null,
-                            modifier = Modifier.size(FilterChipDefaults.IconSize),
-                        )
-                    }
-                } else {
-                    null
-                },
-                modifier = Modifier.semantics { role = Role.RadioButton },
+                modifier = Modifier.weight(1f),
             )
         }
+    }
+}
+
+@Composable
+private fun FontSample(
+    font: AppFont,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val family = font.fontFamily()
+    val effects = MaterialTheme.motionScheme.fastEffectsSpec<Color>()
+    val containerColor by animateColorAsState(
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerHighest
+        },
+        animationSpec = effects,
+        label = "FontContainer",
+    )
+    val contentColor by animateColorAsState(
+        targetValue = if (selected) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        },
+        animationSpec = effects,
+        label = "FontContent",
+    )
+    val borderColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
+        animationSpec = effects,
+        label = "FontBorder",
+    )
+
+    Surface(
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier.semantics { role = Role.RadioButton },
+        shape = MaterialTheme.shapes.large,
+        color = containerColor,
+        contentColor = contentColor,
+        border = BorderStroke(2.dp, borderColor),
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = Spacing.Small, vertical = Spacing.Medium),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "Aa",
+                fontFamily = family,
+                style = MaterialTheme.typography.headlineMedium,
+            )
+            Text(
+                text = font.label,
+                fontFamily = family,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AppearanceSettingsScreenPreview() {
+    MishtiTheme {
+        AppearanceSettingsScreen(
+            state = SettingsUiState(),
+            onIntent = {},
+            onBack = {},
+        )
     }
 }

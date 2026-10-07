@@ -1,166 +1,147 @@
 package com.abrarshakhi.mishti.features.settings.presentation
 
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Memory
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import com.abrarshakhi.mishti.common.llm.EngineState
-import com.abrarshakhi.mishti.common.llm.InferenceSettings
 import com.abrarshakhi.mishti.common.llm.ModelHandle
+import com.abrarshakhi.mishti.common.ui.components.AppMark
+import com.abrarshakhi.mishti.common.ui.components.ShapedIcon
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
-import com.abrarshakhi.mishti.common.ui.theme.Spacing
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen(
     state: SettingsUiState,
     versionName: String,
-    onIntent: (SettingsIntent) -> Unit,
     onBack: () -> Unit,
-    onNavigateToModels: () -> Unit,
+    onOpenModels: () -> Unit,
+    onOpenAppearance: () -> Unit,
+    onOpenChat: () -> Unit,
+    onOpenGeneration: () -> Unit,
+    onOpenPerformance: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val focusManager = LocalFocusManager.current
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val background = MaterialTheme.colorScheme.surfaceContainer
-    val onInferenceChange: (InferenceSettings) -> Unit = {
-        onIntent(SettingsIntent.InferenceChanged(it))
-    }
+    val modelColor = MaterialTheme.colorScheme.primaryContainer
+    val generalColor = MaterialTheme.colorScheme.tertiaryContainer
+    val advancedColor = MaterialTheme.colorScheme.secondaryContainer
 
-    Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = background,
-        topBar = {
-            LargeFlexibleTopAppBar(
-                title = { Text("Settings") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = background,
-                    scrolledContainerColor = background,
-                ),
-            )
-        },
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = { focusManager.clearFocus() })
-                },
-            contentPadding = PaddingValues(
-                start = Spacing.ScreenMargin,
-                end = Spacing.ScreenMargin,
-                top = Spacing.Small,
-                bottom = Spacing.ExtraExtraLarge,
-            ),
-            verticalArrangement = Arrangement.spacedBy(Spacing.ExtraLarge),
-        ) {
-            item {
-                SettingsGroup(title = "Model") {
-                    row { shapes ->
-                        SegmentedListItem(
-                            onClick = onNavigateToModels,
-                            shapes = shapes,
-                            leadingContent = {
-                                SettingIcon(Icons.Filled.Memory)
-                            },
-                            trailingContent = {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = null,
-                                )
-                            },
-                            supportingContent = { Text(modelSummary(state.engineState)) },
-                        ) {
-                            Text("Models")
-                        }
-                    }
-                }
-            }
-            item {
-                SettingsGroup(title = "Appearance") {
-                    appearanceRows(state.theme, state.colorSchemes, onIntent)
-                }
-            }
-            item {
-                SettingsGroup(title = "Responses") {
-                    responseRows(state.inference, onInferenceChange)
-                }
-            }
-            item {
-                SettingsGroup(title = "Sampling") {
-                    samplingRows(state.inference, onInferenceChange)
-                }
-            }
-            item {
-                SettingsGroup(title = "Performance") {
-                    performanceRows(state.inference, onInferenceChange)
-                }
-            }
-            item {
-                OutlinedButton(
-                    onClick = { onIntent(SettingsIntent.InferenceReset) },
-                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-                    modifier = Modifier.padding(start = Spacing.Small),
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Refresh,
-                        contentDescription = null,
-                        modifier = Modifier.size(ButtonDefaults.IconSize),
+    SettingsScaffold(
+        title = "Settings",
+        subtitle = "Make Mishti yours",
+        onBack = onBack,
+        modifier = modifier,
+    ) {
+        item {
+            SettingsGroup(title = "Model") {
+                row { shapes ->
+                    CategoryRow(
+                        shapes = shapes,
+                        icon = Icons.Filled.Memory,
+                        iconColor = modelColor,
+                        title = "Models",
+                        supporting = modelSummary(state.engineState),
+                        onClick = onOpenModels,
                     )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Text("Reset to defaults")
                 }
             }
-            item {
-                SettingsGroup(title = "About") {
-                    row { shapes ->
-                        SegmentedListItem(
-                            shapes = shapes,
-                            leadingContent = { SettingIcon(Icons.Filled.Info) },
-                            supportingContent = { Text(versionName) },
-                        ) {
-                            Text("Version")
-                        }
+        }
+        item {
+            SettingsGroup(title = "General") {
+                row { shapes ->
+                    CategoryRow(
+                        shapes = shapes,
+                        icon = Icons.Filled.Palette,
+                        iconColor = generalColor,
+                        title = "Appearance",
+                        supporting = AppearanceSubtitle,
+                        onClick = onOpenAppearance,
+                    )
+                }
+                row { shapes ->
+                    CategoryRow(
+                        shapes = shapes,
+                        icon = Icons.AutoMirrored.Filled.Chat,
+                        iconColor = generalColor,
+                        title = "Chat",
+                        supporting = ChatSubtitle,
+                        onClick = onOpenChat,
+                    )
+                }
+            }
+        }
+        item {
+            SettingsGroup(title = "Advanced") {
+                row { shapes ->
+                    CategoryRow(
+                        shapes = shapes,
+                        icon = Icons.Filled.Tune,
+                        iconColor = advancedColor,
+                        title = "Generation",
+                        supporting = GenerationSubtitle,
+                        onClick = onOpenGeneration,
+                    )
+                }
+                row { shapes ->
+                    CategoryRow(
+                        shapes = shapes,
+                        icon = Icons.Filled.Speed,
+                        iconColor = advancedColor,
+                        title = "Performance",
+                        supporting = PerformanceSubtitle,
+                        onClick = onOpenPerformance,
+                    )
+                }
+            }
+        }
+        item {
+            SettingsGroup(title = "About") {
+                row { shapes ->
+                    SegmentedListItem(
+                        shapes = shapes,
+                        leadingContent = { AppMark() },
+                        supportingContent = { Text("Version $versionName") },
+                    ) {
+                        Text("Mishti")
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CategoryRow(
+    shapes: ListItemShapes,
+    icon: ImageVector,
+    iconColor: Color,
+    title: String,
+    supporting: String,
+    onClick: () -> Unit,
+) {
+    SegmentedListItem(
+        onClick = onClick,
+        shapes = shapes,
+        leadingContent = { ShapedIcon(imageVector = icon, containerColor = iconColor) },
+        trailingContent = {
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
+        },
+        supportingContent = { Text(supporting) },
+    ) {
+        Text(title)
     }
 }
 
@@ -170,6 +151,11 @@ private fun modelSummary(engineState: EngineState): String = when (engineState) 
     is EngineState.Failed -> "The selected model failed to load"
     EngineState.Idle -> "Download and choose a model"
 }
+
+internal const val AppearanceSubtitle = "Theme, colour and typeface"
+internal const val ChatSubtitle = "Pre-instruction and reply length"
+internal const val GenerationSubtitle = "How Mishti picks each word"
+internal const val PerformanceSubtitle = "Memory and processor use"
 
 @Preview(showBackground = true)
 @Composable
@@ -181,10 +167,13 @@ private fun SettingsScreenPreview() {
                     ModelHandle("preview", "Qwen2.5 0.5B Instruct", "/tmp/preview.gguf"),
                 ),
             ),
-            versionName = "1.1 (2)",
-            onIntent = {},
+            versionName = "1.2 (3)",
             onBack = {},
-            onNavigateToModels = {},
+            onOpenModels = {},
+            onOpenAppearance = {},
+            onOpenChat = {},
+            onOpenGeneration = {},
+            onOpenPerformance = {},
         )
     }
 }

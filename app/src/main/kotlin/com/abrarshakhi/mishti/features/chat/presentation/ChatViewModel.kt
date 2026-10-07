@@ -75,7 +75,6 @@ class ChatViewModel(
         }
     }
 
-    /** Follows the session's title, which the first message sets and a rename changes. */
     private suspend fun observeTitle(sessionId: String) {
         repository.observeSessions()
             .map { sessions -> sessions.firstOrNull { it.id == sessionId }?.title.orEmpty() }

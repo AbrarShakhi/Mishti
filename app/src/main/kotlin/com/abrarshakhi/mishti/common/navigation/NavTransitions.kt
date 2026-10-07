@@ -17,11 +17,6 @@ import androidx.compose.ui.unit.dp
 
 private val SharedAxisDistance = 30.dp
 
-/**
- * Material's shared-axis (X) transition between screens: going [forward] slides the incoming
- * screen in from the end edge while the outgoing one drifts toward the start, going back mirrors
- * it, and both cross-fade. The springs come from the theme's motion scheme.
- */
 @Composable
 fun rememberSharedAxisTransition(forward: Boolean): ContentTransform {
     val spatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()

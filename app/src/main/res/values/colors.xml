@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Only the pre-Compose window background. Everything the app draws uses the
-         Material 3 color scheme in ui/theme/Theme.kt, not these values. -->
     <color name="window_background">#FFFBFE</color>
 </resources>

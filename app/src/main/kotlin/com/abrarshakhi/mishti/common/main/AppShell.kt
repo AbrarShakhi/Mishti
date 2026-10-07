@@ -129,8 +129,6 @@ fun AppShell(startRoute: NavKey) {
             )
         },
     ) {
-        // The top inset is left to each screen's own Scaffold, so its top bar can draw behind
-        // the status bar. This one keeps the sides and the bottom (navigation bar and keyboard).
         Scaffold(
             contentWindowInsets = WindowInsets.safeDrawing.only(
                 WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,

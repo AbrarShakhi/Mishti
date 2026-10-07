@@ -53,7 +53,6 @@ private const val PlaceholderDelayMillis = 250L
 
 private val AvatarSize = 32.dp
 
-/** A user's bubble, rounded everywhere but the corner that points at the composer. */
 private val UserBubbleShape = RoundedCornerShape(
     topStart = 24.dp,
     topEnd = 24.dp,
@@ -71,8 +70,6 @@ internal fun MessageList(
     val listState = rememberLazyListState()
     val newestMessageId = messages.lastOrNull()?.id
 
-    // The list is laid out bottom-up, so a reply that is still streaming grows upward with no
-    // scrolling needed. A new turn only pulls the list down if the reader was already at the end.
     LaunchedEffect(newestMessageId, isGenerating) {
         if (listState.firstVisibleItemIndex <= 1) listState.animateScrollToItem(0)
     }
@@ -84,9 +81,6 @@ internal fun MessageList(
         contentPadding = PaddingValues(horizontal = Spacing.ScreenMargin, vertical = Spacing.Large),
         verticalArrangement = Arrangement.spacedBy(Spacing.ExtraLarge, Alignment.Bottom),
     ) {
-        // No per-item placement animation: new turns are revealed by the scroll above, and the
-        // streaming reply hands over to the stored message under a new key, so animating items
-        // here would overlap or flicker.
         if (isGenerating) {
             item(key = StreamingItemKey) {
                 AssistantMessage(
@@ -132,7 +126,6 @@ private fun UserMessage(text: String, modifier: Modifier = Modifier) {
     }
 }
 
-/** A reply: Mishti's mark beside its text, rendered as Markdown, as in Material chat UIs. */
 @Composable
 private fun AssistantMessage(
     text: String,
@@ -153,7 +146,6 @@ private fun AssistantMessage(
                         markdown = text,
                         placeholder = {
                             DisableSelection {
-                                // Offset like the reply's first line, to centre it on the avatar.
                                 ThinkingIndicator(modifier = Modifier.padding(top = Spacing.ExtraSmall))
                             }
                         },
@@ -189,12 +181,10 @@ private fun ThinkingIndicator(modifier: Modifier = Modifier) {
 
 @Composable
 private fun MessageActions(text: String, tokensPerSecond: Double?) {
-    // Pulled back by the icon button's inner padding, so the glyph lines up with the text above.
     Row(
         modifier = Modifier.offset(x = -Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // The Markdown as written, so pasting keeps the reply's structure.
         CopyButton(text = text, contentDescription = "Copy reply")
 
         if (tokensPerSecond != null) {
@@ -207,10 +197,6 @@ private fun MessageActions(text: String, tokensPerSecond: Double?) {
     }
 }
 
-/**
- * Shimmering bones in the shape of a conversation, shown while one opens. It waits a moment
- * first, so a conversation that opens quickly never flashes a skeleton.
- */
 @Composable
 internal fun ConversationPlaceholder(modifier: Modifier = Modifier) {
     var visible by remember { mutableStateOf(false) }

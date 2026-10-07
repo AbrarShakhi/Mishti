@@ -26,7 +26,6 @@ private val InterFamily by lazy { variableFamily(R.font.inter) }
 private val LoraFamily by lazy { variableFamily(R.font.lora) }
 private val JetBrainsMonoFamily by lazy { variableFamily(R.font.jetbrains_mono) }
 
-/** The face for code, whatever the app's typeface, so its columns always line up. */
 val CodeFontFamily: FontFamily get() = JetBrainsMonoFamily
 
 fun AppFont.fontFamily(): FontFamily? = when (this) {
@@ -36,6 +35,5 @@ fun AppFont.fontFamily(): FontFamily? = when (this) {
     AppFont.JetBrainsMono -> JetBrainsMonoFamily
 }
 
-/** Material 3 type scale, regular and emphasized styles alike, set in [family] when given. */
 fun typographyFor(family: FontFamily?): Typography =
     if (family == null) Typography() else Typography(fontFamily = family)

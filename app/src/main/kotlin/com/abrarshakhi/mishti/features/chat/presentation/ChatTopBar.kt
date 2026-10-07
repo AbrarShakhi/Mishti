@@ -60,7 +60,6 @@ internal fun ChatTopBar(
     )
 }
 
-/** Which model is answering, with a dot that takes the colour of its state. */
 @Composable
 private fun ModelStatus(engineState: EngineState) {
     val colors = MaterialTheme.colorScheme

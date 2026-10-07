@@ -30,7 +30,6 @@ fun MishtiTheme(
     content: @Composable () -> Unit,
 ) {
     val target = rememberThemeColorScheme(settings.colorScheme, settings.mode.isDark())
-    // Animated, so switching palette or light/dark cross-fades instead of snapping.
     val colorScheme = animateColorScheme(target)
     val typography = remember(settings.font) { typographyFor(settings.font.fontFamily()) }
 
@@ -42,7 +41,6 @@ fun MishtiTheme(
     )
 }
 
-/** Whether this mode resolves to a dark scheme right now. */
 @Composable
 fun ThemeMode.isDark(): Boolean = when (this) {
     ThemeMode.System -> isSystemInDarkTheme()
@@ -50,11 +48,6 @@ fun ThemeMode.isDark(): Boolean = when (this) {
     ThemeMode.Dark -> true
 }
 
-/**
- * The first scheme is built in place, so the very first frame is already themed. Later changes
- * are built off the main thread and the theme cross-fades to them once they are ready, so
- * switching palette or mode never stalls the UI.
- */
 @Composable
 private fun rememberThemeColorScheme(scheme: AppColorScheme, dark: Boolean): ColorScheme {
     val context = LocalContext.current
@@ -65,17 +58,8 @@ private fun rememberThemeColorScheme(scheme: AppColorScheme, dark: Boolean): Col
     return target
 }
 
-/** Seeded schemes are pure functions of seed and mode, and costly to generate. */
 private val seededSchemes = ConcurrentHashMap<Pair<Color, Boolean>, ColorScheme>()
 
-/**
- * The [ColorScheme] for [scheme]: the wallpaper colours for [AppColorScheme.Dynamic] where the
- * platform has them, otherwise a Material Kolor scheme generated from the palette's seed.
- *
- * Generating a seeded scheme solves dozens of tones, so each one is built once and kept. It is
- * safe to call from any thread, and callers that need a scheme they may not have seen yet should
- * call it off the main thread.
- */
 fun appColorScheme(context: Context, scheme: AppColorScheme, dark: Boolean): ColorScheme =
     if (scheme == AppColorScheme.Dynamic && isDynamicColorAvailable) {
         if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)

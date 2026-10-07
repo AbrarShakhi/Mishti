@@ -12,10 +12,6 @@ class Navigator(private val state: NavigationState) {
         }
     }
 
-    /**
-     * Makes [route] the only entry on the current stack, so back cannot return to what it
-     * replaced. For jumps such as opening a conversation or finishing onboarding.
-     */
     fun resetTo(route: NavKey) {
         val currentStack = state.backStacks.getValue(state.topLevelRoute)
         currentStack.clear()

@@ -86,8 +86,6 @@ class SessionsViewModelTest {
         assertEquals(SessionsEffect.OpenSession("abc"), vm.effects.first())
     }
 
-    // --- long-press actions -------------------------------------------------------------
-
     private suspend fun withOneSession(): Pair<FakeChatRepository, SessionsViewModel> {
         val repository = FakeChatRepository()
         val id = repository.createSession("Original title")
@@ -114,7 +112,6 @@ class SessionsViewModelTest {
         vm.onIntent(SessionsIntent.SessionLongPressed("created-session-1"))
         vm.onIntent(SessionsIntent.RenameRequested)
 
-        // The menu closes as the dialog opens, so both are never on screen at once.
         assertNull(vm.state.value.actionsFor)
         assertEquals("Original title", vm.state.value.renaming?.title)
     }
@@ -148,7 +145,6 @@ class SessionsViewModelTest {
         vm.onIntent(SessionsIntent.RenameConfirmed)
         advanceUntilIdle()
 
-        // Still open, and the stored title is untouched.
         assertTrue(vm.state.value.renaming != null)
         assertEquals("Original title", repository.observeSessions().first().single().title)
     }
@@ -223,8 +219,6 @@ class SessionsViewModelTest {
         advanceUntilIdle()
 
         assertEquals(listOf("Visible"), vm.state.value.sessions.map { it.title })
-        // `first()` on the effect channel would suspend forever when nothing is emitted, so
-        // absence has to be asserted against a (virtual) timeout.
         assertNull(withTimeoutOrNull(1_000) { vm.effects.first() })
     }
 
@@ -241,8 +235,6 @@ class SessionsViewModelTest {
         vm.onIntent(SessionsIntent.DeleteRequested)
         vm.onIntent(SessionsIntent.DeleteConfirmed(visibleSessionId = doomed))
 
-        // Not `older`, and not null: being dropped into a previous conversation is
-        // disorienting, and an equal Chat(null) route would reuse the dead ViewModel.
         val effect = vm.effects.first() as SessionsEffect.OpenSession
         assertTrue(effect.sessionId != older)
         assertTrue(repository.isSessionEmpty(effect.sessionId))

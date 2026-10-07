@@ -1,18 +1,4 @@
 #!/usr/bin/env python3
-"""Generates Mishti's onboarding Lottie animations.
-
-Every layer is named after the Material colour role it should take ("primary",
-"tertiaryContainer", ...); the app recolours them at runtime from the current scheme, so the
-placeholder colours below only matter when a file is opened outside the app.
-
-Each file carries two markers: "intro" (shapes arrive) and "loop" (an idle cycle whose first
-and last frames match, so it repeats without a seam).
-
-Layers are added front to back: Lottie draws the first layer in the list on top.
-
-Usage, from the repository root:
-    python3 tools/generate_onboarding_lottie.py app/src/main/res/raw
-"""
 import json
 import math
 import sys
@@ -22,7 +8,6 @@ FPS = 60
 SIZE = 512
 C = SIZE / 2
 
-# Material 3 cubic-bezier easings as ((x1, y1), (x2, y2)).
 STANDARD = ((0.2, 0.0), (0.0, 1.0))
 DECELERATE = ((0.05, 0.7), (0.1, 1.0))
 SINE = ((0.37, 0.0), (0.63, 1.0))
@@ -48,15 +33,11 @@ def rgba(role):
     return [round(int(hex_[i:i + 2], 16) / 255, 4) for i in (0, 2, 4)] + [1]
 
 
-# --- animatable values -------------------------------------------------------------------
-
 def static(v):
     return {"a": 0, "k": list(v) if isinstance(v, tuple) else v}
 
 
 def keyframes(frames, spatial=False):
-    """frames: [(t, value, easing), ...]. The easing shapes the segment that starts at that
-    keyframe; HOLD keeps the value until the next keyframe. The last easing is ignored."""
     k = []
     for index, (t, v, ease) in enumerate(frames):
         values = list(v) if isinstance(v, (list, tuple)) else [v]
@@ -80,8 +61,6 @@ def keyframes(frames, spatial=False):
 def prop(v):
     return v if isinstance(v, dict) else static(v)
 
-
-# --- shapes ------------------------------------------------------------------------------
 
 def group(name, items, position=(0, 0), scale=(100, 100), rotation=0, opacity=100):
     transform = {"ty": "tr", "p": prop(position), "a": static([0, 0]), "s": prop(scale),
@@ -131,10 +110,7 @@ def trim(end):
     return {"ty": "tm", "s": static(0), "e": prop(end), "o": static(0), "m": 1}
 
 
-# --- motion ------------------------------------------------------------------------------
-
 def pop(start, duration=28):
-    """Grows a layer from nothing with a little overshoot."""
     frames = [(start, [0, 0, 100], OVERSHOOT), (start + duration, [100, 100, 100], LINEAR)]
     if start > 0:
         frames.insert(0, (0, [0, 0, 100], HOLD))
@@ -155,7 +131,6 @@ class Animation:
         self._next_index = 1
 
     def reserve(self):
-        """An index for a layer added later, so its children can be added in front of it."""
         index = self._next_index
         self._next_index += 1
         return index
@@ -171,8 +146,6 @@ class Animation:
             **({"parent": parent} if parent else {}),
         })
 
-    # Loop helpers: each returns to its starting value at the end of the loop.
-
     def spin(self, degrees):
         return keyframes([(0, 0, HOLD), (self.intro, 0, LINEAR), (self.end, degrees, LINEAR)])
 
@@ -181,14 +154,12 @@ class Animation:
                           (self.intro + self.loop // 2, degrees, SINE), (self.end, 0, LINEAR)])
 
     def bob(self, point, lift):
-        """Floats a point up by [lift] (down if negative) and back once per loop."""
         x, y = point
         return keyframes([(0, [x, y, 0], HOLD), (self.intro, [x, y, 0], SINE),
                           (self.intro + self.loop // 2, [x, y - lift, 0], SINE),
                           (self.end, [x, y, 0], LINEAR)], spatial=True)
 
     def arrive_then_pulse(self, start, low, high, high_first=True):
-        """Pops in during the intro, then breathes between [low] and [high] percent."""
         first, second = (high, low) if high_first else (low, high)
         return keyframes([(0, [0, 0, 100], HOLD), (start, [0, 0, 100], OVERSHOOT),
                           (start + 24, [first, first, 100], SINE),
@@ -197,7 +168,6 @@ class Animation:
                           (self.end, [first, first, 100], LINEAR)])
 
     def backdrop(self, role, points, outer, inner, roundness):
-        """The scalloped cookie behind each scene, turning one scallop per loop."""
         self.layer(role, [group("cookie", [star(points, outer, inner, roundness, roundness), fill(role)])],
                    scale=pop(0, duration=36), rotation=self.spin(360 / points))
 
@@ -208,10 +178,7 @@ class Animation:
                             {"tm": self.intro, "cm": "loop", "dr": self.loop}]}
 
 
-# --- scenes ------------------------------------------------------------------------------
-
 def chat_scene():
-    """A question and an answer, with a couple of sparkles."""
     a = Animation("Meet Mishti", intro=130, loop=240)
 
     a.layer("tertiary", [group("sparkle", [star(4, 28, 8, 0, 30), fill("tertiary")])],
@@ -220,7 +187,6 @@ def chat_scene():
             position=(112, 168), scale=a.arrive_then_pulse(100, 70, 100, high_first=False),
             rotation=a.spin(-90))
 
-    # Mishti's reply: lines that write themselves into a bubble growing from its lower-left.
     reply = a.reserve()
     lines = []
     for n, (x1, y) in enumerate(((58, -24), (80, 0), (22, 24))):
@@ -234,7 +200,6 @@ def chat_scene():
     a.layer("surface", [group("reply", [rect(208, 100, 30), fill("surface")])],
             position=a.bob((126, 370), -8), anchor=(-104, 50), scale=pop(58), index=reply)
 
-    # The question, growing from its lower-right corner.
     question = a.reserve()
     a.layer("onPrimary", [
         group("line0", [line(-60, 40, -8), stroke("onPrimary", 10)]),
@@ -248,7 +213,6 @@ def chat_scene():
 
 
 def private_scene():
-    """A shield locks shut and sends out quiet pulses; three dots keep watch."""
     a = Animation("Private and offline", intro=110, loop=240)
     center = (C, 262)
 
@@ -259,7 +223,6 @@ def private_scene():
         for n in range(3)
     ], position=center, rotation=a.spin(120), opacity=fade_in(80, 24))
 
-    # Keyhole, lock body, and a shackle that drops shut.
     a.layer("primary", [
         group("hole", [ellipse(22), fill("primary")], position=(0, -6)),
         group("slot", [rect(10, 22, 5, position=(0, 8)), fill("primary")]),
@@ -283,8 +246,6 @@ def private_scene():
     a.layer("primary", [group("shield", [shield, fill("primary")])], position=center,
             scale=a.arrive_then_pulse(10, 100, 104))
 
-    # Rings that swell out of the shield and fade, twice per loop; both are invisible at the
-    # seam, so the loop restarts cleanly.
     period = a.loop // 2
     for delay, duration in ((0, 110), (34, 84)):
         size = [(0, [236, 236], HOLD)]
@@ -304,7 +265,6 @@ def private_scene():
 
 
 def personalize_scene():
-    """A palette that sways, over two sliders being tuned."""
     a = Animation("Make it yours", intro=100, loop=240)
     left, right = -96, 96
 
@@ -333,8 +293,6 @@ def personalize_scene():
     a.backdrop("tertiaryContainer", points=8, outer=206, inner=184, roundness=40)
     return a
 
-
-# --- checks ------------------------------------------------------------------------------
 
 def check_keyframes(node, where):
     if isinstance(node, dict):

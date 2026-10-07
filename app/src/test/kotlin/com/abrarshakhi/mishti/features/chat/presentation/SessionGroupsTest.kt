@@ -49,7 +49,6 @@ class SessionGroupsTest {
 
     @Test
     fun `yesterday means the previous calendar day, not the last 24 hours`() {
-        // Late last night is less than a day before noon today, but it was still yesterday.
         val groups = groupSessionsByRecency(listOf(session("late", daysAgo = 1, hour = 23)), now, zone)
 
         assertEquals(Recency.Yesterday, groups.single().recency)

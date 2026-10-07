@@ -6,11 +6,6 @@ enum class ThemeMode(val label: String) {
     System("System"), Light("Light"), Dark("Dark"),
 }
 
-/**
- * The palettes offered in Settings. Every one but [Dynamic] is generated from its [seed] with
- * Material Kolor; [Dynamic] uses the wallpaper colours on Android 12+ and falls back to its seed
- * below that.
- */
 enum class AppColorScheme(val label: String, val seed: Color) {
     Dynamic("Dynamic", HoneySeed),
     Honey("Honey", HoneySeed),

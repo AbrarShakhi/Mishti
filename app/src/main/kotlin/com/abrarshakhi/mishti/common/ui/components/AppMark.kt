@@ -17,13 +17,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
 
-/** The scalloped "cookie" outline Mishti's mark sits in. */
 val CookieShape: Shape
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     get() = MaterialShapes.Cookie9Sided.toShape()
 
-/** The app icon set in a cookie shape, used wherever Mishti itself is speaking. */
 @Composable
 fun AppMark(
     modifier: Modifier = Modifier,

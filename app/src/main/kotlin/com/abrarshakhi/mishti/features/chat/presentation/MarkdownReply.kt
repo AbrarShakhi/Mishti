@@ -77,32 +77,19 @@ import org.intellij.markdown.parser.CancellationToken
 import org.intellij.markdown.parser.MarkdownParser
 import kotlin.time.Duration.Companion.milliseconds
 
-/** The shortest gap between two renders of a streaming reply, so a fast model can't flood the UI. */
 private val StreamingRenderInterval = 50.milliseconds
 
-/** Extra room above a heading, so it reads as the start of its section, not the end of the last. */
 private val HeadingTopSpace = Spacing.Small
 
-/** GitHub-flavoured Markdown, the dialect models write: tables, strikethrough, task lists, bare links. */
 private val ReplyFlavour = GFMFlavourDescriptor()
 private val ReplyParser = MarkdownParser(ReplyFlavour, cancellationToken = CancellationToken.NonCancellable)
 
-/**
- * Images are left out, as replies are written offline with nothing to fetch them from. One shared
- * instance: the renderer compares it between recompositions, and a new one would re-render every
- * block.
- */
 private val NoImages: ImageTransformer = NoOpImageTransformerImpl()
 
-/** Code within a sentence, sized relative to it so that it scales with headings too. */
 private val InlineCodeStyle = SpanStyle(fontFamily = CodeFontFamily, fontSize = 0.9.em)
 
 private const val NoBreakSpace = '\u00A0'
 
-/**
- * A finished reply, rendered as Markdown. It is parsed as it composes, so it never shows up
- * empty, not even for the moment the streaming reply hands over to it.
- */
 @Composable
 internal fun MarkdownReply(markdown: String, modifier: Modifier = Modifier) {
     val state = remember(markdown) {
@@ -121,18 +108,12 @@ internal fun MarkdownReply(markdown: String, modifier: Modifier = Modifier) {
         extendedSpans = style.extendedSpans,
         components = ReplyComponents,
         animations = style.animations,
-        // Should the parser ever fail, the reply still shows, as written.
         error = { errorModifier ->
             Text(text = markdown, modifier = errorModifier, style = style.typography.paragraph)
         },
     )
 }
 
-/**
- * A reply that is still arriving, rendered as Markdown as it grows. Blocks that are complete keep
- * their parse; only the one still being written is parsed again, at most once per
- * [StreamingRenderInterval]. [placeholder] shows until there is a block to render.
- */
 @Composable
 internal fun StreamingMarkdownReply(
     markdown: String,
@@ -145,15 +126,12 @@ internal fun StreamingMarkdownReply(
         snapshotFlow { latestMarkdown }
             .conflate()
             .collect { text ->
-                // A reply only ever grows (the next one is a new list item), so the parser is
-                // handed just the part it hasn't seen.
                 val parsedLength = state.content.length
                 if (text.length > parsedLength) state.append(text.substring(parsedLength))
                 delay(StreamingRenderInterval)
             }
     }
 
-    // Waiting on the parse rather than on the text leaves no empty frame between the two.
     val snapshot by state.snapshot.collectAsState()
     if (!snapshot.hasBlocks()) {
         placeholder()
@@ -180,7 +158,6 @@ private fun StreamingMarkdownState.Snapshot.hasBlocks(): Boolean =
         node.type != MarkdownTokenTypes.EOL && node.type != MarkdownTokenTypes.WHITE_SPACE
     }
 
-/** How replies look: Markdown's elements mapped onto the app's type scale and colours. */
 private class ReplyStyle(
     val colors: MarkdownColors,
     val typography: MarkdownTypography,
@@ -223,13 +200,9 @@ private fun replyStyle(): ReplyStyle {
             ),
             table = type.bodyMedium,
         ),
-        // The gap also opens the first block, which centres a first line of body text on the
-        // avatar. Lists get no gap of their own, so they sit as far from a paragraph as another
-        // paragraph would.
         padding = markdownPadding(block = Spacing.ExtraSmall, list = 0.dp),
         dimens = markdownDimens(blockQuoteThickness = 3.dp, tableCornerSize = 12.dp),
         annotator = remember(chipColor) { inlineCodeAnnotator(chipColor) },
-        // Rounds the inline code chips' backgrounds.
         extendedSpans = markdownExtendedSpans {
             remember {
                 ExtendedSpans(
@@ -240,17 +213,10 @@ private fun replyStyle(): ReplyStyle {
                 )
             }
         },
-        // A streaming reply gains lines all the time; animating each one would keep the list
-        // laying itself out again.
         animations = markdownAnimations(animateTextSize = { this }),
     )
 }
 
-/**
- * Inline code as a chip that wraps as one piece. The renderer pads code with plain spaces, which
- * can wrap onto the line before and leave a sliver of chip behind; no-break spaces stay with the
- * code, and in the body's face they pad by a space rather than by a whole monospaced cell.
- */
 private fun inlineCodeAnnotator(chipColor: Color): MarkdownAnnotator =
     markdownAnnotator { content, node ->
         if (node.type != MarkdownElementTypes.CODE_SPAN) return@markdownAnnotator false
@@ -262,11 +228,6 @@ private fun inlineCodeAnnotator(chipColor: Color): MarkdownAnnotator =
         true
     }
 
-/**
- * The code between a code span's backticks. As in CommonMark, line breaks become spaces, and one
- * space just inside each pair of backticks is dropped: it's there so code can start or end with a
- * backtick.
- */
 internal fun ASTNode.codeSpanText(content: CharSequence): String {
     val code = content
         .substring(children.first().endOffset, children.last().startOffset)
@@ -302,7 +263,6 @@ private val ReplyComponents = markdownComponents(
     checkbox = { model -> MarkdownCheckBox(model.content, model.node, model.typography.text) },
 )
 
-/** Bullets that change with depth, as in documents: a disc, then a circle, then a square. */
 private val DepthBullets = BulletHandler { _, _, _, _, depth ->
     when (depth % 3) {
         0 -> "• "
@@ -321,10 +281,6 @@ private fun heading(
     }
 }
 
-/**
- * Code in JetBrains Mono under its language and a copy button. Long lines scroll sideways rather
- * than wrap, so the code keeps its shape.
- */
 @Composable
 private fun CodeBlock(code: String, language: String?, style: TextStyle) {
     Surface(
@@ -336,7 +292,6 @@ private fun CodeBlock(code: String, language: String?, style: TextStyle) {
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     ) {
         Column {
-            // The label and button aren't code, so a selection passes over them.
             DisableSelection {
                 Row(
                     modifier = Modifier

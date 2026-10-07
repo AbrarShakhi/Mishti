@@ -1,6 +1,7 @@
 package com.abrarshakhi.mishti.common.main
 
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,8 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -23,34 +25,44 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerDefaults
-import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.DropdownMenuPopup
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,18 +70,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.components.AppMark
+import com.abrarshakhi.mishti.common.ui.components.SectionHeader
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.features.chat.domain.model.ChatSession
 import com.abrarshakhi.mishti.features.chat.presentation.RenameState
+import com.abrarshakhi.mishti.features.chat.presentation.SessionGroup
 import com.abrarshakhi.mishti.features.chat.presentation.groupSessionsByRecency
 import java.time.ZoneId
 import kotlin.math.min
 
 private val MinimumVisibleScrim = 56.dp
 
-/** Where drawer text and icons start: the item inset plus the item's own start padding. */
-private val DrawerContentInset = 28.dp
+private val FadeLength = 32.dp
+
+private const val TopAnchorKey = "top"
 
 @Composable
 fun AppDrawer(
@@ -101,8 +116,12 @@ fun AppDrawer(
     val groups = remember(sessions) {
         groupSessionsByRecency(sessions, System.currentTimeMillis(), ZoneId.systemDefault())
     }
+    val listState = rememberLazyListState()
 
-    ModalDrawerSheet(modifier = modifier.width(drawerWidth)) {
+    ModalDrawerSheet(
+        modifier = modifier.width(drawerWidth),
+        drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+    ) {
         DrawerHeader()
 
         NavigationDrawerItem(
@@ -113,61 +132,22 @@ fun AppDrawer(
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
         )
 
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(vertical = Spacing.Small),
-        ) {
-            groups.forEach { group ->
-                item(key = group.recency) {
-                    Text(
-                        text = group.recency.label,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier
-                            .padding(
-                                start = DrawerContentInset,
-                                end = DrawerContentInset,
-                                top = Spacing.Large,
-                                bottom = Spacing.Small,
-                            )
-                            .semantics { heading() },
-                    )
-                }
-                items(items = group.sessions, key = { it.id }) { session ->
-                    ConversationItem(
-                        session = session,
-                        selected = session.id == currentSessionId,
-                        menuExpanded = actionsFor?.id == session.id,
-                        onClick = { onSessionClick(session.id) },
-                        onShowActions = { onSessionLongPress(session.id) },
-                        onMenuDismiss = onActionsDismiss,
-                        onRename = onRenameRequest,
-                        onDelete = onDeleteRequest,
-                    )
-                }
-            }
-        }
-
-        HorizontalDivider(modifier = Modifier.padding(horizontal = DrawerContentInset))
-        Spacer(Modifier.height(Spacing.Small))
-
-        NavigationDrawerItem(
-            label = { Text("Models") },
-            icon = { Icon(Icons.Filled.Memory, contentDescription = null) },
-            selected = false,
-            onClick = onModelsClick,
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+        ConversationHistory(
+            groups = groups,
+            currentSessionId = currentSessionId,
+            actionsFor = actionsFor,
+            state = listState,
+            onSessionClick = onSessionClick,
+            onShowActions = onSessionLongPress,
+            onActionsDismiss = onActionsDismiss,
+            onRename = onRenameRequest,
+            onDelete = onDeleteRequest,
+            modifier = Modifier.weight(1f),
         )
-        NavigationDrawerItem(
-            label = { Text("Settings") },
-            icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
-            selected = false,
-            onClick = onSettingsClick,
-            modifier = Modifier
-                .padding(NavigationDrawerItemDefaults.ItemPadding)
-                .padding(bottom = Spacing.Medium),
+
+        DrawerFooter(
+            onModelsClick = onModelsClick,
+            onSettingsClick = onSettingsClick,
         )
     }
 
@@ -204,19 +184,133 @@ private fun DrawerHeader() {
         Spacer(Modifier.width(Spacing.Medium))
         Text(
             text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleLargeEmphasized,
             color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
 
-/**
- * One conversation, drawn like a navigation drawer item. A long press opens its actions, and
- * the open conversation also shows a menu button so the actions can be found without one.
- */
+@Composable
+private fun ConversationHistory(
+    groups: List<SessionGroup>,
+    currentSessionId: String?,
+    actionsFor: ChatSession?,
+    state: LazyListState,
+    onSessionClick: (String) -> Unit,
+    onShowActions: (String) -> Unit,
+    onActionsDismiss: () -> Unit,
+    onRename: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val effects = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
+    val topFade by animateFloatAsState(
+        targetValue = if (state.canScrollBackward) 1f else 0f,
+        animationSpec = effects,
+        label = "TopFade",
+    )
+    val bottomFade by animateFloatAsState(
+        targetValue = if (state.canScrollForward) 1f else 0f,
+        animationSpec = effects,
+        label = "BottomFade",
+    )
+
+    LazyColumn(
+        state = state,
+        modifier = modifier
+            .fillMaxWidth()
+            .fadingEdges(top = { topFade }, bottom = { bottomFade }),
+        contentPadding = PaddingValues(
+            start = Spacing.Medium,
+            end = Spacing.Medium,
+            bottom = Spacing.Large,
+        ),
+        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+    ) {
+        item(key = TopAnchorKey) {
+            Spacer(Modifier.height(Spacing.Small - ListItemDefaults.SegmentedGap))
+        }
+        if (groups.isEmpty()) {
+            item(key = "empty") {
+                Text(
+                    text = "Your conversations will appear here.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = Spacing.Large, vertical = Spacing.Large),
+                )
+            }
+        }
+        groups.forEachIndexed { groupIndex, group ->
+            item(key = group.recency, contentType = "recency") {
+                SectionHeader(
+                    title = group.recency.label,
+                    modifier = Modifier
+                        .animateItem()
+                        .padding(top = if (groupIndex == 0) 0.dp else Spacing.Medium),
+                )
+            }
+            itemsIndexed(
+                items = group.sessions,
+                key = { _, session -> session.id },
+                contentType = { _, _ -> "session" },
+            ) { index, session ->
+                ConversationItem(
+                    session = session,
+                    shapes = ListItemDefaults.segmentedShapes(
+                        index = index,
+                        count = group.sessions.size,
+                    ),
+                    selected = session.id == currentSessionId,
+                    menuExpanded = actionsFor?.id == session.id,
+                    onClick = { onSessionClick(session.id) },
+                    onShowActions = { onShowActions(session.id) },
+                    onMenuDismiss = onActionsDismiss,
+                    onRename = onRename,
+                    onDelete = onDelete,
+                    modifier = Modifier.animateItem(),
+                )
+            }
+        }
+    }
+}
+
+private fun Modifier.fadingEdges(top: () -> Float, bottom: () -> Float): Modifier =
+    graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+        .drawWithContent {
+            drawContent()
+            val length = FadeLength.toPx()
+            val topAlpha = top()
+            if (topAlpha > 0f) {
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color.Black.copy(alpha = 1f - topAlpha), Color.Black),
+                        startY = 0f,
+                        endY = length,
+                    ),
+                    size = Size(size.width, length),
+                    blendMode = BlendMode.DstIn,
+                )
+            }
+            val bottomAlpha = bottom()
+            if (bottomAlpha > 0f) {
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color.Black, Color.Black.copy(alpha = 1f - bottomAlpha)),
+                        startY = size.height - length,
+                        endY = size.height,
+                    ),
+                    topLeft = Offset(0f, size.height - length),
+                    size = Size(size.width, length),
+                    blendMode = BlendMode.DstIn,
+                )
+            }
+        }
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ConversationItem(
     session: ChatSession,
+    shapes: ListItemShapes,
     selected: Boolean,
     menuExpanded: Boolean,
     onClick: () -> Unit,
@@ -224,67 +318,107 @@ private fun ConversationItem(
     onMenuDismiss: () -> Unit,
     onRename: () -> Unit,
     onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val haptics = LocalHapticFeedback.current
 
-    Box(modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)) {
-        Surface(
-            color = if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-            contentColor = if (selected) {
-                MaterialTheme.colorScheme.onSecondaryContainer
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
+    Box(modifier = modifier) {
+        SegmentedListItem(
+            selected = selected,
+            onClick = onClick,
+            shapes = shapes,
+            onLongClick = {
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                onShowActions()
             },
-            shape = CircleShape,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .combinedClickable(
-                        onClick = onClick,
-                        onLongClick = {
-                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onShowActions()
-                        },
-                        onLongClickLabel = "Conversation actions",
-                    )
-                    .padding(start = Spacing.Large, end = Spacing.ExtraSmall),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = session.title,
-                    style = MaterialTheme.typography.labelLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                )
-                if (selected) {
-                    IconButton(onClick = onShowActions) {
+            onLongClickLabel = "Conversation actions",
+            trailingContent = if (selected) {
+                {
+                    IconButton(onClick = onShowActions, shapes = IconButtonDefaults.shapes()) {
                         Icon(Icons.Filled.MoreVert, contentDescription = "Conversation actions")
                     }
                 }
-            }
+            } else {
+                null
+            },
+        ) {
+            Text(
+                text = session.title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
 
-        DropdownMenu(expanded = menuExpanded, onDismissRequest = onMenuDismiss) {
+        ConversationActionsMenu(
+            expanded = menuExpanded,
+            onDismiss = onMenuDismiss,
+            onRename = onRename,
+            onDelete = onDelete,
+        )
+    }
+}
+
+@Composable
+private fun ConversationActionsMenu(
+    expanded: Boolean,
+    onDismiss: () -> Unit,
+    onRename: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    val containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+
+    DropdownMenuPopup(expanded = expanded, onDismissRequest = onDismiss) {
+        DropdownMenuGroup(
+            shapes = MenuDefaults.groupShape(index = 0, count = 2),
+            containerColor = containerColor,
+        ) {
             DropdownMenuItem(
-                text = { Text("Rename") },
-                leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null) },
                 onClick = onRename,
+                text = { Text("Rename") },
+                shape = MenuDefaults.itemShape(index = 0, count = 1).shape,
+                leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null) },
             )
+        }
+        Spacer(Modifier.height(MenuDefaults.GroupSpacing))
+        DropdownMenuGroup(
+            shapes = MenuDefaults.groupShape(index = 1, count = 2),
+            containerColor = containerColor,
+        ) {
             DropdownMenuItem(
+                onClick = onDelete,
                 text = { Text("Delete") },
+                shape = MenuDefaults.itemShape(index = 0, count = 1).shape,
                 leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
                 colors = MenuDefaults.itemColors(
                     textColor = MaterialTheme.colorScheme.error,
                     leadingIconColor = MaterialTheme.colorScheme.error,
                 ),
-                onClick = onDelete,
             )
         }
     }
+}
+
+@Composable
+private fun DrawerFooter(
+    onModelsClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+) {
+    NavigationDrawerItem(
+        label = { Text("Models") },
+        icon = { Icon(Icons.Filled.Memory, contentDescription = null) },
+        selected = false,
+        onClick = onModelsClick,
+        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+    )
+    NavigationDrawerItem(
+        label = { Text("Settings") },
+        icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
+        selected = false,
+        onClick = onSettingsClick,
+        modifier = Modifier
+            .padding(NavigationDrawerItemDefaults.ItemPadding)
+            .padding(bottom = Spacing.Medium),
+    )
 }
 
 @Composable
@@ -352,8 +486,9 @@ private fun AppDrawerPreview() {
         AppDrawer(
             sessions = listOf(
                 ChatSession("1", "Running a model offline", 0L, now),
-                ChatSession("2", "Haiku about the sea", 0L, now - 86_400_000L),
-                ChatSession("3", "Dinner ideas", 0L, now - 4 * 86_400_000L),
+                ChatSession("2", "Haiku about the sea", 0L, now - 3_600_000L),
+                ChatSession("3", "Dinner ideas", 0L, now - 86_400_000L),
+                ChatSession("4", "Regex for email addresses", 0L, now - 4 * 86_400_000L),
             ),
             currentSessionId = "1",
             actionsFor = null,

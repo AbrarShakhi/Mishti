@@ -51,7 +51,6 @@ import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.features.models.domain.model.ModelEntry
 import com.abrarshakhi.mishti.features.models.domain.model.ModelStatus
 
-/** A byte count the way Android's own Settings shows it, localised. */
 @Composable
 internal fun formatSize(bytes: Long): String =
     Formatter.formatShortFileSize(LocalContext.current, bytes)
@@ -148,7 +147,6 @@ private fun InUseBadge() {
     }
 }
 
-/** How much memory the model wants, called out in red when this phone has less. */
 @Composable
 private fun MemoryRequirement(required: Long, available: Long?) {
     val tooLittle = available != null && available < required

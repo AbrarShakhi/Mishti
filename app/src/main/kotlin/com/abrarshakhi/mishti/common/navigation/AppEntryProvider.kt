@@ -4,6 +4,10 @@ import androidx.navigation3.runtime.entryProvider
 import com.abrarshakhi.mishti.features.chat.presentation.ChatRoute
 import com.abrarshakhi.mishti.features.models.presentation.ModelsRoute
 import com.abrarshakhi.mishti.features.onboarding.presentation.OnboardingRoute
+import com.abrarshakhi.mishti.features.settings.presentation.AppearanceSettingsRoute
+import com.abrarshakhi.mishti.features.settings.presentation.ChatSettingsRoute
+import com.abrarshakhi.mishti.features.settings.presentation.GenerationSettingsRoute
+import com.abrarshakhi.mishti.features.settings.presentation.PerformanceSettingsRoute
 import com.abrarshakhi.mishti.features.settings.presentation.SettingsRoute
 
 fun appEntryProvider(
@@ -22,10 +26,25 @@ fun appEntryProvider(
     entry<AppRouteKey.Settings> {
         SettingsRoute(
             onBack = { navigator.goBack() },
-            onNavigateToModels = { navigator.navigate(AppRouteKey.Models) },
+            onOpenModels = { navigator.navigate(AppRouteKey.Models) },
+            onOpenAppearance = { navigator.navigate(AppRouteKey.AppearanceSettings) },
+            onOpenChat = { navigator.navigate(AppRouteKey.ChatSettings) },
+            onOpenGeneration = { navigator.navigate(AppRouteKey.GenerationSettings) },
+            onOpenPerformance = { navigator.navigate(AppRouteKey.PerformanceSettings) },
         )
     }
-
+    entry<AppRouteKey.AppearanceSettings> {
+        AppearanceSettingsRoute(onBack = { navigator.goBack() })
+    }
+    entry<AppRouteKey.ChatSettings> {
+        ChatSettingsRoute(onBack = { navigator.goBack() })
+    }
+    entry<AppRouteKey.GenerationSettings> {
+        GenerationSettingsRoute(onBack = { navigator.goBack() })
+    }
+    entry<AppRouteKey.PerformanceSettings> {
+        PerformanceSettingsRoute(onBack = { navigator.goBack() })
+    }
     entry<AppRouteKey.Models> {
         ModelsRoute(onBack = { navigator.goBack() })
     }

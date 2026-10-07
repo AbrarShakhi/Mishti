@@ -51,7 +51,6 @@ private val Suggestions = listOf(
     "Give me three quick dinner ideas",
 )
 
-/** What an empty conversation shows, depending on whether a model is ready to answer. */
 @Composable
 internal fun ChatEmptyState(
     engineState: EngineState,
@@ -62,7 +61,6 @@ internal fun ChatEmptyState(
     val enterSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
     val exitSpec = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
 
-    // Centred when it fits, scrollable when it doesn't (a small screen with the keyboard up).
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val viewportHeight = maxHeight
         Box(

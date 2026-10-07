@@ -81,7 +81,6 @@ private val Pages = listOf(
     ),
 )
 
-/** How far the art trails the page as it is swiped, as a fraction of the page width. */
 private const val ArtParallax = 0.3f
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -181,7 +180,6 @@ fun OnboardingScreen(
     }
 }
 
-/** Skip, which steps aside on the last page where "Get started" says the same thing. */
 @Composable
 private fun SkipButton(visible: Boolean, onClick: () -> Unit) {
     AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
@@ -189,7 +187,6 @@ private fun SkipButton(visible: Boolean, onClick: () -> Unit) {
     }
 }
 
-/** How many pages [page] is from the settled position: 0 when centred, ±1 one page away. */
 private fun PagerState.offsetOf(page: Int): Float =
     (currentPage - page) + currentPageOffsetFraction
 
@@ -237,7 +234,6 @@ private fun PageContent(
     }
 }
 
-/** Dots for the pages, the current one stretched into a pill. */
 @Composable
 private fun PageIndicator(
     pageCount: Int,

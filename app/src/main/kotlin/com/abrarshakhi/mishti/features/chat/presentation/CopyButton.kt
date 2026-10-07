@@ -30,10 +30,6 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val CopiedFeedbackMillis = 1_500L
 
-/**
- * Copies [text] to the clipboard, then shows a check for a moment, so the copy is acknowledged
- * even on Android versions without the system's own clipboard confirmation.
- */
 @Composable
 internal fun CopyButton(
     text: String,

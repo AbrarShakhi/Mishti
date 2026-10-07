@@ -24,13 +24,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * Plain JUnit — no Robolectric, no Android, no Compose, no database.
- *
- * That is the payoff of depending on the `ChatRepository` interface and injecting
- * `clock`/`newId`: every transition is a pure function of previous state and an intent.
- */
-/** Captures what the ViewModel actually hands the engine. */
 private class RecordingEngine(
     private val tokenCount: Int = 3,
     private val durationMillis: Long = 1_000,
@@ -66,7 +59,6 @@ class ChatViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    /** Zero delays: `runTest` drives virtual time, so generation completes on demand. */
     private fun engine() = ScriptedLlmEngine(
         script = listOf("Scripted reply."),
         loadDelayMillis = 0,
@@ -89,7 +81,6 @@ class ChatViewModelTest {
         newId = { "id-${nextId++}" },
     )
 
-    /** Brings the engine to Ready, as selecting a model does at runtime. */
     private suspend fun LlmEngine.ready() =
         load(ModelHandle(id = "test-model", name = "Test", path = "/tmp/test.gguf"))
 
@@ -243,7 +234,6 @@ class ChatViewModelTest {
 
     @Test
     fun `stopping keeps the partial reply instead of discarding it`() = runTest {
-        // A slow engine so generation can be interrupted midway through.
         val engine = ScriptedLlmEngine(
             script = listOf("abcdefghijklmnop"),
             loadDelayMillis = 0,
@@ -299,7 +289,6 @@ class ChatViewModelTest {
         advanceUntilIdle()
 
         val sent = engine.lastMessages
-        // Trimmed, first, and marked as a system turn rather than glued onto the user's text.
         assertEquals(LlmRole.System, sent.first().role)
         assertEquals("Answer in one word.", sent.first().content)
         assertEquals(LlmRole.User, sent[1].role)

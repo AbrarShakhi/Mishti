@@ -10,7 +10,11 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SettingsRoute(
     onBack: () -> Unit,
-    onNavigateToModels: () -> Unit,
+    onOpenModels: () -> Unit,
+    onOpenAppearance: () -> Unit,
+    onOpenChat: () -> Unit,
+    onOpenGeneration: () -> Unit,
+    onOpenPerformance: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: SettingsViewModel = koinViewModel()
@@ -19,9 +23,64 @@ fun SettingsRoute(
     SettingsScreen(
         state = state,
         versionName = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+        onBack = onBack,
+        onOpenModels = onOpenModels,
+        onOpenAppearance = onOpenAppearance,
+        onOpenChat = onOpenChat,
+        onOpenGeneration = onOpenGeneration,
+        onOpenPerformance = onOpenPerformance,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun AppearanceSettingsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
+    val viewModel: SettingsViewModel = koinViewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    AppearanceSettingsScreen(
+        state = state,
         onIntent = viewModel::onIntent,
         onBack = onBack,
-        onNavigateToModels = onNavigateToModels,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun ChatSettingsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
+    val viewModel: SettingsViewModel = koinViewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    ChatSettingsScreen(
+        state = state,
+        onIntent = viewModel::onIntent,
+        onBack = onBack,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun GenerationSettingsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
+    val viewModel: SettingsViewModel = koinViewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    GenerationSettingsScreen(
+        state = state,
+        onIntent = viewModel::onIntent,
+        onBack = onBack,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun PerformanceSettingsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
+    val viewModel: SettingsViewModel = koinViewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    PerformanceSettingsScreen(
+        state = state,
+        onIntent = viewModel::onIntent,
+        onBack = onBack,
         modifier = modifier,
     )
 }

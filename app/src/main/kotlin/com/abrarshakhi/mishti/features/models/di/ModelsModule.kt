@@ -1,6 +1,7 @@
 package com.abrarshakhi.mishti.features.models.di
 
 import android.os.Build
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.device.AndroidDeviceCapabilityProvider
 import com.abrarshakhi.mishti.common.device.DeviceCapabilityProvider
 import com.abrarshakhi.mishti.common.llm.SelectedModelSource
@@ -23,7 +24,7 @@ import com.abrarshakhi.mishti.features.models.domain.repository.CatalogRepositor
 import com.abrarshakhi.mishti.features.models.domain.repository.ModelRepository
 import com.abrarshakhi.mishti.features.models.presentation.ModelsViewModel
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,12 +32,11 @@ import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
-import com.abrarshakhi.mishti.R
 
 val modelsModule = module {
 
     single {
-        HttpClient(Android) {
+        HttpClient(OkHttp) {
             install(HttpTimeout) {
                 requestTimeoutMillis = null
                 connectTimeoutMillis = 30_000

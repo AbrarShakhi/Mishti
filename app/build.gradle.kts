@@ -23,7 +23,7 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.lifecycle.viewmodel.navigation3)
     implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.koin.android)
@@ -67,7 +67,7 @@ android {
         targetSdk = 37
 
         versionCode = 3
-        versionName = "1.2.0-alpha0"
+        versionName = "1.2.0-alpha.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

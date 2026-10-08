@@ -8,21 +8,21 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.utils.io.readBuffer
-import kotlinx.io.readByteArray
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import kotlinx.io.readByteArray
 import java.io.File
 import java.io.RandomAccessFile
-import kotlin.coroutines.coroutineContext
 
 sealed interface DownloadProgress {
     data class Downloading(val downloadedBytes: Long, val totalBytes: Long) : DownloadProgress
     data object Verifying : DownloadProgress
 }
 
-class DownloadFailure(val error: TransferError, cause: Throwable? = null) : Exception(error.name, cause)
+class DownloadFailure(val error: TransferError, cause: Throwable? = null) :
+    Exception(error.name, cause)
 
 data class DownloadRequest(
     val id: String,
@@ -48,42 +48,66 @@ class ModelDownloader(
 
         val partial = storage.partialFile(request.id)
         val alreadyHave = if (partial.isFile) partial.length() else 0L
-
         client.prepareGet(request.url) {
-            if (alreadyHave > 0) header(HttpHeaders.Range, "bytes=$alreadyHave-")
+            if (alreadyHave > 0) {
+                header(HttpHeaders.Range, "bytes=$alreadyHave-")
+            }
         }.execute { response ->
             val resuming = response.status == HttpStatusCode.PartialContent
-            if (alreadyHave > 0 && !resuming) partial.delete()
+            if (alreadyHave > 0 && !resuming) {
+                partial.delete()
+            }
             if (!response.status.isSuccessOrPartial()) {
                 throw DownloadFailure(TransferError.ServerError)
             }
 
             val startAt = if (resuming) alreadyHave else 0L
             var written = startAt
+            var lastProgressUpdate = 0L
 
             RandomAccessFile(partial, "rw").use { out ->
                 out.seek(startAt)
                 val channel = response.bodyAsChannel()
-                while (!channel.isClosedForRead) {
-                    coroutineContext.ensureActive()
+                while (true) {
+                    this@withContext.coroutineContext.ensureActive()
                     val packet = channel.readBuffer(DOWNLOAD_CHUNK_BYTES)
+                    if (packet.exhausted()) {
+                        break
+                    }
                     while (!packet.exhausted()) {
                         val bytes = packet.readByteArray()
                         out.write(bytes)
                         written += bytes.size
-                        onProgress(DownloadProgress.Downloading(written, request.sizeBytes))
+                        val now = System.currentTimeMillis()
+                        if (now - lastProgressUpdate >= PROGRESS_UPDATE_INTERVAL_MS) {
+                            lastProgressUpdate = now
+
+                            onProgress(
+                                DownloadProgress.Downloading(
+                                    downloadedBytes = written,
+                                    totalBytes = request.sizeBytes,
+                                )
+                            )
+                        }
                     }
                 }
             }
+
+            onProgress(
+                DownloadProgress.Downloading(
+                    downloadedBytes = written,
+                    totalBytes = request.sizeBytes,
+                )
+            )
         }
 
         onProgress(DownloadProgress.Verifying)
+
         val actual = storage.sha256(partial)
         if (!actual.equals(request.sha256, ignoreCase = true)) {
             partial.delete()
             throw DownloadFailure(TransferError.VerificationFailed)
         }
-
         val target = storage.modelFile(request.id)
         target.delete()
         if (!partial.renameTo(target)) {
@@ -96,6 +120,7 @@ class ModelDownloader(
         value in 200..299
 
     private companion object {
-        const val DOWNLOAD_CHUNK_BYTES = 64L * 1024
+        const val DOWNLOAD_CHUNK_BYTES = (64L * 1024) * 2
+        const val PROGRESS_UPDATE_INTERVAL_MS = 500L
     }
 }

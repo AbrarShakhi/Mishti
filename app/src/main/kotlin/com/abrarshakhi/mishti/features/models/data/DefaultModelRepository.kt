@@ -49,8 +49,8 @@ class DefaultModelRepository(
         .map { rows -> rows.filter { storageManager.isPresent(it.id) }.map { it.toDomain() } }
         .flowOn(Dispatchers.IO)
 
-    private val _transfers = MutableStateFlow<Map<String, Transfer>>(emptyMap())
-    override val transfers: Flow<List<Transfer>> = _transfers.asStateFlow().map { it.values.toList() }
+    private val _transfers = MutableStateFlow<List<Transfer>>(emptyList())
+    override val transfers: Flow<List<Transfer>> = _transfers.asStateFlow()
 
     private val _storage = MutableStateFlow(StorageUsage())
     override val storage: Flow<StorageUsage> = _storage.asStateFlow()
@@ -66,7 +66,7 @@ class DefaultModelRepository(
 
     override suspend fun select(modelId: String?) {
         val valid = modelId == null ||
-            (dao.byId(modelId) != null && storageManager.isPresent(modelId))
+                (dao.byId(modelId) != null && storageManager.isPresent(modelId))
         if (valid) preferences.setSelectedModelId(modelId)
     }
 
@@ -74,20 +74,34 @@ class DefaultModelRepository(
         val id = model.id
         if (jobs[id]?.isActive == true) return
 
-        setTransfer(id, model.name, TransferStatus.Downloading(storageManager.partialBytes(id), model.sizeBytes))
+        setTransfer(
+            id,
+            model.name,
+            TransferStatus.Downloading(storageManager.partialBytes(id), model.sizeBytes)
+        )
         notifier.onDownloadsActive()
 
         jobs[id] = scope.launch {
             try {
                 downloader.download(
-                    DownloadRequest(id, model.name, model.downloadUrl, model.sizeBytes, model.sha256),
+                    DownloadRequest(
+                        id,
+                        model.name,
+                        model.downloadUrl,
+                        model.sizeBytes,
+                        model.sha256
+                    ),
                 ) { progress ->
                     setTransfer(
                         id,
                         model.name,
                         when (progress) {
                             is DownloadProgress.Downloading ->
-                                TransferStatus.Downloading(progress.downloadedBytes, progress.totalBytes)
+                                TransferStatus.Downloading(
+                                    progress.downloadedBytes,
+                                    progress.totalBytes
+                                )
+
                             DownloadProgress.Verifying -> TransferStatus.Verifying
                         },
                     )
@@ -150,7 +164,7 @@ class DefaultModelRepository(
     }
 
     override fun cancel(transferId: String) {
-        jobs.remove(transferId)?.cancel() ?: removeTransfer(transferId)
+        jobs[transferId]?.cancel() ?: removeTransfer(transferId)
     }
 
     override fun cancelAll() {
@@ -183,7 +197,8 @@ class DefaultModelRepository(
 
     private fun adoptUnknown(id: String): InstalledModelEntity {
         val file = storageManager.modelFile(id)
-        val info = runCatching { file.inputStream().buffered().use { GgufReader.read(it) } }.getOrNull()
+        val info =
+            runCatching { file.inputStream().buffered().use { GgufReader.read(it) } }.getOrNull()
         return InstalledModelEntity(
             id = id,
             name = info?.name ?: id,
@@ -208,11 +223,21 @@ class DefaultModelRepository(
     }
 
     private fun setTransfer(id: String, name: String, status: TransferStatus) {
-        _transfers.update { it + (id to Transfer(id, name, status)) }
+        _transfers.update { current ->
+            val transfer = Transfer(id, name, status)
+            val index = current.indexOfFirst { it.id == id }
+            if (index == -1) {
+                current + transfer
+            } else {
+                current.toMutableList().apply { this[index] = transfer }
+            }
+        }
     }
 
     private fun removeTransfer(id: String) {
-        _transfers.update { it - id }
+        _transfers.update { current ->
+            current.filterNot { it.id == id }
+        }
     }
 }
 

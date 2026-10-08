@@ -67,6 +67,7 @@ class ModelsViewModel(
                 updateState { copy(catalogSource = intent.source, filter = CatalogFilter.All) }
                 refresh(intent.source, force = false)
             }
+
             is ModelsIntent.FilterSelected -> updateState { copy(filter = intent.filter) }
             is ModelsIntent.QueryChanged -> updateState { copy(query = intent.query) }
             ModelsIntent.RefreshRequested -> refresh(currentState.catalogSource, force = true)
@@ -77,6 +78,7 @@ class ModelsViewModel(
             is ModelsIntent.DeleteRequested -> updateState {
                 copy(deleting = shelf.find { it.id == intent.modelId })
             }
+
             ModelsIntent.DeleteConfirmed -> onDeleteConfirmed()
             ModelsIntent.DeleteCancelled -> updateState { copy(deleting = null) }
             is ModelsIntent.DetailsOpened -> updateState { copy(details = intent.model) }
@@ -97,8 +99,16 @@ class ModelsViewModel(
             snackbar.showError(R.string.models_phone_unsupported)
             return
         }
-        if (memoryFit(model.requiredRamBytes, deviceCapability.totalMemoryBytes) == MemoryFit.TooBig) {
-            snackbar.showError(R.string.models_needs_memory, model.name, gigabytes(model.requiredRamBytes))
+        if (memoryFit(
+                model.requiredRamBytes,
+                deviceCapability.totalMemoryBytes
+            ) == MemoryFit.TooBig
+        ) {
+            snackbar.showError(
+                R.string.models_needs_memory,
+                model.name,
+                gigabytes(model.requiredRamBytes)
+            )
             return
         }
         updateState { copy(details = null) }
@@ -143,4 +153,5 @@ class ModelsViewModel(
     )
 }
 
-fun gigabytes(bytes: Long): String = String.format(Locale.getDefault(), "%.1f", bytes / 1_000_000_000.0)
+fun gigabytes(bytes: Long): String =
+    String.format(Locale.getDefault(), "%.1f", bytes / 1_000_000_000.0)

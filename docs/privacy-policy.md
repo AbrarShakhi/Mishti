@@ -1,4 +1,8 @@
-# Privacy Policy
+# Privacy Policy (Draft)
+
+> **Draft, not legal advice.** This document is a working draft written by the developer to
+> describe how Mishti behaves. It has not been reviewed by a lawyer and is not a legal document.
+> It may change before Mishti is published on an app store.
 
 **Last updated:** 8 October 2026
 **App:** Mishti for Android (`com.abrarshakhi.mishti`)
@@ -10,6 +14,7 @@ the app stores, what it sends over the network, and why.
 ## The short version
 
 - Mishti has **no accounts, no servers, no analytics, no advertising and no crash reporting**.
+- Mishti's data is **left out of Android backups and device transfers**.
 - The language model runs **on your phone**. Your messages and the model's replies are never
   sent anywhere by Mishti.
 - Mishti uses the network only to **download models and model catalogs**, and only when you
@@ -52,12 +57,12 @@ server that answers them. Those services handle that information under their own
 
 Once a model is downloaded, chatting needs no connection at all.
 
-## Android backup
+## Android backup and device transfer
 
-Mishti allows Android's standard backup. If you have turned on backup for your Google Account,
-Android may include Mishti's conversations and settings in that backup, encrypted and managed by
-Google under your account's backup settings. Model files are large and are normally left out.
-You can turn backup off in your phone's settings.
+Mishti opts out of Android backup. Its conversations, settings, models and saved catalogs are
+**not** included in Google cloud backups, and they are **not** copied when you move to a new
+phone with Android's device-to-device transfer. Your data exists only on the phone where you
+created it, so uninstalling Mishti or losing the phone removes it permanently.
 
 ## Permissions
 

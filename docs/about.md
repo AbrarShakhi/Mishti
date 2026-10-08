@@ -47,5 +47,5 @@ Mishti is free and open source under the [MIT License](../LICENSE).
 
 MD. Shakhiul Abrar.
 
-See also the [Credits](credits.md), [Privacy Policy](privacy-policy.md) and
+See also the [Credits](credits.md), and the draft [Privacy Policy](privacy-policy.md) and
 [Terms of Service](terms-of-service.md).

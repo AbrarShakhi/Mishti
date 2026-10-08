@@ -1,4 +1,8 @@
-# Terms of Service
+# Terms of Service (Draft)
+
+> **Draft, not legal advice.** This document is a working draft written by the developer to
+> describe how Mishti behaves. It has not been reviewed by a lawyer and is not a legal document.
+> It may change before Mishti is published on an app store.
 
 **Last updated:** 8 October 2026
 
@@ -40,8 +44,9 @@ Do not use Mishti to break the law, to harm others, or in ways that a model's li
 
 Mishti stores conversations, settings and models on your phone, as described in the
 [Privacy Policy](privacy-policy.md). Models need large downloads, free storage and memory, and
-running them uses battery and can make your phone warm. You are responsible for your data
-charges and for keeping backups of anything you want to keep.
+running them uses battery and can make your phone warm. Mishti's data is left out of Android
+backups and device transfers, so it cannot be restored if the app is removed or the phone is
+lost. You are responsible for your data charges.
 
 ## 6. No warranty
 

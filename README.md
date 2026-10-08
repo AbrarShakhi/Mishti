@@ -169,14 +169,18 @@ Mishti is usable but young. Known limitations, in the interest of not surprising
 
 Mishti has no accounts, analytics, ads or crash reporting, and the model runs on your phone, so
 your conversations are never sent anywhere. The app goes online only to fetch model catalogs
-(when you open Mistir Bhandar) and to download models from Hugging Face. The
+(when you open Mistir Bhandar) and to download models from Hugging Face. Its data is left out of
+Android backups and device transfers. The draft
 [Privacy Policy](docs/privacy-policy.md) lists every request and everything stored on the phone.
 
 ## Documentation
 
+The Privacy Policy and Terms of Service are drafts written by the developer. They are not legal
+documents and have not been reviewed by a lawyer.
+
 - [About Mishti](docs/about.md)
-- [Privacy Policy](docs/privacy-policy.md)
-- [Terms of Service](docs/terms-of-service.md)
+- [Privacy Policy](docs/privacy-policy.md) (draft)
+- [Terms of Service](docs/terms-of-service.md) (draft)
 - [Credits](docs/credits.md): llama.cpp, the model catalogs, every library, typeface and model
   licence
 

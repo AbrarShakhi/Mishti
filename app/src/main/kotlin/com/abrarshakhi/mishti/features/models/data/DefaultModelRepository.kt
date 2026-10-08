@@ -1,122 +1,229 @@
 package com.abrarshakhi.mishti.features.models.data
 
 import com.abrarshakhi.mishti.common.data.preferences.AppPreferences
-import com.abrarshakhi.mishti.features.models.domain.model.LlmModel
-import com.abrarshakhi.mishti.features.models.domain.model.ModelCatalog
-import com.abrarshakhi.mishti.features.models.domain.model.ModelEntry
-import com.abrarshakhi.mishti.features.models.domain.model.ModelStatus
+import com.abrarshakhi.mishti.features.models.data.gguf.GgufReader
+import com.abrarshakhi.mishti.features.models.data.local.InstalledModelDao
+import com.abrarshakhi.mishti.features.models.data.local.InstalledModelEntity
+import com.abrarshakhi.mishti.features.models.data.local.toDomain
+import com.abrarshakhi.mishti.features.models.domain.model.CatalogModel
+import com.abrarshakhi.mishti.features.models.domain.model.ModelOrigin
+import com.abrarshakhi.mishti.features.models.domain.model.ShelfModel
+import com.abrarshakhi.mishti.features.models.domain.model.Transfer
+import com.abrarshakhi.mishti.features.models.domain.model.TransferStatus
+import com.abrarshakhi.mishti.features.models.domain.model.toOrigin
 import com.abrarshakhi.mishti.features.models.domain.repository.ModelRepository
 import com.abrarshakhi.mishti.features.models.domain.repository.StorageUsage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 class DefaultModelRepository(
+    private val dao: InstalledModelDao,
     private val storageManager: ModelStorage,
     private val downloader: ModelDownloader,
+    private val importer: ModelImporter,
     private val preferences: AppPreferences,
     private val scope: CoroutineScope,
+    private val knownModels: () -> List<CatalogModel>,
     private val notifier: DownloadNotifier = DownloadNotifier.Noop,
+    private val clock: () -> Long = System::currentTimeMillis,
 ) : ModelRepository {
 
     override val selectedModelId: Flow<String?> = preferences.selectedModelId
 
+    override val shelf: Flow<List<ShelfModel>> = dao.observeAll()
+        .map { rows -> rows.filter { storageManager.isPresent(it.id) }.map { it.toDomain() } }
+        .flowOn(Dispatchers.IO)
+
+    private val _transfers = MutableStateFlow<Map<String, Transfer>>(emptyMap())
+    override val transfers: Flow<List<Transfer>> = _transfers.asStateFlow().map { it.values.toList() }
+
+    private val _storage = MutableStateFlow(StorageUsage())
+    override val storage: Flow<StorageUsage> = _storage.asStateFlow()
+
+    private val jobs = ConcurrentHashMap<String, Job>()
+
+    init {
+        scope.launch {
+            reconcileWithDisk()
+            refreshStorage()
+        }
+    }
+
     override suspend fun select(modelId: String?) {
-        val valid = modelId == null || ModelCatalog.byId(modelId)
-            ?.let { storageManager.isDownloaded(it) } == true
+        val valid = modelId == null ||
+            (dao.byId(modelId) != null && storageManager.isPresent(modelId))
         if (valid) preferences.setSelectedModelId(modelId)
     }
 
-    private val statuses = MutableStateFlow(initialStatuses())
-    private val jobs = ConcurrentHashMap<String, Job>()
+    override fun download(model: CatalogModel) {
+        val id = model.id
+        if (jobs[id]?.isActive == true) return
 
-    override val entries: Flow<List<ModelEntry>> = statuses.asStateFlow().map { current ->
-        ModelCatalog.models.map { model ->
-            ModelEntry(model = model, status = current[model.id] ?: ModelStatus.NotDownloaded)
-        }
-    }
-
-    private val _storage = MutableStateFlow(readStorage())
-    override val storage: Flow<StorageUsage> = _storage.asStateFlow()
-
-    private fun initialStatuses(): Map<String, ModelStatus> =
-        ModelCatalog.models.associate { model ->
-            model.id to if (storageManager.isDownloaded(model)) {
-                ModelStatus.Downloaded(storageManager.sizeOnDisk(model))
-            } else {
-                ModelStatus.NotDownloaded
-            }
-        }
-
-    private fun readStorage() = StorageUsage(
-        usedBytes = storageManager.usedBytes(),
-        availableBytes = storageManager.availableBytes(),
-    )
-
-    override fun download(modelId: String) {
-        val model = ModelCatalog.byId(modelId) ?: return
-        if (jobs[modelId]?.isActive == true) return
-
-        setStatus(
-            model,
-            ModelStatus.Downloading(storageManager.partialBytes(model), model.sizeBytes)
-        )
+        setTransfer(id, model.name, TransferStatus.Downloading(storageManager.partialBytes(id), model.sizeBytes))
         notifier.onDownloadsActive()
 
-        jobs[modelId] = scope.launch {
+        jobs[id] = scope.launch {
             try {
-                downloader.download(model) { progress ->
-                    setStatus(
-                        model,
+                downloader.download(
+                    DownloadRequest(id, model.name, model.downloadUrl, model.sizeBytes, model.sha256),
+                ) { progress ->
+                    setTransfer(
+                        id,
+                        model.name,
                         when (progress) {
-                            is DownloadProgress.Downloading -> ModelStatus.Downloading(
-                                downloadedBytes = progress.downloadedBytes,
-                                totalBytes = progress.totalBytes,
-                            )
-
-                            DownloadProgress.Verifying -> ModelStatus.Verifying
+                            is DownloadProgress.Downloading ->
+                                TransferStatus.Downloading(progress.downloadedBytes, progress.totalBytes)
+                            DownloadProgress.Verifying -> TransferStatus.Verifying
                         },
                     )
                 }
-                setStatus(model, ModelStatus.Downloaded(storageManager.sizeOnDisk(model)))
+                dao.upsert(model.toEntity(storageManager.sizeOnDisk(id), clock()))
+                removeTransfer(id)
             } catch (e: CancellationException) {
-                setStatus(model, ModelStatus.NotDownloaded)
+                removeTransfer(id)
                 throw e
             } catch (e: Exception) {
-                setStatus(model, ModelStatus.Failed(e.message ?: "Download failed."))
+                setTransfer(id, model.name, TransferStatus.Failed(e.message ?: "Download failed."))
             } finally {
-                jobs.remove(modelId)
-                _storage.value = readStorage()
+                jobs.remove(id)
+                refreshStorage()
             }
         }
     }
 
-    override fun cancel(modelId: String) {
-        jobs.remove(modelId)?.cancel()
+    override fun import(uri: String) {
+        val id = "imported-" + UUID.randomUUID().toString().take(8)
+        var name = "Model file"
+        setTransfer(id, name, TransferStatus.Importing(0L, -1L))
+        notifier.onDownloadsActive()
+
+        jobs[id] = scope.launch {
+            try {
+                name = runCatching { importer.displayName(uri) }.getOrDefault(name)
+                val file = importer.import(id, uri) { done, total ->
+                    setTransfer(id, name, TransferStatus.Importing(done, total))
+                }
+                val info = file.info
+                dao.upsert(
+                    InstalledModelEntity(
+                        id = id,
+                        name = info.name?.takeIf { it.isNotBlank() }
+                            ?: file.displayName.removeSuffix(".gguf"),
+                        origin = ModelOrigin.Imported.name,
+                        quantization = info.quantization,
+                        parametersLabel = info.sizeLabel,
+                        sizeBytes = file.sizeBytes,
+                        hfRepo = null,
+                        hfFile = file.displayName,
+                        architecture = info.architecture,
+                        contextLength = info.contextLength,
+                        license = info.license,
+                        installedAtMillis = clock(),
+                    ),
+                )
+                removeTransfer(id)
+            } catch (e: CancellationException) {
+                removeTransfer(id)
+                throw e
+            } catch (e: Exception) {
+                setTransfer(id, name, TransferStatus.Failed(e.message ?: "Import failed."))
+            } finally {
+                jobs.remove(id)
+                refreshStorage()
+            }
+        }
+    }
+
+    override fun cancel(transferId: String) {
+        jobs.remove(transferId)?.cancel() ?: removeTransfer(transferId)
     }
 
     override fun cancelAll() {
         jobs.keys.toList().forEach { cancel(it) }
     }
 
-    override suspend fun delete(modelId: String) {
-        val model = ModelCatalog.byId(modelId) ?: return
-        cancel(modelId)
-        storageManager.delete(model)
-        setStatus(model, ModelStatus.NotDownloaded)
-        if (preferences.selectedModelId.first() == modelId) preferences.setSelectedModelId(null)
-        _storage.value = readStorage()
+    override fun dismissTransfer(transferId: String) {
+        if (jobs[transferId]?.isActive != true) removeTransfer(transferId)
     }
 
-    private fun setStatus(model: LlmModel, status: ModelStatus) {
-        statuses.update { it + (model.id to status) }
+    override suspend fun delete(modelId: String) {
+        cancel(modelId)
+        storageManager.delete(modelId)
+        dao.delete(modelId)
+        if (preferences.selectedModelId.first() == modelId) preferences.setSelectedModelId(null)
+        refreshStorage()
+    }
+
+    private suspend fun reconcileWithDisk() {
+        val rows = dao.all().associateBy { it.id }
+        rows.keys.filterNot { storageManager.isPresent(it) }.forEach { dao.delete(it) }
+
+        val known = knownModels().associateBy { it.id }
+        storageManager.presentIds().filterNot { it in rows }.forEach { id ->
+            val entity = known[id]?.toEntity(storageManager.sizeOnDisk(id), clock())
+                ?: adoptUnknown(id)
+            dao.upsert(entity)
+        }
+    }
+
+    private fun adoptUnknown(id: String): InstalledModelEntity {
+        val file = storageManager.modelFile(id)
+        val info = runCatching { file.inputStream().buffered().use { GgufReader.read(it) } }.getOrNull()
+        return InstalledModelEntity(
+            id = id,
+            name = info?.name ?: id,
+            origin = ModelOrigin.Imported.name,
+            quantization = info?.quantization,
+            parametersLabel = info?.sizeLabel,
+            sizeBytes = file.length(),
+            hfRepo = null,
+            hfFile = file.name,
+            architecture = info?.architecture,
+            contextLength = info?.contextLength,
+            license = info?.license,
+            installedAtMillis = file.lastModified(),
+        )
+    }
+
+    private fun refreshStorage() {
+        _storage.value = StorageUsage(
+            usedBytes = storageManager.usedBytes(),
+            availableBytes = storageManager.availableBytes(),
+        )
+    }
+
+    private fun setTransfer(id: String, name: String, status: TransferStatus) {
+        _transfers.update { it + (id to Transfer(id, name, status)) }
+    }
+
+    private fun removeTransfer(id: String) {
+        _transfers.update { it - id }
     }
 }
+
+private fun CatalogModel.toEntity(sizeOnDisk: Long, now: Long) = InstalledModelEntity(
+    id = id,
+    name = name,
+    origin = source.toOrigin().name,
+    quantization = quantization.ifBlank { null },
+    parametersLabel = parametersLabel,
+    sizeBytes = sizeOnDisk.takeIf { it > 0 } ?: sizeBytes,
+    hfRepo = hfRepo,
+    hfFile = hfFile,
+    architecture = null,
+    contextLength = contextLength,
+    license = license,
+    installedAtMillis = now,
+)

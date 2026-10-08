@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "catalog_version": "2026-10-08.11",
+  "models": [
+    {
+      "id": "smollm2-360m-instruct-q4km",
+      "name": "SmolLM2 360M",
+      "description": "The smallest and quickest sweet. A sensible first download on a modest phone.",
+      "publisher": "Hugging Face",
+      "parameters": 361821120,
+      "quantization": "Q4_K_M",
+      "architecture": "llama",
+      "hf_repo": "bartowski/SmolLM2-360M-Instruct-GGUF",
+      "hf_file": "SmolLM2-360M-Instruct-Q4_K_M.gguf",
+      "size_bytes": 270590880,
+      "sha256": "2fa3f013dcdd7b99f9b237717fa0b12d75bbb89984cc1274be1471a465bac9c2",
+      "min_ram_bytes": 3200000000,
+      "context_length": 8192,
+      "license": "Apache 2.0",
+      "tags": [
+        "recommended"
+      ]
+    },
+    {
+      "id": "qwen2.5-0.5b-instruct-q4km",
+      "name": "Qwen2.5 0.5B",
+      "description": "A good balance of quality and size for everyday questions, in many languages.",
+      "publisher": "Qwen",
+      "parameters": 494032768,
+      "quantization": "Q4_K_M",
+      "architecture": "qwen2",
+      "hf_repo": "bartowski/Qwen2.5-0.5B-Instruct-GGUF",
+      "hf_file": "Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
+      "size_bytes": 397808192,
+      "sha256": "6eb923e7d26e9cea28811e1a8e852009b21242fb157b26149d3b188f3a8c8653",
+      "min_ram_bytes": 3200000000,
+      "context_length": 32768,
+      "license": "Apache 2.0",
+      "tags": [
+        "recommended",
+        "multilingual"
+      ]
+    },
+    {
+      "id": "qwen3-0.6b-q4km",
+      "name": "Qwen3 0.6B",
+      "description": "Newer and sharper than Qwen2.5 at the same tiny size. It thinks before it answers.",
+      "publisher": "Qwen",
+      "parameters": 751632384,
+      "quantization": "Q4_K_M",
+      "architecture": "qwen3",
+      "hf_repo": "bartowski/Qwen_Qwen3-0.6B-GGUF",
+      "hf_file": "Qwen_Qwen3-0.6B-Q4_K_M.gguf",
+      "size_bytes": 484220320,
+      "sha256": "9acfc1e001311f34b4252001b626f2e466d592a42065f66571bff3790d4e1b14",
+      "min_ram_bytes": 3526330480,
+      "context_length": 32768,
+      "tags": [
+        "recommended",
+        "multilingual",
+        "reasoning"
+      ],
+      "license": "Apache 2.0"
+    },
+    {
+      "id": "llama-3.2-1b-instruct-q4km",
+      "name": "Llama 3.2 1B",
+      "description": "Meta's small chat model: friendly, steady and good at following instructions.",
+      "publisher": "Meta",
+      "parameters": 1235814432,
+      "quantization": "Q4_K_M",
+      "architecture": "llama",
+      "hf_repo": "bartowski/Llama-3.2-1B-Instruct-GGUF",
+      "hf_file": "Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+      "size_bytes": 807694464,
+      "sha256": "6f85a640a97cf2bf5b8e764087b1e83da0fdb51d7c9fab7d0fece9385611df83",
+      "min_ram_bytes": 4000000000,
+      "context_length": 131072,
+      "license": "Llama 3.2 Community License",
+      "tags": []
+    },
+    {
+      "id": "gemma-3-1b-it-q4km",
+      "name": "Gemma 3 1B",
+      "description": "Google's compact model. Clear, well-written answers for its size.",
+      "publisher": "Google",
+      "parameters": 999885952,
+      "quantization": "Q4_K_M",
+      "architecture": "gemma3",
+      "hf_repo": "ggml-org/gemma-3-1b-it-GGUF",
+      "hf_file": "gemma-3-1b-it-Q4_K_M.gguf",
+      "size_bytes": 806058240,
+      "sha256": "8ccc5cd1f1b3602548715ae25a66ed73fd5dc68a210412eea643eb20eb75a135",
+      "min_ram_bytes": 4009087360,
+      "context_length": 32768,
+      "license": "Gemma Terms of Use",
+      "tags": [
+        "recommended"
+      ]
+    },
+    {
+      "id": "lfm2.5-1.2b-instruct-q4km",
+      "name": "LFM2.5 1.2B",
+      "description": "Built for phones: very quick replies from a model that punches above its size.",
+      "publisher": "Liquid AI",
+      "parameters": 1170340608,
+      "quantization": "Q4_K_M",
+      "architecture": "lfm2",
+      "hf_repo": "LiquidAI/LFM2.5-1.2B-Instruct-GGUF",
+      "hf_file": "LFM2.5-1.2B-Instruct-Q4_K_M.gguf",
+      "size_bytes": 730895168,
+      "sha256": "b1b3de114215d9507409a662a501a631095a479a419584e8a2ded6304b19b4f5",
+      "min_ram_bytes": 3896342752,
+      "context_length": 128000,
+      "license": "LFM Open License v1.0",
+      "tags": [
+        "recommended"
+      ]
+    },
+    {
+      "id": "qwen3-1.7b-q4km",
+      "name": "Qwen3 1.7B",
+      "description": "A capable all-rounder that reasons step by step and handles code.",
+      "publisher": "Qwen",
+      "parameters": 2031739904,
+      "quantization": "Q4_K_M",
+      "architecture": "qwen3",
+      "hf_repo": "bartowski/Qwen_Qwen3-1.7B-GGUF",
+      "hf_file": "Qwen_Qwen3-1.7B-Q4_K_M.gguf",
+      "size_bytes": 1282439584,
+      "sha256": "72c5c3cb38fa32d5256e2fe30d03e7a64c6c79e668ad84057e3bd66e250b24fb",
+      "min_ram_bytes": 4723659376,
+      "context_length": 32768,
+      "tags": [
+        "multilingual",
+        "reasoning",
+        "coding"
+      ],
+      "license": "Apache 2.0"
+    },
+    {
+      "id": "qwen2.5-coder-1.5b-instruct-q4km",
+      "name": "Qwen2.5 Coder 1.5B",
+      "description": "Tuned for programming: explains, writes and fixes code.",
+      "publisher": "Qwen",
+      "parameters": 1543714304,
+      "quantization": "Q4_K_M",
+      "architecture": "qwen2",
+      "hf_repo": "bartowski/Qwen2.5-Coder-1.5B-Instruct-GGUF",
+      "hf_file": "Qwen2.5-Coder-1.5B-Instruct-Q4_K_M.gguf",
+      "size_bytes": 986048800,
+      "sha256": "f530705d447660a4336c329981af164b471b60b974b1d808d57e8ec9fe23b239",
+      "min_ram_bytes": 4279073200,
+      "context_length": 32768,
+      "license": "Apache 2.0",
+      "tags": [
+        "coding"
+      ]
+    },
+    {
+      "id": "phi-4-mini-instruct-q4km",
+      "name": "Phi-4 Mini",
+      "description": "Microsoft's small reasoner. Strong at maths and logic, wants a roomy phone.",
+      "publisher": "Microsoft",
+      "parameters": 3836021856,
+      "quantization": "Q4_K_M",
+      "architecture": "phi3",
+      "hf_repo": "bartowski/microsoft_Phi-4-mini-instruct-GGUF",
+      "hf_file": "microsoft_Phi-4-mini-instruct-Q4_K_M.gguf",
+      "size_bytes": 2491874688,
+      "sha256": "01999f17c39cc3074afae5e9c539bc82d45f2dd7faa3917c66cbef76fce8c0c2",
+      "min_ram_bytes": 6537812032,
+      "context_length": 131072,
+      "tags": [
+        "reasoning",
+        "coding"
+      ],
+      "license": "MIT"
+    },
+    {
+      "id": "gemma-3-4b-it-q4km",
+      "name": "Gemma 3 4B",
+      "description": "The smartest sweet in the shop. Best on flagship phones with plenty of memory.",
+      "publisher": "Google",
+      "parameters": 3880099328,
+      "quantization": "Q4_K_M",
+      "architecture": "gemma3",
+      "hf_repo": "ggml-org/gemma-3-4b-it-GGUF",
+      "hf_file": "gemma-3-4b-it-Q4_K_M.gguf",
+      "size_bytes": 2489757856,
+      "sha256": "882e8d2db44dc554fb0ea5077cb7e4bc49e7342a1f0da57901c0802ea21a0863",
+      "min_ram_bytes": 6534636784,
+      "context_length": 131072,
+      "license": "Gemma Terms of Use",
+      "tags": [
+        "multilingual"
+      ]
+    }
+  ],
+  "updated_at": "2026-10-08T06:07:15Z"
+}

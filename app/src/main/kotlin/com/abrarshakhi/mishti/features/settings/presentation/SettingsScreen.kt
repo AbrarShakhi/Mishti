@@ -3,7 +3,7 @@ package com.abrarshakhi.mishti.features.settings.presentation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
@@ -50,9 +50,9 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.Memory,
+                        icon = Icons.Filled.Storefront,
                         iconColor = modelColor,
-                        title = "Models",
+                        title = "Mistir Bhandar",
                         supporting = modelSummary(state.engineState),
                         onClick = onOpenModels,
                     )
@@ -149,7 +149,7 @@ private fun modelSummary(engineState: EngineState): String = when (engineState) 
     is EngineState.Ready -> "Using ${engineState.model.name}"
     is EngineState.Loading -> "Loading ${engineState.model.name}…"
     is EngineState.Failed -> "The selected model failed to load"
-    EngineState.Idle -> "Download and choose a model"
+    EngineState.Idle -> "Pick a sweet to start chatting"
 }
 
 internal const val AppearanceSubtitle = "Theme, colour and typeface"

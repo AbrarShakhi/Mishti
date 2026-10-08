@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -145,19 +145,19 @@ private fun NoModelState(onOpenModels: () -> Unit) {
     EmptyStateColumn(
         hero = { AppMark(size = HeroSize) },
         title = "Choose a model to start",
-        body = "Mishti runs a small language model entirely on this phone. Download one to begin.",
+        body = "Mishti runs a small language model entirely on this phone. Pick one from Mistir Bhandar to begin.",
     ) {
         Button(
             onClick = onOpenModels,
             contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
         ) {
             Icon(
-                imageVector = Icons.Filled.Memory,
+                imageVector = Icons.Filled.Storefront,
                 contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.IconSize),
             )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Browse models")
+            Text("Visit Mistir Bhandar")
         }
     }
 }

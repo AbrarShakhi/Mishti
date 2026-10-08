@@ -106,6 +106,12 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    sourceSets {
+        getByName("main") {
+            assets.directories.add(rootProject.file("hub").absolutePath)
+        }
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true

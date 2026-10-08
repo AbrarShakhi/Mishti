@@ -1,80 +1,89 @@
 package com.abrarshakhi.mishti.features.models.presentation
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.common.device.DeviceCapability
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
-import com.abrarshakhi.mishti.common.ui.theme.Spacing
-import com.abrarshakhi.mishti.features.models.domain.model.ModelCatalog
-import com.abrarshakhi.mishti.features.models.domain.model.ModelEntry
-import com.abrarshakhi.mishti.features.models.domain.model.ModelStatus
+import com.abrarshakhi.mishti.features.models.domain.model.Catalog
+import com.abrarshakhi.mishti.features.models.domain.model.CatalogModel
+import com.abrarshakhi.mishti.features.models.domain.model.CatalogSource
+import com.abrarshakhi.mishti.features.models.domain.model.CatalogState
+import com.abrarshakhi.mishti.features.models.domain.model.ModelOrigin
+import com.abrarshakhi.mishti.features.models.domain.model.ShelfModel
+import com.abrarshakhi.mishti.features.models.domain.model.memoryFit
 import com.abrarshakhi.mishti.features.models.domain.repository.StorageUsage
-import com.valentinilk.shimmer.ShimmerBounds
-import com.valentinilk.shimmer.rememberShimmer
-import com.valentinilk.shimmer.shimmer
+import kotlinx.coroutines.launch
+
+internal const val ShelfPage = 0
+internal const val BrowsePage = 1
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ModelsScreen(
     state: ModelsUiState,
+    pagerState: PagerState,
     onIntent: (ModelsIntent) -> Unit,
+    onImport: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val background = MaterialTheme.colorScheme.surfaceContainer
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = background,
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text("Models") },
-                subtitle = { Text("They run entirely on this phone") },
+                title = { Text("Mistir Bhandar") },
+                subtitle = {
+                    Text(
+                        "${formatSize(state.storage.usedBytes)} on your shelf · " +
+                            "${formatSize(state.storage.availableBytes)} free",
+                    )
+                },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onImport, shapes = IconButtonDefaults.shapes()) {
+                        Icon(Icons.Filled.UploadFile, contentDescription = "Import a model file")
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -85,49 +94,93 @@ fun ModelsScreen(
             )
         },
     ) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .consumeWindowInsets(innerPadding),
-            contentPadding = PaddingValues(
-                start = Spacing.ScreenMargin,
-                end = Spacing.ScreenMargin,
-                top = Spacing.Small,
-                bottom = Spacing.ExtraExtraLarge,
-            ),
-            verticalArrangement = Arrangement.spacedBy(Spacing.Medium),
         ) {
-            if (state.isLoading) {
-                item(key = "placeholder") { ModelsPlaceholder() }
-                return@LazyColumn
-            }
-
-            if (state.capability is DeviceCapability.UnsupportedLowMemory) {
-                item(key = "unsupported") { UnsupportedDeviceNotice(state.capability) }
-            }
-
-            item(key = "storage") { StorageSummary(state.storage) }
-
-            items(items = state.entries, key = { it.model.id }) { entry ->
-                ModelCard(
-                    entry = entry,
-                    isSelected = entry.model.id == state.selectedModelId,
-                    deviceMemoryBytes = state.capability.totalMemoryBytes,
-                    onIntent = onIntent,
-                    modifier = Modifier.animateItem(),
+            PrimaryTabRow(
+                selectedTabIndex = pagerState.currentPage,
+                containerColor = background,
+                indicator = {
+                    TabRowDefaults.PrimaryIndicator(
+                        modifier = Modifier.tabIndicatorOffset(pagerState.currentPage, matchContentSize = true),
+                        width = Dp.Unspecified,
+                    )
+                },
+            ) {
+                Tab(
+                    selected = pagerState.currentPage == ShelfPage,
+                    onClick = { scope.launch { pagerState.animateScrollToPage(ShelfPage) } },
+                    text = { Text("My shelf") },
+                    icon = {
+                        val active = state.transfers.count { it.isActive }
+                        BadgedBox(badge = { if (active > 0) Badge { Text("$active") } }) {
+                            Icon(Icons.Filled.Inventory2, contentDescription = null)
+                        }
+                    },
                 )
+                Tab(
+                    selected = pagerState.currentPage == BrowsePage,
+                    onClick = { scope.launch { pagerState.animateScrollToPage(BrowsePage) } },
+                    text = { Text("Browse") },
+                    icon = { Icon(Icons.Filled.Storefront, contentDescription = null) },
+                )
+            }
+
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                beyondViewportPageCount = 1,
+            ) { page ->
+                when (page) {
+                    ShelfPage -> ShelfTab(
+                        state = state,
+                        onIntent = onIntent,
+                        onBrowse = { scope.launch { pagerState.animateScrollToPage(BrowsePage) } },
+                        onImport = onImport,
+                    )
+                    else -> BrowseTab(state = state, onIntent = onIntent)
+                }
             }
         }
     }
 
-    state.deleting?.let { entry ->
+    state.details?.let { model ->
+        val item = state.browse.let { content ->
+            (content.recommended + content.sections.flatMap { it.items }).find { it.model.id == model.id }
+        } ?: CatalogItem(
+            model = model,
+            fit = memoryFit(
+                model.requiredRamBytes,
+                state.capability.totalMemoryBytes,
+            ),
+            isOnShelf = state.shelf.any { it.id == model.id },
+            transfer = state.transfers.find { it.id == model.id }?.status,
+        )
+        ModelDetailsSheet(
+            item = item,
+            deviceRamBytes = state.capability.totalMemoryBytes,
+            onDownload = { onIntent(ModelsIntent.DownloadClicked(model)) },
+            onCancel = { onIntent(ModelsIntent.CancelClicked(model.id)) },
+            onDismiss = { onIntent(ModelsIntent.DetailsDismissed) },
+        )
+    }
+
+    state.deleting?.let { model ->
         AlertDialog(
             onDismissRequest = { onIntent(ModelsIntent.DeleteCancelled) },
             icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
-            title = { Text("Delete ${entry.model.name}?") },
+            title = { Text("Delete ${model.name}?") },
             text = {
-                Text("The file will be removed from this phone. You can download it again later.")
+                Text(
+                    if (model.origin == ModelOrigin.Imported) {
+                        "The copy on Mishti's shelf will be removed. Your original file is not touched."
+                    } else {
+                        "The file will be removed from this phone. You can download it again later."
+                    },
+                )
             },
             confirmButton = {
                 TextButton(onClick = { onIntent(ModelsIntent.DeleteConfirmed) }) {
@@ -141,117 +194,23 @@ fun ModelsScreen(
     }
 }
 
-@Composable
-private fun StorageSummary(storage: StorageUsage) {
-    Card(
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(
-            modifier = Modifier.padding(Spacing.Large),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Surface(
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Filled.Storage, contentDescription = null)
-                }
-            }
-            Spacer(Modifier.width(Spacing.Large))
-            Column {
-                Text(
-                    text = "${formatSize(storage.usedBytes)} used by models",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Text(
-                    text = "${formatSize(storage.availableBytes)} free on this phone",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ModelsPlaceholder() {
-    val bone = MaterialTheme.colorScheme.surfaceContainerHighest
-
-    Column(
-        modifier = Modifier.shimmer(rememberShimmer(ShimmerBounds.View)),
-        verticalArrangement = Arrangement.spacedBy(Spacing.Medium),
-    ) {
-        PlaceholderCard(height = 72.dp) {
-            Box(Modifier.size(40.dp).background(bone, CircleShape))
-            Spacer(Modifier.width(Spacing.Large))
-            PlaceholderLines(bone, listOf(0.7f, 0.5f))
-        }
-        repeat(3) {
-            PlaceholderCard(height = 196.dp) {
-                Box(Modifier.size(48.dp).background(bone, MaterialTheme.shapes.large))
-                Spacer(Modifier.width(Spacing.Large))
-                PlaceholderLines(bone, listOf(0.8f, 0.55f, 0.95f, 0.6f))
-            }
-        }
-    }
-}
-
-@Composable
-private fun PlaceholderCard(height: Dp, content: @Composable () -> Unit) {
-    Surface(
-        shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.surface,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height),
-    ) {
-        Row(modifier = Modifier.padding(Spacing.Large)) { content() }
-    }
-}
-
-@Composable
-private fun PlaceholderLines(color: Color, fractions: List<Float>) {
-    Column(verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-        fractions.forEach { fraction ->
-            Box(
-                Modifier
-                    .fillMaxWidth(fraction)
-                    .height(14.dp)
-                    .background(color, CircleShape),
-            )
-        }
-    }
-}
-
-@Composable
-private fun UnsupportedDeviceNotice(capability: DeviceCapability.UnsupportedLowMemory) {
-    Card(
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.onErrorContainer,
-        ),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(modifier = Modifier.padding(Spacing.Large)) {
-            Icon(Icons.Filled.Warning, contentDescription = null)
-            Spacer(Modifier.width(Spacing.Large))
-            Column {
-                Text("This phone is not supported", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    text = "Running a model needs about ${formatSize(capability.requiredMemoryBytes)} " +
-                        "of memory, and this phone has ${formatSize(capability.totalMemoryBytes)}.",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-        }
-    }
-}
+private val previewModels = listOf(
+    CatalogModel(
+        id = "qwen3-0.6b-q4km", source = CatalogSource.MistirBhandar, name = "Qwen3 0.6B",
+        description = "Newer and sharper at the same tiny size.", publisher = "Qwen",
+        parametersLabel = "752M", quantization = "Q4_K_M", hfRepo = "bartowski/Qwen_Qwen3-0.6B-GGUF",
+        hfFile = "Qwen_Qwen3-0.6B-Q4_K_M.gguf", sizeBytes = 484_220_320L, sha256 = "",
+        requiredRamBytes = 3_526_330_480L, contextLength = 32768, license = "Apache 2.0",
+        tags = setOf("recommended"), groupId = null,
+    ),
+    CatalogModel(
+        id = "gemma-3-4b-it-q4km", source = CatalogSource.MistirBhandar, name = "Gemma 3 4B",
+        description = null, publisher = "Google", parametersLabel = "3.9B", quantization = "Q4_K_M",
+        hfRepo = "ggml-org/gemma-3-4b-it-GGUF", hfFile = "gemma-3-4b-it-Q4_K_M.gguf",
+        sizeBytes = 2_489_757_856L, sha256 = "", requiredRamBytes = 6_534_636_784L,
+        contextLength = 131072, license = null, tags = emptySet(), groupId = null,
+    ),
+)
 
 @Preview(showBackground = true)
 @Composable
@@ -260,19 +219,27 @@ private fun ModelsScreenPreview() {
         ModelsScreen(
             state = ModelsUiState(
                 isLoading = false,
-                selectedModelId = ModelCatalog.models[0].id,
-                entries = listOf(
-                    ModelEntry(ModelCatalog.models[0], ModelStatus.Downloaded(270_590_880L)),
-                    ModelEntry(
-                        ModelCatalog.models[1],
-                        ModelStatus.Downloading(120_000_000L, 397_808_192L),
+                shelf = listOf(
+                    ShelfModel(
+                        "smollm2", "SmolLM2 360M", ModelOrigin.MistirBhandar, "Q4_K_M", "362M",
+                        270_590_880L, null, null, "llama", 8192, null, 0L,
                     ),
-                    ModelEntry(ModelCatalog.models[2], ModelStatus.NotDownloaded),
                 ),
+                selectedModelId = "smollm2",
                 storage = StorageUsage(270_590_880L, 19_000_000_000L),
-                capability = DeviceCapability.Supported(3_879_952_000L),
+                capability = DeviceCapability.Supported(5_800_000_000L),
+                catalogs = mapOf(
+                    CatalogSource.MistirBhandar to CatalogState.Ready(
+                        Catalog(CatalogSource.MistirBhandar, "1", previewModels, recommendedIds = listOf("qwen3-0.6b-q4km")),
+                        updatedAtMillis = null,
+                        isOffline = false,
+                        isRefreshing = false,
+                    ),
+                ),
             ),
+            pagerState = rememberPagerState(initialPage = BrowsePage) { 2 },
             onIntent = {},
+            onImport = {},
             onBack = {},
         )
     }

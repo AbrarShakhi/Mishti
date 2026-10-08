@@ -20,7 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -404,8 +404,8 @@ private fun DrawerFooter(
     onSettingsClick: () -> Unit,
 ) {
     NavigationDrawerItem(
-        label = { Text("Models") },
-        icon = { Icon(Icons.Filled.Memory, contentDescription = null) },
+        label = { Text("Mistir Bhandar") },
+        icon = { Icon(Icons.Filled.Storefront, contentDescription = null) },
         selected = false,
         onClick = onModelsClick,
         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),

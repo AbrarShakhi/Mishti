@@ -5,7 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import androidx.core.app.NotificationCompat
@@ -13,8 +12,8 @@ import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.MainActivity
-import com.abrarshakhi.mishti.features.models.domain.model.ModelEntry
-import com.abrarshakhi.mishti.features.models.domain.model.ModelStatus
+import com.abrarshakhi.mishti.features.models.domain.model.Transfer
+import com.abrarshakhi.mishti.features.models.domain.model.TransferStatus
 import com.abrarshakhi.mishti.features.models.domain.repository.ModelRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -39,7 +38,7 @@ class ModelDownloadService : Service() {
             return START_NOT_STICKY
         }
 
-        startForegroundWith(buildNotification(title = "Preparing download", progress = null))
+        startForegroundWith(buildNotification(title = "Preparing", progress = null))
         observeDownloads()
 
         return START_NOT_STICKY
@@ -47,28 +46,32 @@ class ModelDownloadService : Service() {
 
     private fun observeDownloads() {
         if (observer?.isActive == true) return
-        observer = repository.entries
-            .onEach { entries -> render(entries) }
+        observer = repository.transfers
+            .onEach { transfers -> render(transfers) }
             .launchIn(scope)
     }
 
-    private fun render(entries: List<ModelEntry>) {
-        val active = entries.filter { it.isBusy }
+    private fun render(transfers: List<Transfer>) {
+        val active = transfers.filter { it.isActive }
         if (active.isEmpty()) {
             stopSelf()
             return
         }
 
-        val entry = active.first()
+        val transfer = active.first()
         val extra = active.size - 1
         val suffix = if (extra > 0) " (+$extra more)" else ""
 
-        val notification = when (val status = entry.status) {
-            is ModelStatus.Downloading -> buildNotification(
-                title = entry.model.name + suffix,
-                progress = (status.fraction * 100).toInt().coerceIn(0, 100),
+        val notification = when (val status = transfer.status) {
+            is TransferStatus.Downloading -> buildNotification(
+                title = transfer.name + suffix,
+                progress = (status.fraction * 100).toInt(),
             )
-            else -> buildNotification(title = "Verifying ${entry.model.name}", progress = null)
+            is TransferStatus.Importing -> buildNotification(
+                title = "Importing ${transfer.name}$suffix",
+                progress = if (status.totalBytes > 0) (status.fraction * 100).toInt() else null,
+            )
+            else -> buildNotification(title = "Verifying ${transfer.name}", progress = null)
         }
         notificationManager()?.notify(NOTIFICATION_ID, notification)
     }
@@ -124,7 +127,7 @@ class ModelDownloadService : Service() {
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_ID,
-                "Model downloads",
+                "Model downloads and imports",
                 NotificationManager.IMPORTANCE_LOW,
             ).apply { setShowBadge(false) }
         )

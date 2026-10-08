@@ -32,4 +32,6 @@ data class ChatMessageEntity(
     val content: String,
     val createdAtMillis: Long,
     val tokensPerSecond: Double? = null,
+    val reasoning: String? = null,
+    val reasoningMillis: Long? = null,
 )

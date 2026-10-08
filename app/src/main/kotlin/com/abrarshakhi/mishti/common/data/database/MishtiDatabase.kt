@@ -19,6 +19,6 @@ abstract class MishtiDatabase : RoomDatabase() {
     abstract fun installedModelDao(): InstalledModelDao
 }
 
-const val DATABASE_VERSION = 3
+const val DATABASE_VERSION = 4
 
 const val DATABASE_NAME = "mishti.db"

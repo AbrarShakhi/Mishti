@@ -19,6 +19,8 @@ internal object LlamaNative {
 
     external fun nativeFreeModel(handle: Long)
 
+    external fun nativeChatTemplate(handle: Long): String?
+
     external fun nativeGenerate(
         handle: Long,
         roles: Array<String>,
@@ -27,6 +29,7 @@ internal object LlamaNative {
         topK: Int,
         topP: Float,
         maxTokens: Int,
+        assistantPrefix: String,
         callback: TokenCallback,
     ): Int
 }

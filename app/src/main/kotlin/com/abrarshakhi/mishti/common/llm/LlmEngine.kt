@@ -8,7 +8,10 @@ sealed interface EngineState {
 
     data class Loading(val model: ModelHandle) : EngineState
 
-    data class Ready(val model: ModelHandle) : EngineState
+    data class Ready(
+        val model: ModelHandle,
+        val supportsThinking: Boolean = false,
+    ) : EngineState
 
     data class Failed(val reason: String) : EngineState
 }

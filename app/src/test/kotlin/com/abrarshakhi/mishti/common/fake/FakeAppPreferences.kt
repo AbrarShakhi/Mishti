@@ -17,11 +17,13 @@ class FakeAppPreferences(
     private val theme = MutableStateFlow(ThemeSettings())
     private val selected = MutableStateFlow<String?>(null)
     private val inference = MutableStateFlow(initialInference)
+    private val thinking = MutableStateFlow(emptySet<String>())
 
     override val hasCompletedOnboarding: Flow<Boolean> = onboarding
     override val themeSettings: Flow<ThemeSettings> = theme
     override val selectedModelId: Flow<String?> = selected
     override val inferenceSettings: Flow<InferenceSettings> = inference
+    override val thinkingModelIds: Flow<Set<String>> = thinking
 
     override suspend fun setOnboardingCompleted(completed: Boolean) { onboarding.value = completed }
     override suspend fun setThemeMode(mode: ThemeMode) { theme.value = theme.value.copy(mode = mode) }
@@ -34,5 +36,8 @@ class FakeAppPreferences(
         transform: (InferenceSettings) -> InferenceSettings,
     ) {
         inference.value = transform(inference.value)
+    }
+    override suspend fun setThinking(modelId: String, enabled: Boolean) {
+        thinking.value = if (enabled) thinking.value + modelId else thinking.value - modelId
     }
 }

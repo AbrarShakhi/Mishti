@@ -5,6 +5,7 @@ data class GenerationParams(
     val topK: Int = 40,
     val topP: Float = 0.95f,
     val maxTokens: Int = 512,
+    val thinking: Boolean = false,
 )
 
 data class EngineOptions(

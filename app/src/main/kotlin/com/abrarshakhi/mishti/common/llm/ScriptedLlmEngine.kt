@@ -13,6 +13,7 @@ class ScriptedLlmEngine(
     private val loadDelayMillis: Long = 900L,
     private val tokenDelayMillis: Long = 45L,
     private val clock: () -> Long = System::currentTimeMillis,
+    private val supportsThinking: Boolean = false,
 ) : LlmEngine {
 
     private val _state = MutableStateFlow<EngineState>(EngineState.Idle)
@@ -23,7 +24,7 @@ class ScriptedLlmEngine(
         if (current is EngineState.Ready && current.model.id == model.id) return
         _state.value = EngineState.Loading(model)
         delay(loadDelayMillis.milliseconds)
-        _state.value = EngineState.Ready(model)
+        _state.value = EngineState.Ready(model, supportsThinking)
     }
 
     override suspend fun unload() {

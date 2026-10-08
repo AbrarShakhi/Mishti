@@ -2,6 +2,7 @@
 
 #include <android/log.h>
 
+#include <algorithm>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -145,11 +146,21 @@ Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeFreeModel(
     delete session;
 }
 
+JNIEXPORT jstring JNICALL
+Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeChatTemplate(
+        JNIEnv *env, jobject, jlong handle) {
+    auto *session = reinterpret_cast<Session *>(handle);
+    if (session == nullptr) return nullptr;
+    const char *tmpl = llama_model_chat_template(session->model, nullptr);
+    return tmpl == nullptr ? nullptr : env->NewStringUTF(tmpl);
+}
+
 JNIEXPORT jint JNICALL
 Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeGenerate(
         JNIEnv *env, jobject, jlong handle,
         jobjectArray roles, jobjectArray contents,
-        jfloat temperature, jint top_k, jfloat top_p, jint max_tokens, jobject callback) {
+        jfloat temperature, jint top_k, jfloat top_p, jint max_tokens,
+        jstring assistant_prefix, jobject callback) {
 
     auto *session = reinterpret_cast<Session *>(handle);
     if (session == nullptr) return -1;
@@ -169,8 +180,9 @@ Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeGenerate(
         env->DeleteLocalRef(content);
     }
 
-    const std::string prompt = build_prompt(session->model, messages);
+    std::string prompt = build_prompt(session->model, messages);
     if (prompt.empty()) return -1;
+    prompt += to_string(env, assistant_prefix);
 
     const int32_t n_prompt = -llama_tokenize(
             session->vocab, prompt.c_str(), static_cast<int32_t>(prompt.size()),
@@ -204,8 +216,9 @@ Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeGenerate(
     llama_batch batch = llama_batch_get_one(tokens.data(), n_prompt);
     int32_t generated = 0;
     bool failed = false;
+    const int32_t limit = std::min(max_tokens, static_cast<int32_t>(n_ctx) - n_prompt);
 
-    while (generated < max_tokens) {
+    while (generated < limit) {
         if (llama_decode(session->ctx, batch) != 0) {
             __android_log_print(ANDROID_LOG_ERROR, kTag, "decode failed");
             failed = true;

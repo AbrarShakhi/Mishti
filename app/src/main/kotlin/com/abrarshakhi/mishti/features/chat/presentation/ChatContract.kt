@@ -13,11 +13,16 @@ data class ChatUiState(
     val messages: List<ChatMessage> = emptyList(),
     val draft: String = "",
     val streamingResponse: String = "",
+    val streamingReasoning: String? = null,
+    val isReasoning: Boolean = false,
+    val reasoningMillis: Long? = null,
     val isGenerating: Boolean = false,
     val canSend: Boolean = false,
     val canStop: Boolean = false,
     val isLoading: Boolean = true,
     val engineState: EngineState = EngineState.Idle,
+    val thinkingSupported: Boolean = false,
+    val thinkingEnabled: Boolean = false,
 ) : UiState
 
 sealed interface ChatIntent : UiIntent {
@@ -26,6 +31,8 @@ sealed interface ChatIntent : UiIntent {
     data object SendClicked : ChatIntent
 
     data object StopClicked : ChatIntent
+
+    data object ThinkingToggled : ChatIntent
 }
 
 sealed interface ChatEffect : UiEffect {

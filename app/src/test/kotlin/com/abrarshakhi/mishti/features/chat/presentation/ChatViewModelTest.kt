@@ -15,11 +15,13 @@ import com.abrarshakhi.mishti.common.llm.ScriptedLlmEngine
 import com.abrarshakhi.mishti.features.chat.domain.model.MessageAuthor
 import com.abrarshakhi.mishti.features.chat.fake.FakeChatRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -27,6 +29,8 @@ import org.junit.Test
 private class RecordingEngine(
     private val tokenCount: Int = 3,
     private val durationMillis: Long = 1_000,
+    private val tokens: List<String> = listOf("ok"),
+    private val supportsThinking: Boolean = false,
 ) : LlmEngine {
     private val _state = kotlinx.coroutines.flow.MutableStateFlow<EngineState>(EngineState.Idle)
     override val state = _state
@@ -37,7 +41,7 @@ private class RecordingEngine(
         private set
 
     override suspend fun load(model: ModelHandle, options: EngineOptions) {
-        _state.value = EngineState.Ready(model)
+        _state.value = EngineState.Ready(model, supportsThinking)
     }
 
     override suspend fun unload() { _state.value = EngineState.Idle }
@@ -48,7 +52,7 @@ private class RecordingEngine(
     ) = kotlinx.coroutines.flow.flow {
         lastMessages = messages
         lastParams = params
-        emit(GenerationEvent.Token("ok"))
+        tokens.forEach { emit(GenerationEvent.Token(it)) }
         emit(GenerationEvent.Completed(tokenCount, durationMillis))
     }
 }
@@ -337,6 +341,156 @@ class ChatViewModelTest {
         val reply = vm.state.value.messages.last()
         assertEquals(MessageAuthor.Assistant, reply.author)
         assertEquals(20.0, reply.tokensPerSecond!!, 0.01)
+    }
+
+    @Test
+    fun `thinking is offered only for models that support it`() = runTest {
+        val plain = RecordingEngine()
+        val plainVm = viewModel(engine = plain)
+        plain.ready()
+        advanceUntilIdle()
+        plainVm.onIntent(ChatIntent.ThinkingToggled)
+        advanceUntilIdle()
+
+        assertFalse(plainVm.state.value.thinkingSupported)
+        assertFalse(plainVm.state.value.thinkingEnabled)
+
+        val thinker = RecordingEngine(supportsThinking = true)
+        val thinkerVm = viewModel(engine = thinker)
+        thinker.ready()
+        advanceUntilIdle()
+
+        assertTrue(thinkerVm.state.value.thinkingSupported)
+        assertFalse(thinkerVm.state.value.thinkingEnabled)
+    }
+
+    @Test
+    fun `the thinking choice is remembered for the model`() = runTest {
+        val preferences = FakeAppPreferences()
+        val engine = RecordingEngine(supportsThinking = true)
+        val vm = viewModel(engine = engine, preferences = preferences)
+        engine.ready()
+        advanceUntilIdle()
+
+        vm.onIntent(ChatIntent.ThinkingToggled)
+        advanceUntilIdle()
+
+        assertTrue(vm.state.value.thinkingEnabled)
+        assertEquals(setOf("test-model"), preferences.thinkingModelIds.first())
+
+        vm.onIntent(ChatIntent.ThinkingToggled)
+        advanceUntilIdle()
+
+        assertFalse(vm.state.value.thinkingEnabled)
+        assertTrue(preferences.thinkingModelIds.first().isEmpty())
+    }
+
+    @Test
+    fun `thinking asks the engine to reason and doubles the token budget`() = runTest {
+        val engine = RecordingEngine(supportsThinking = true)
+        val custom = InferenceSettings(maxTokens = 300)
+        val vm = viewModel(engine = engine, preferences = FakeAppPreferences(custom))
+        engine.ready()
+        advanceUntilIdle()
+
+        vm.onIntent(ChatIntent.DraftChanged("Hello"))
+        vm.onIntent(ChatIntent.SendClicked)
+        advanceUntilIdle()
+        assertEquals(custom.generation, engine.lastParams)
+
+        vm.onIntent(ChatIntent.ThinkingToggled)
+        vm.onIntent(ChatIntent.DraftChanged("Again"))
+        advanceUntilIdle()
+        vm.onIntent(ChatIntent.SendClicked)
+        advanceUntilIdle()
+        assertEquals(custom.generation.copy(thinking = true, maxTokens = 600), engine.lastParams)
+    }
+
+    @Test
+    fun `reasoning is kept apart from the answer and saved with the reply`() = runTest {
+        val engine = RecordingEngine(
+            tokens = listOf("<think>", "\nWeigh it up.", "</think>", "\n\nAnswer."),
+            supportsThinking = true,
+        )
+        val vm = viewModel(engine = engine)
+        engine.ready()
+        advanceUntilIdle()
+
+        vm.onIntent(ChatIntent.DraftChanged("Hello"))
+        vm.onIntent(ChatIntent.SendClicked)
+        advanceUntilIdle()
+
+        val reply = vm.state.value.messages.last()
+        assertEquals("Answer.", reply.content)
+        assertEquals("Weigh it up.", reply.reasoning)
+        assertEquals(0L, reply.reasoningMillis)
+        assertNull(vm.state.value.streamingReasoning)
+    }
+
+    @Test
+    fun `earlier reasoning is not sent back to the model`() = runTest {
+        val engine = RecordingEngine(
+            tokens = listOf("<think>Private.</think>", "Answer."),
+            supportsThinking = true,
+        )
+        val vm = viewModel(engine = engine)
+        engine.ready()
+        advanceUntilIdle()
+
+        vm.onIntent(ChatIntent.DraftChanged("Hello"))
+        vm.onIntent(ChatIntent.SendClicked)
+        advanceUntilIdle()
+        vm.onIntent(ChatIntent.DraftChanged("And then?"))
+        vm.onIntent(ChatIntent.SendClicked)
+        advanceUntilIdle()
+
+        val assistantTurn = engine.lastMessages.single { it.role == LlmRole.Assistant }
+        assertEquals("Answer.", assistantTurn.content)
+    }
+
+    @Test
+    fun `think tags stay in the reply when the model does not support thinking`() = runTest {
+        val engine = RecordingEngine(tokens = listOf("<think>x</think>y"))
+        val vm = viewModel(engine = engine)
+        engine.ready()
+        advanceUntilIdle()
+
+        vm.onIntent(ChatIntent.DraftChanged("Hello"))
+        vm.onIntent(ChatIntent.SendClicked)
+        advanceUntilIdle()
+
+        val reply = vm.state.value.messages.last()
+        assertEquals("<think>x</think>y", reply.content)
+        assertNull(reply.reasoning)
+    }
+
+    @Test
+    fun `stopping while the model is thinking keeps its thoughts`() = runTest {
+        val engine = ScriptedLlmEngine(
+            script = listOf("<think>abcdefghijklmnop</think>Answer"),
+            loadDelayMillis = 0,
+            tokenDelayMillis = 10,
+            supportsThinking = true,
+        )
+        val vm = viewModel(engine = engine)
+        engine.ready()
+        advanceUntilIdle()
+
+        vm.onIntent(ChatIntent.DraftChanged("Hello"))
+        vm.onIntent(ChatIntent.SendClicked)
+        advanceTimeBy(35)
+        assertTrue(vm.state.value.isReasoning)
+        val thoughts = vm.state.value.streamingReasoning
+        assertTrue("expected some reasoning by now", !thoughts.isNullOrEmpty())
+        assertEquals("", vm.state.value.streamingResponse)
+
+        vm.onIntent(ChatIntent.StopClicked)
+        advanceUntilIdle()
+
+        val reply = vm.state.value.messages.last()
+        assertEquals(MessageAuthor.Assistant, reply.author)
+        assertEquals("", reply.content)
+        assertEquals(thoughts, reply.reasoning)
     }
 
     @Test

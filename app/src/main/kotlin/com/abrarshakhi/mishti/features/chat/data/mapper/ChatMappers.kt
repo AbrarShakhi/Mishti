@@ -26,6 +26,8 @@ fun ChatMessageEntity.toDomain() = ChatMessage(
     content = content,
     createdAtMillis = createdAtMillis,
     tokensPerSecond = tokensPerSecond,
+    reasoning = reasoning,
+    reasoningMillis = reasoningMillis,
 )
 
 fun ChatMessage.toEntity(sessionId: String) = ChatMessageEntity(
@@ -35,4 +37,6 @@ fun ChatMessage.toEntity(sessionId: String) = ChatMessageEntity(
     content = content,
     createdAtMillis = createdAtMillis,
     tokensPerSecond = tokensPerSecond,
+    reasoning = reasoning,
+    reasoningMillis = reasoningMillis,
 )

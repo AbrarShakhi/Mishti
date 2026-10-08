@@ -30,8 +30,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +68,9 @@ private val UserBubbleShape = RoundedCornerShape(
 internal fun MessageList(
     messages: List<ChatMessage>,
     streamingResponse: String,
+    streamingReasoning: String?,
+    isReasoning: Boolean,
+    reasoningMillis: Long?,
     isGenerating: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -87,6 +92,9 @@ internal fun MessageList(
             item(key = StreamingItemKey) {
                 AssistantMessage(
                     text = streamingResponse,
+                    reasoning = streamingReasoning,
+                    isReasoning = isReasoning,
+                    reasoningMillis = reasoningMillis,
                     tokensPerSecond = null,
                     isStreaming = true,
                 )
@@ -98,6 +106,9 @@ internal fun MessageList(
                 MessageAuthor.User -> UserMessage(text = message.content)
                 MessageAuthor.Assistant -> AssistantMessage(
                     text = message.content,
+                    reasoning = message.reasoning,
+                    isReasoning = false,
+                    reasoningMillis = message.reasoningMillis,
                     tokensPerSecond = message.tokensPerSecond,
                     isStreaming = false,
                 )
@@ -131,6 +142,9 @@ private fun UserMessage(text: String, modifier: Modifier = Modifier) {
 @Composable
 private fun AssistantMessage(
     text: String,
+    reasoning: String?,
+    isReasoning: Boolean,
+    reasoningMillis: Long?,
     tokensPerSecond: Double?,
     isStreaming: Boolean,
     modifier: Modifier = Modifier,
@@ -142,17 +156,36 @@ private fun AssistantMessage(
         AppMark(size = AvatarSize)
 
         Column(modifier = Modifier.weight(1f)) {
+            if (reasoning != null) {
+                var expanded by rememberSaveable { mutableStateOf(false) }
+                if (isStreaming) {
+                    LaunchedEffect(isReasoning) { expanded = isReasoning }
+                }
+                ReasoningSection(
+                    reasoning = reasoning,
+                    isReasoning = isReasoning,
+                    durationMillis = reasoningMillis,
+                    expanded = expanded,
+                    onToggle = { expanded = !expanded },
+                    modifier = Modifier.padding(bottom = Spacing.Small),
+                )
+            }
+
             SelectionContainer {
                 if (isStreaming) {
-                    StreamingMarkdownReply(
-                        markdown = text,
-                        placeholder = {
-                            DisableSelection {
-                                ThinkingIndicator(modifier = Modifier.padding(top = Spacing.ExtraSmall))
-                            }
-                        },
-                    )
-                } else {
+                    key(reasoning != null) {
+                        StreamingMarkdownReply(
+                            markdown = text,
+                            placeholder = {
+                                if (reasoning == null) {
+                                    DisableSelection {
+                                        ReadingIndicator(modifier = Modifier.padding(top = Spacing.ExtraSmall))
+                                    }
+                                }
+                            },
+                        )
+                    }
+                } else if (text.isNotEmpty()) {
                     MarkdownReply(markdown = text)
                 }
             }
@@ -166,7 +199,7 @@ private fun AssistantMessage(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ThinkingIndicator(modifier: Modifier = Modifier) {
+private fun ReadingIndicator(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -174,7 +207,7 @@ private fun ThinkingIndicator(modifier: Modifier = Modifier) {
     ) {
         LoadingIndicator(modifier = Modifier.size(24.dp))
         Text(
-            text = stringResource(R.string.chat_thinking),
+            text = stringResource(R.string.chat_reading),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -187,7 +220,9 @@ private fun MessageActions(text: String, tokensPerSecond: Double?) {
         modifier = Modifier.offset(x = -Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CopyButton(text = text, contentDescription = stringResource(R.string.chat_copy_reply))
+        if (text.isNotBlank()) {
+            CopyButton(text = text, contentDescription = stringResource(R.string.chat_copy_reply))
+        }
 
         if (tokensPerSecond != null) {
             Text(

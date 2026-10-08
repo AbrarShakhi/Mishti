@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.abrarshakhi.mishti.common.llm.InferenceSettings
 import com.abrarshakhi.mishti.common.ui.theme.AppColorScheme
@@ -70,6 +71,16 @@ class DataStoreAppPreferences(context: Context) : AppPreferences {
         }
     }
 
+    override val thinkingModelIds: Flow<Set<String>> =
+        preferences.map { it[Keys.THINKING_MODELS].orEmpty() }
+
+    override suspend fun setThinking(modelId: String, enabled: Boolean) {
+        dataStore.edit { prefs ->
+            val current = prefs[Keys.THINKING_MODELS].orEmpty()
+            prefs[Keys.THINKING_MODELS] = if (enabled) current + modelId else current - modelId
+        }
+    }
+
     private fun Preferences.toInferenceSettings(): InferenceSettings {
         val defaults = InferenceSettings()
         return InferenceSettings(
@@ -112,6 +123,7 @@ class DataStoreAppPreferences(context: Context) : AppPreferences {
         val MAX_TOKENS = intPreferencesKey("max_tokens")
         val CONTEXT_TOKENS = intPreferencesKey("context_tokens")
         val THREADS = intPreferencesKey("threads")
+        val THINKING_MODELS = stringSetPreferencesKey("thinking_models")
     }
 }
 

@@ -29,4 +29,8 @@ interface AppPreferences {
     val inferenceSettings: Flow<InferenceSettings>
 
     suspend fun updateInferenceSettings(transform: (InferenceSettings) -> InferenceSettings)
+
+    val thinkingModelIds: Flow<Set<String>>
+
+    suspend fun setThinking(modelId: String, enabled: Boolean)
 }

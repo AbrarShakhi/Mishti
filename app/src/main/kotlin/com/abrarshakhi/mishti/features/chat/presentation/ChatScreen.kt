@@ -66,6 +66,9 @@ fun ChatScreen(
                     ChatContent.Conversation -> MessageList(
                         messages = state.messages,
                         streamingResponse = state.streamingResponse,
+                        streamingReasoning = state.streamingReasoning,
+                        isReasoning = state.isReasoning,
+                        reasoningMillis = state.reasoningMillis,
                         isGenerating = state.isGenerating,
                     )
                 }
@@ -75,9 +78,12 @@ fun ChatScreen(
                 draft = state.draft,
                 canSend = state.canSend,
                 canStop = state.canStop,
+                thinkingSupported = state.thinkingSupported,
+                thinkingEnabled = state.thinkingEnabled,
                 onDraftChange = { onIntent(ChatIntent.DraftChanged(it)) },
                 onSend = { onIntent(ChatIntent.SendClicked) },
                 onStop = { onIntent(ChatIntent.StopClicked) },
+                onThinkingToggle = { onIntent(ChatIntent.ThinkingToggled) },
             )
         }
     }
@@ -157,6 +163,48 @@ private fun ChatScreenStreamingPreview() = ChatScreenPreview(
         isGenerating = true,
         canStop = true,
         engineState = EngineState.Ready(PreviewModel),
+    ),
+)
+
+@Preview(name = "Thinking", showBackground = true)
+@Composable
+private fun ChatScreenThinkingPreview() = ChatScreenPreview(
+    ChatUiState(
+        title = "Rainbows",
+        isLoading = false,
+        messages = listOf(ChatMessage("1", MessageAuthor.User, "Explain how rainbows form", 0L)),
+        streamingReasoning = "The user wants the physics of rainbows. Start with refraction, " +
+            "then reflection inside the drop, then dispersion.",
+        isReasoning = true,
+        isGenerating = true,
+        canStop = true,
+        engineState = EngineState.Ready(PreviewModel, supportsThinking = true),
+        thinkingSupported = true,
+        thinkingEnabled = true,
+    ),
+)
+
+@Preview(name = "Reply with thoughts", showBackground = true)
+@Composable
+private fun ChatScreenReasonedPreview() = ChatScreenPreview(
+    ChatUiState(
+        title = "Rainbows",
+        isLoading = false,
+        messages = listOf(
+            ChatMessage("1", MessageAuthor.User, "Explain how rainbows form", 0L),
+            ChatMessage(
+                id = "2",
+                author = MessageAuthor.Assistant,
+                content = "Sunlight bends as it enters a raindrop, reflects off the back, and " +
+                    "splits into colours on the way out.",
+                createdAtMillis = 0L,
+                tokensPerSecond = 9.8,
+                reasoning = "Refraction, reflection, dispersion. Keep it short.",
+                reasoningMillis = 7_400L,
+            ),
+        ),
+        engineState = EngineState.Ready(PreviewModel, supportsThinking = true),
+        thinkingSupported = true,
     ),
 )
 

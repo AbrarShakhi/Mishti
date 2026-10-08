@@ -24,6 +24,8 @@ class LlamaEngine(
 
     private var loadedOptions: EngineOptions? = null
 
+    private var supportsThinking: Boolean = false
+
     override suspend fun load(model: ModelHandle, options: EngineOptions) {
         val current = _state.value
         if (current is EngineState.Ready && current.model.id == model.id && loadedOptions == options) {
@@ -53,7 +55,9 @@ class LlamaEngine(
             } else {
                 handle = loaded
                 loadedOptions = options
-                _state.value = EngineState.Ready(model)
+                supportsThinking = LlamaNative.nativeChatTemplate(loaded)
+                    ?.let(::templateSupportsThinking) == true
+                _state.value = EngineState.Ready(model, supportsThinking)
             }
         }
     }
@@ -82,6 +86,7 @@ class LlamaEngine(
             params.topK,
             params.topP,
             params.maxTokens,
+            if (supportsThinking && !params.thinking) SKIP_THINKING_PREFIX else "",
         ) { piece ->
             trySend(GenerationEvent.Token(piece)).isSuccess
         }
@@ -107,6 +112,7 @@ class LlamaEngine(
             handle = 0L
         }
         loadedOptions = null
+        supportsThinking = false
     }
 
     private fun LlmRole.wireName(): String = when (this) {
@@ -117,6 +123,8 @@ class LlamaEngine(
 
     companion object {
         private const val TAG = "MishtiLlama"
+
+        private const val SKIP_THINKING_PREFIX = "$THINK_OPEN\n\n$THINK_CLOSE\n\n"
 
         fun defaultThreads(): Int = (Runtime.getRuntime().availableProcessors() / 2).coerceIn(2, 6)
 

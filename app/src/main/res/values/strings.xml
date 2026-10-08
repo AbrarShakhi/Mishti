@@ -42,7 +42,16 @@
     <string name="chat_composer_placeholder">Message Mishti</string>
     <string name="chat_send">Send message</string>
     <string name="chat_stop">Stop generating</string>
-    <string name="chat_thinking">Thinking…</string>
+    <string name="chat_reading">Reading your message…</string>
+    <string name="chat_think">Think</string>
+    <string name="chat_reasoning_active">Thinking…</string>
+    <string name="chat_reasoning_done">Thoughts</string>
+    <plurals name="chat_reasoning_duration">
+        <item quantity="one">Thought for %d second</item>
+        <item quantity="other">Thought for %d seconds</item>
+    </plurals>
+    <string name="chat_reasoning_show">Show thinking</string>
+    <string name="chat_reasoning_hide">Hide thinking</string>
     <string name="chat_copy_reply">Copy reply</string>
     <string name="chat_copy_code">Copy code</string>
     <string name="chat_tokens_per_second">%1$s tokens/s</string>

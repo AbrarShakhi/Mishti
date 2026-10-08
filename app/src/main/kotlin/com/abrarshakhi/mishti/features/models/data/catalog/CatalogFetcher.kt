@@ -33,6 +33,7 @@ class KtorCatalogFetcher(private val client: HttpClient) : CatalogFetcher {
                 text = response.bodyAsText(),
                 etag = response.headers[HttpHeaders.ETag],
             )
+
             else -> throw CatalogFetchException("The server answered ${response.status.value}.")
         }
     }

@@ -31,6 +31,7 @@ class FileCatalogStore(private val context: Context) : CatalogStore {
         CatalogSource.MistirBhandar -> runCatching {
             context.assets.open(BUNDLED_CATALOG_ASSET).bufferedReader().use { it.readText() }
         }.getOrNull()
+
         CatalogSource.PocketPal -> null
     }
 

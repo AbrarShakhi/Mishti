@@ -51,25 +51,37 @@ class DefaultCatalogRepository(
             flow.update { it.refreshing(true) }
             try {
                 val cached = withContext(ioDispatcher) { store.read(source) }
-                val result = fetcher.fetch(url(source), cached?.etag.takeIf { current is CatalogState.Ready })
+                val result = fetcher.fetch(
+                    url(source),
+                    cached?.etag.takeIf { current is CatalogState.Ready })
                 val now = clock()
                 when (result) {
                     FetchResult.NotModified -> {
                         withContext(ioDispatcher) { store.touch(source, now) }
                         flow.update { state ->
                             if (state is CatalogState.Ready) {
-                                state.copy(updatedAtMillis = now, isOffline = false, isRefreshing = false)
+                                state.copy(
+                                    updatedAtMillis = now,
+                                    isOffline = false,
+                                    isRefreshing = false
+                                )
                             } else {
                                 state.refreshing(false)
                             }
                         }
                     }
+
                     is FetchResult.Fresh -> {
                         val catalog = parse(source, result.text)
                         withContext(ioDispatcher) {
                             store.write(source, CachedCatalog(result.text, result.etag, now))
                         }
-                        flow.value = CatalogState.Ready(catalog, now, isOffline = false, isRefreshing = false)
+                        flow.value = CatalogState.Ready(
+                            catalog,
+                            now,
+                            isOffline = false,
+                            isRefreshing = false
+                        )
                     }
                 }
             } catch (e: CancellationException) {
@@ -78,7 +90,11 @@ class DefaultCatalogRepository(
             } catch (e: Exception) {
                 flow.update { state ->
                     when (state) {
-                        is CatalogState.Ready -> state.copy(isOffline = e is IOException, isRefreshing = false)
+                        is CatalogState.Ready -> state.copy(
+                            isOffline = e is IOException,
+                            isRefreshing = false
+                        )
+
                         else -> CatalogState.Unavailable(problemFor(e), isRefreshing = false)
                     }
                 }
@@ -96,9 +112,21 @@ class DefaultCatalogRepository(
 
         val state = when {
             saved != null && (bundled == null || saved.version >= bundled.version) ->
-                CatalogState.Ready(saved, cached.fetchedAtMillis, isOffline = false, isRefreshing = false)
+                CatalogState.Ready(
+                    saved,
+                    cached.fetchedAtMillis,
+                    isOffline = false,
+                    isRefreshing = false
+                )
+
             bundled != null ->
-                CatalogState.Ready(bundled, updatedAtMillis = null, isOffline = false, isRefreshing = false)
+                CatalogState.Ready(
+                    bundled,
+                    updatedAtMillis = null,
+                    isOffline = false,
+                    isRefreshing = false
+                )
+
             else -> null
         }
         if (state != null) states.getValue(source).value = state

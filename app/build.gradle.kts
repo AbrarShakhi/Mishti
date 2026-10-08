@@ -125,3 +125,37 @@ room {
 kotlin {
     compilerOptions { jvmTarget = JvmTarget.JVM_17 }
 }
+abstract class BundleDocsTask : DefaultTask() {
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    abstract val documents: ConfigurableFileCollection
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun bundle() {
+        val target = outputDir.get().asFile.resolve("docs")
+        target.deleteRecursively()
+        target.mkdirs()
+        documents.files.filter { it.isFile }.forEach { file ->
+            file.copyTo(target.resolve(file.name.lowercase()), overwrite = true)
+        }
+    }
+}
+
+val bundleDocs = tasks.register<BundleDocsTask>("bundleDocs") {
+    group = "build"
+    description = "Copies the repository's docs into the app's assets."
+    documents.from(
+        rootProject.fileTree("docs") { include("*.md") },
+        rootProject.file("CONTRIBUTING.md"),
+    )
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(bundleDocs, BundleDocsTask::outputDir)
+    }
+}

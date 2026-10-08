@@ -40,7 +40,7 @@ internal fun ChatTopBar(
     TopAppBar(
         title = {
             Text(
-                text = title.ifEmpty { stringResource(R.string.app_name) },
+                text = title.ifEmpty { stringResource(R.string.app_name) }.let { sessionDisplayTitle(it) },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -48,12 +48,12 @@ internal fun ChatTopBar(
         subtitle = { ModelStatus(engineState) },
         navigationIcon = {
             IconButton(onClick = onOpenDrawer) {
-                Icon(Icons.Filled.Menu, contentDescription = "Open conversations")
+                Icon(Icons.Filled.Menu, contentDescription = stringResource(R.string.chat_open_conversations))
             }
         },
         actions = {
             IconButton(onClick = onNewChat) {
-                Icon(Icons.Filled.Add, contentDescription = "New chat")
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.drawer_new_chat))
             }
         },
         scrollBehavior = scrollBehavior,
@@ -65,9 +65,10 @@ private fun ModelStatus(engineState: EngineState) {
     val colors = MaterialTheme.colorScheme
     val (label, dotColor) = when (engineState) {
         is EngineState.Ready -> engineState.model.name to colors.primary
-        is EngineState.Loading -> "Loading ${engineState.model.name}…" to colors.tertiary
-        is EngineState.Failed -> "Model failed to load" to colors.error
-        EngineState.Idle -> "No model selected" to colors.outline
+        is EngineState.Loading ->
+            stringResource(R.string.chat_status_loading, engineState.model.name) to colors.tertiary
+        is EngineState.Failed -> stringResource(R.string.chat_status_failed) to colors.error
+        EngineState.Idle -> stringResource(R.string.chat_status_idle) to colors.outline
     }
 
     Row(verticalAlignment = Alignment.CenterVertically) {

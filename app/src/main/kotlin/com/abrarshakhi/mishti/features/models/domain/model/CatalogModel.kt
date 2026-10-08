@@ -1,9 +1,8 @@
 package com.abrarshakhi.mishti.features.models.domain.model
 
-enum class CatalogSource(val label: String) {
-    MistirBhandar("Mistir Bhandar"),
-    PocketPal("PocketPal"),
-}
+enum class CatalogSource { MistirBhandar, PocketPal }
+
+enum class CatalogProblem { Offline, Unreadable, Unavailable }
 
 data class CatalogModel(
     val id: String,
@@ -22,6 +21,7 @@ data class CatalogModel(
     val license: String?,
     val tags: Set<String>,
     val groupId: String?,
+    val typicalTokensPerSecond: Double? = null,
 ) {
     val downloadUrl: String get() = "https://huggingface.co/$hfRepo/resolve/main/$hfFile"
 
@@ -30,10 +30,7 @@ data class CatalogModel(
     fun isSameFileAs(repo: String?, file: String?): Boolean = repo == hfRepo && file == hfFile
 }
 
-data class CatalogGroup(
-    val id: String,
-    val title: String,
-)
+data class CatalogGroup(val id: String)
 
 data class Catalog(
     val source: CatalogSource,
@@ -57,7 +54,7 @@ sealed interface CatalogState {
     ) : CatalogState
 
     data class Unavailable(
-        val reason: String,
+        val problem: CatalogProblem,
         override val isRefreshing: Boolean,
     ) : CatalogState
 }

@@ -31,6 +31,7 @@ import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import com.abrarshakhi.mishti.R
 
 val modelsModule = module {
 
@@ -89,6 +90,7 @@ val modelsModule = module {
                     .orEmpty()
             },
             notifier = get(),
+            defaultImportName = androidContext().getString(R.string.models_import_default_name),
         )
     }
 

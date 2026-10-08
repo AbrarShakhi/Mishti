@@ -59,6 +59,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 internal fun ShelfTab(
@@ -89,7 +91,7 @@ internal fun ShelfTab(
     ) {
         if (state.transfers.isNotEmpty()) {
             item(key = "oven-header") {
-                SectionHeader("In the oven", Modifier.animateItem())
+                SectionHeader(stringResource(R.string.models_in_the_oven), Modifier.animateItem())
             }
             itemsIndexed(state.transfers, key = { _, it -> "transfer-${it.id}" }) { index, transfer ->
                 TransferRow(
@@ -104,7 +106,7 @@ internal fun ShelfTab(
         }
 
         if (inUse != null) {
-            item(key = "in-use-header") { SectionHeader("In use", Modifier.animateItem()) }
+            item(key = "in-use-header") { SectionHeader(stringResource(R.string.models_in_use), Modifier.animateItem()) }
             item(key = "in-use-${inUse.id}") {
                 InUseCard(
                     model = inUse,
@@ -119,7 +121,10 @@ internal fun ShelfTab(
 
         if (others.isNotEmpty()) {
             item(key = "shelf-header") {
-                SectionHeader(if (inUse == null) "On your shelf" else "Also on your shelf", Modifier.animateItem())
+                SectionHeader(
+                    stringResource(if (inUse == null) R.string.models_on_shelf else R.string.models_also_on_shelf),
+                    Modifier.animateItem(),
+                )
             }
             itemsIndexed(others, key = { _, it -> "shelf-${it.id}" }) { index, model ->
                 ShelfRow(
@@ -176,12 +181,12 @@ private fun InUseCard(
             }
             Spacer(Modifier.height(Spacing.Medium))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                InfoPill(label = "Chatting now", containerColor = MaterialTheme.colorScheme.primary)
+                InfoPill(label = stringResource(R.string.models_chatting_now), containerColor = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(Spacing.ExtraSmall))
-                InfoPill(label = model.origin.label, containerColor = MaterialTheme.colorScheme.surface)
+                InfoPill(label = stringResource(model.origin.labelRes), containerColor = MaterialTheme.colorScheme.surface)
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = onDelete, shapes = IconButtonDefaults.shapes()) {
-                    Icon(Icons.Filled.Delete, contentDescription = "Delete ${model.name}")
+                    Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.models_delete_named, model.name))
                 }
             }
         }
@@ -206,13 +211,20 @@ private fun ShelfRow(
             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
             onDelete()
         },
-        onLongClickLabel = "Delete ${model.name}",
+        onLongClickLabel = stringResource(R.string.models_delete_named, model.name),
         leadingContent = { ModelGlyph(name = model.name, seed = model.id) },
         supportingContent = {
-            MetaLine(listOf(formatSize(model.sizeBytes), model.parametersLabel, model.quantization, model.origin.label))
+            MetaLine(
+                listOf(
+                    formatSize(model.sizeBytes),
+                    model.parametersLabel,
+                    model.quantization,
+                    stringResource(model.origin.labelRes),
+                ),
+            )
         },
         trailingContent = {
-            FilledTonalButton(onClick = onUse, shapes = ButtonDefaults.shapes()) { Text("Use") }
+            FilledTonalButton(onClick = onUse, shapes = ButtonDefaults.shapes()) { Text(stringResource(R.string.models_use)) }
         },
     ) {
         Text(model.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -247,14 +259,14 @@ private fun TransferRow(
                 Text(
                     text = when (status) {
                         is TransferStatus.Downloading ->
-                            "Downloading · ${formatSize(status.doneBytes)} of ${formatSize(status.totalBytes)}"
+                            stringResource(R.string.models_downloading, formatSize(status.doneBytes), formatSize(status.totalBytes))
                         is TransferStatus.Importing -> if (status.totalBytes > 0) {
-                            "Importing · ${formatSize(status.doneBytes)} of ${formatSize(status.totalBytes)}"
+                            stringResource(R.string.models_importing, formatSize(status.doneBytes), formatSize(status.totalBytes))
                         } else {
-                            "Reading the file…"
+                            stringResource(R.string.models_reading_file)
                         }
-                        TransferStatus.Verifying -> "Checking the file…"
-                        is TransferStatus.Failed -> status.reason
+                        TransferStatus.Verifying -> stringResource(R.string.models_checking_file)
+                        is TransferStatus.Failed -> stringResource(status.error.messageRes)
                     },
                     color = if (status is TransferStatus.Failed) {
                         MaterialTheme.colorScheme.error
@@ -285,7 +297,9 @@ private fun TransferRow(
             IconButton(onClick = if (status is TransferStatus.Failed) onDismiss else onCancel) {
                 Icon(
                     Icons.Filled.Close,
-                    contentDescription = if (status is TransferStatus.Failed) "Dismiss" else "Cancel",
+                    contentDescription = stringResource(
+                        if (status is TransferStatus.Failed) R.string.action_dismiss else R.string.action_cancel,
+                    ),
                 )
             }
         },
@@ -318,13 +332,13 @@ private fun EmptyShelf(
             ModelGlyph(name = "M", seed = "mishti", size = 96.dp, rotation = rotation, modifier = Modifier.enterOnce(0, true))
             Spacer(Modifier.height(Spacing.ExtraLarge))
             Text(
-                text = "Your shelf is empty",
+                text = stringResource(R.string.models_empty_title),
                 style = MaterialTheme.typography.headlineSmallEmphasized,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(Spacing.Small))
             Text(
-                text = "Pick a sweet from the shop, or bring your own GGUF file.",
+                text = stringResource(R.string.models_empty_body),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -333,13 +347,13 @@ private fun EmptyShelf(
             Button(onClick = onBrowse, shapes = ButtonDefaults.shapes()) {
                 Icon(Icons.Filled.Storefront, contentDescription = null)
                 Spacer(Modifier.width(Spacing.Small))
-                Text("Browse sweets")
+                Text(stringResource(R.string.models_empty_browse))
             }
             Spacer(Modifier.height(Spacing.Small))
             OutlinedButton(onClick = onImport, shapes = ButtonDefaults.shapes()) {
                 Icon(Icons.Filled.UploadFile, contentDescription = null)
                 Spacer(Modifier.width(Spacing.Small))
-                Text("Import a file")
+                Text(stringResource(R.string.models_empty_import))
             }
         }
     }

@@ -15,6 +15,7 @@ fun SettingsRoute(
     onOpenChat: () -> Unit,
     onOpenGeneration: () -> Unit,
     onOpenPerformance: () -> Unit,
+    onOpenDocument: (AppDocument) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: SettingsViewModel = koinViewModel()
@@ -29,6 +30,7 @@ fun SettingsRoute(
         onOpenChat = onOpenChat,
         onOpenGeneration = onOpenGeneration,
         onOpenPerformance = onOpenPerformance,
+        onOpenDocument = onOpenDocument,
         modifier = modifier,
     )
 }

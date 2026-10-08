@@ -1,5 +1,6 @@
 package com.abrarshakhi.mishti.features.chat.presentation
 
+import com.abrarshakhi.mishti.R
 import androidx.lifecycle.viewModelScope
 import com.abrarshakhi.mishti.common.mvi.MviViewModel
 import com.abrarshakhi.mishti.common.ui.snackbar.SnackbarDispatcher
@@ -72,7 +73,7 @@ class SessionsViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                snackbar.showError("Could not start a new chat.")
+                snackbar.showError(R.string.chat_error_new)
                 return@launch
             }
             emitEffect(SessionsEffect.OpenSession(sessionId))
@@ -91,7 +92,7 @@ class SessionsViewModel(
                     renaming.sessionId,
                     renaming.title.trim()
                 )
-            }.onFailure { snackbar.showError("Could not rename that conversation.") }
+            }.onFailure { snackbar.showError(R.string.chat_error_rename) }
         }
     }
 
@@ -102,10 +103,10 @@ class SessionsViewModel(
         viewModelScope.launch {
             val deleted = runCatching { repository.deleteSession(target.id) }.isSuccess
             if (!deleted) {
-                snackbar.showError("Could not delete that conversation.")
+                snackbar.showError(R.string.chat_error_delete)
                 return@launch
             }
-            snackbar.show("Conversation deleted.")
+            snackbar.show(R.string.chat_deleted)
 
             if (target.id != visibleSessionId) return@launch
 

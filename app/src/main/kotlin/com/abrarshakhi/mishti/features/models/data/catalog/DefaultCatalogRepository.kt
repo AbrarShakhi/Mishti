@@ -1,6 +1,7 @@
 package com.abrarshakhi.mishti.features.models.data.catalog
 
 import com.abrarshakhi.mishti.features.models.domain.model.Catalog
+import com.abrarshakhi.mishti.features.models.domain.model.CatalogProblem
 import com.abrarshakhi.mishti.features.models.domain.model.CatalogSource
 import com.abrarshakhi.mishti.features.models.domain.model.CatalogState
 import com.abrarshakhi.mishti.features.models.domain.repository.CatalogRepository
@@ -78,7 +79,7 @@ class DefaultCatalogRepository(
                 flow.update { state ->
                     when (state) {
                         is CatalogState.Ready -> state.copy(isOffline = e is IOException, isRefreshing = false)
-                        else -> CatalogState.Unavailable(failureMessage(source, e), isRefreshing = false)
+                        else -> CatalogState.Unavailable(problemFor(e), isRefreshing = false)
                     }
                 }
             }
@@ -113,10 +114,10 @@ class DefaultCatalogRepository(
         CatalogSource.PocketPal -> CatalogUrls.POCKETPAL
     }
 
-    private fun failureMessage(source: CatalogSource, error: Exception): String = when (error) {
-        is CatalogFormatException -> error.message ?: "${source.label}'s list could not be read."
-        is IOException -> "Couldn't reach ${source.label}. Check your connection and try again."
-        else -> "${source.label}'s list is unavailable right now. Try again later."
+    private fun problemFor(error: Exception): CatalogProblem = when (error) {
+        is CatalogFormatException -> CatalogProblem.Unreadable
+        is IOException -> CatalogProblem.Offline
+        else -> CatalogProblem.Unavailable
     }
 
     private fun CatalogState.refreshing(value: Boolean): CatalogState = when (this) {

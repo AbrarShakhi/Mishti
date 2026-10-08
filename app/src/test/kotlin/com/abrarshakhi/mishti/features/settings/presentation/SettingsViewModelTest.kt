@@ -22,6 +22,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.io.IOException
+import com.abrarshakhi.mishti.R
+import com.abrarshakhi.mishti.common.ui.text.uiText
 
 private class FailingPreferences(
     delegate: FakeAppPreferences = FakeAppPreferences(),
@@ -174,7 +176,7 @@ class SettingsViewModelTest {
         advanceUntilIdle()
 
         assertEquals(
-            SnackbarMessage("Could not save that setting.", SnackbarDuration.Long),
+            SnackbarMessage(uiText(R.string.settings_save_failed), SnackbarDuration.Long),
             snackbar.messages.first(),
         )
     }

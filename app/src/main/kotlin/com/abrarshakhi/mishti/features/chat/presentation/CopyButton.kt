@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
 
 private const val CopiedFeedbackMillis = 1_500L
 
@@ -37,6 +39,7 @@ internal fun CopyButton(
     modifier: Modifier = Modifier,
 ) {
     val clipboard = LocalClipboard.current
+    val appName = stringResource(R.string.app_name)
     val scope = rememberCoroutineScope()
     var copied by remember { mutableStateOf(false) }
 
@@ -50,7 +53,7 @@ internal fun CopyButton(
     IconButton(
         onClick = {
             scope.launch {
-                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Mishti", text)))
+                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(appName, text)))
                 copied = true
             }
         },
@@ -63,7 +66,7 @@ internal fun CopyButton(
         ) { isCopied ->
             Icon(
                 imageVector = if (isCopied) Icons.Filled.Check else Icons.Filled.ContentCopy,
-                contentDescription = if (isCopied) "Copied" else contentDescription,
+                contentDescription = if (isCopied) stringResource(R.string.action_copied) else contentDescription,
                 modifier = Modifier.size(20.dp),
             )
         }

@@ -11,13 +11,7 @@ import com.abrarshakhi.mishti.features.models.domain.model.ShelfModel
 import com.abrarshakhi.mishti.features.models.domain.model.Transfer
 import com.abrarshakhi.mishti.features.models.domain.repository.StorageUsage
 
-enum class CatalogFilter(val label: String) {
-    All("All"),
-    Fast("Fast"),
-    Balanced("Balanced"),
-    Smart("Smart"),
-    Coding("Coding"),
-}
+enum class CatalogFilter { All, Fast, Balanced, Smart, Coding }
 
 data class ModelsUiState(
     val isLoading: Boolean = true,

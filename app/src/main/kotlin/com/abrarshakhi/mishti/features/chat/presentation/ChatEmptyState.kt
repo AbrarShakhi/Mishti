@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +20,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -32,24 +32,32 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.llm.EngineState
 import com.abrarshakhi.mishti.common.ui.components.AppMark
 import com.abrarshakhi.mishti.common.ui.components.CookieShape
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import kotlin.random.Random
 
 private val HeroSize = 88.dp
 
-private val Suggestions = listOf(
-    "Explain how rainbows form",
-    "Write a haiku about the sea",
-    "Suggest a name for a kitten",
-    "Give me three quick dinner ideas",
-)
+private const val SuggestionCount = 4
+
+fun pickSuggestions(pool: List<String>, count: Int, seed: Int): List<String> =
+    pool.distinct().shuffled(Random(seed)).take(count)
 
 @Composable
 internal fun ChatEmptyState(
@@ -100,29 +108,58 @@ private enum class EmptyKind {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ReadyState(engineState: EngineState, onSuggestion: (String) -> Unit) {
     val modelName = (engineState as? EngineState.Ready)?.model?.name
+    val pool = stringArrayResource(R.array.chat_suggestions).toList()
+    var seed by rememberSaveable { mutableIntStateOf(Random.nextInt()) }
+    val suggestions = remember(pool, seed) { pickSuggestions(pool, SuggestionCount, seed) }
+    val enter = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
+    val exit = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
 
     EmptyStateColumn(
         hero = { AppMark(size = HeroSize) },
-        title = "How can I help?",
+        title = stringResource(R.string.chat_ready_title),
         body = if (modelName != null) {
-            "$modelName runs on this phone, so your messages never leave it."
+            stringResource(R.string.chat_ready_body_model, modelName)
         } else {
-            "Your messages never leave this phone."
+            stringResource(R.string.chat_ready_body)
         },
     ) {
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(Spacing.Small, Alignment.CenterHorizontally),
-            verticalArrangement = Arrangement.spacedBy(Spacing.Small),
-        ) {
-            Suggestions.forEach { suggestion ->
-                SuggestionChip(
-                    onClick = { onSuggestion(suggestion) },
-                    label = { Text(suggestion) },
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            AnimatedContent(
+                targetState = suggestions,
+                transitionSpec = { fadeIn(enter) togetherWith fadeOut(exit) },
+                label = "Suggestions",
+            ) { shown ->
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(
+                        Spacing.Small,
+                        Alignment.CenterHorizontally
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.Small),
+                ) {
+                    shown.forEach { suggestion ->
+                        SuggestionChip(
+                            onClick = { onSuggestion(suggestion) },
+                            label = { Text(suggestion) },
+                        )
+                    }
+                }
+            }
+            TextButton(
+                onClick = { seed = Random.nextInt() },
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.padding(top = Spacing.Small),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Shuffle,
+                    contentDescription = null,
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
                 )
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text(stringResource(R.string.chat_suggestions_shuffle))
             }
         }
     }
@@ -131,12 +168,13 @@ private fun ReadyState(engineState: EngineState, onSuggestion: (String) -> Unit)
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun LoadingState(engineState: EngineState) {
-    val modelName = (engineState as? EngineState.Loading)?.model?.name ?: "the model"
+    val modelName = (engineState as? EngineState.Loading)?.model?.name
+        ?: stringResource(R.string.chat_loading_fallback_name)
 
     EmptyStateColumn(
         hero = { LoadingIndicator(modifier = Modifier.size(HeroSize)) },
-        title = "Getting $modelName ready",
-        body = "Loading it into memory takes a few seconds.",
+        title = stringResource(R.string.chat_loading_title, modelName),
+        body = stringResource(R.string.chat_loading_body),
     )
 }
 
@@ -144,8 +182,8 @@ private fun LoadingState(engineState: EngineState) {
 private fun NoModelState(onOpenModels: () -> Unit) {
     EmptyStateColumn(
         hero = { AppMark(size = HeroSize) },
-        title = "Choose a model to start",
-        body = "Mishti runs a small language model entirely on this phone. Pick one from Mistir Bhandar to begin.",
+        title = stringResource(R.string.chat_no_model_title),
+        body = stringResource(R.string.chat_no_model_body),
     ) {
         Button(
             onClick = onOpenModels,
@@ -157,7 +195,7 @@ private fun NoModelState(onOpenModels: () -> Unit) {
                 modifier = Modifier.size(ButtonDefaults.IconSize),
             )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Visit Mistir Bhandar")
+            Text(stringResource(R.string.chat_no_model_action))
         }
     }
 }
@@ -173,14 +211,18 @@ private fun FailedState(onOpenModels: () -> Unit) {
                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Filled.Warning, contentDescription = null, modifier = Modifier.size(36.dp))
+                    Icon(
+                        Icons.Filled.Warning,
+                        contentDescription = null,
+                        modifier = Modifier.size(36.dp)
+                    )
                 }
             }
         },
-        title = "The model couldn't be loaded",
-        body = "It may need more memory than is free right now. Try a smaller model.",
+        title = stringResource(R.string.chat_failed_title),
+        body = stringResource(R.string.chat_failed_body),
     ) {
-        Button(onClick = onOpenModels) { Text("Open models") }
+        Button(onClick = onOpenModels) { Text(stringResource(R.string.chat_failed_action)) }
     }
 }
 

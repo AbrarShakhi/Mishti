@@ -9,6 +9,7 @@ import com.abrarshakhi.mishti.features.models.domain.model.CatalogModel
 import com.abrarshakhi.mishti.features.models.domain.model.ModelOrigin
 import com.abrarshakhi.mishti.features.models.domain.model.ShelfModel
 import com.abrarshakhi.mishti.features.models.domain.model.Transfer
+import com.abrarshakhi.mishti.features.models.domain.model.TransferError
 import com.abrarshakhi.mishti.features.models.domain.model.TransferStatus
 import com.abrarshakhi.mishti.features.models.domain.model.toOrigin
 import com.abrarshakhi.mishti.features.models.domain.repository.ModelRepository
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
@@ -38,6 +40,7 @@ class DefaultModelRepository(
     private val knownModels: () -> List<CatalogModel>,
     private val notifier: DownloadNotifier = DownloadNotifier.Noop,
     private val clock: () -> Long = System::currentTimeMillis,
+    private val defaultImportName: String = "model.gguf",
 ) : ModelRepository {
 
     override val selectedModelId: Flow<String?> = preferences.selectedModelId
@@ -95,7 +98,7 @@ class DefaultModelRepository(
                 removeTransfer(id)
                 throw e
             } catch (e: Exception) {
-                setTransfer(id, model.name, TransferStatus.Failed(e.message ?: "Download failed."))
+                setTransfer(id, model.name, TransferStatus.Failed(e.toTransferError()))
             } finally {
                 jobs.remove(id)
                 refreshStorage()
@@ -105,7 +108,7 @@ class DefaultModelRepository(
 
     override fun import(uri: String) {
         val id = "imported-" + UUID.randomUUID().toString().take(8)
-        var name = "Model file"
+        var name = defaultImportName
         setTransfer(id, name, TransferStatus.Importing(0L, -1L))
         notifier.onDownloadsActive()
 
@@ -138,7 +141,7 @@ class DefaultModelRepository(
                 removeTransfer(id)
                 throw e
             } catch (e: Exception) {
-                setTransfer(id, name, TransferStatus.Failed(e.message ?: "Import failed."))
+                setTransfer(id, name, TransferStatus.Failed(e.toTransferError()))
             } finally {
                 jobs.remove(id)
                 refreshStorage()
@@ -211,6 +214,12 @@ class DefaultModelRepository(
     private fun removeTransfer(id: String) {
         _transfers.update { it - id }
     }
+}
+
+private fun Exception.toTransferError(): TransferError = when (this) {
+    is DownloadFailure -> error
+    is IOException -> TransferError.Network
+    else -> TransferError.Unknown
 }
 
 private fun CatalogModel.toEntity(sizeOnDisk: Long, now: Long) = InstalledModelEntity(

@@ -46,6 +46,8 @@ import com.abrarshakhi.mishti.features.models.domain.model.ShelfModel
 import com.abrarshakhi.mishti.features.models.domain.model.memoryFit
 import com.abrarshakhi.mishti.features.models.domain.repository.StorageUsage
 import kotlinx.coroutines.launch
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
 
 internal const val ShelfPage = 0
 internal const val BrowsePage = 1
@@ -69,21 +71,24 @@ fun ModelsScreen(
         containerColor = background,
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text("Mistir Bhandar") },
+                title = { Text(stringResource(R.string.models_title)) },
                 subtitle = {
                     Text(
-                        "${formatSize(state.storage.usedBytes)} on your shelf · " +
-                            "${formatSize(state.storage.availableBytes)} free",
+                        stringResource(
+                            R.string.models_storage,
+                            formatSize(state.storage.usedBytes),
+                            formatSize(state.storage.availableBytes),
+                        ),
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = onImport, shapes = IconButtonDefaults.shapes()) {
-                        Icon(Icons.Filled.UploadFile, contentDescription = "Import a model file")
+                        Icon(Icons.Filled.UploadFile, contentDescription = stringResource(R.string.models_import))
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -113,7 +118,7 @@ fun ModelsScreen(
                 Tab(
                     selected = pagerState.currentPage == ShelfPage,
                     onClick = { scope.launch { pagerState.animateScrollToPage(ShelfPage) } },
-                    text = { Text("My shelf") },
+                    text = { Text(stringResource(R.string.models_tab_shelf)) },
                     icon = {
                         val active = state.transfers.count { it.isActive }
                         BadgedBox(badge = { if (active > 0) Badge { Text("$active") } }) {
@@ -124,7 +129,7 @@ fun ModelsScreen(
                 Tab(
                     selected = pagerState.currentPage == BrowsePage,
                     onClick = { scope.launch { pagerState.animateScrollToPage(BrowsePage) } },
-                    text = { Text("Browse") },
+                    text = { Text(stringResource(R.string.models_tab_browse)) },
                     icon = { Icon(Icons.Filled.Storefront, contentDescription = null) },
                 )
             }
@@ -172,23 +177,25 @@ fun ModelsScreen(
         AlertDialog(
             onDismissRequest = { onIntent(ModelsIntent.DeleteCancelled) },
             icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
-            title = { Text("Delete ${model.name}?") },
+            title = { Text(stringResource(R.string.models_delete_title, model.name)) },
             text = {
                 Text(
-                    if (model.origin == ModelOrigin.Imported) {
-                        "The copy on Mishti's shelf will be removed. Your original file is not touched."
-                    } else {
-                        "The file will be removed from this phone. You can download it again later."
-                    },
+                    stringResource(
+                        if (model.origin == ModelOrigin.Imported) {
+                            R.string.models_delete_imported_body
+                        } else {
+                            R.string.models_delete_downloaded_body
+                        },
+                    ),
                 )
             },
             confirmButton = {
                 TextButton(onClick = { onIntent(ModelsIntent.DeleteConfirmed) }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { onIntent(ModelsIntent.DeleteCancelled) }) { Text("Cancel") }
+                TextButton(onClick = { onIntent(ModelsIntent.DeleteCancelled) }) { Text(stringResource(R.string.action_cancel)) }
             },
         )
     }

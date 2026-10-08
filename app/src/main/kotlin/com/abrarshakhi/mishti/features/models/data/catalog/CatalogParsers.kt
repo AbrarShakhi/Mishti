@@ -85,13 +85,6 @@ object PocketPalCatalogParser {
 
     private val tierOrder = listOf("low", "mid", "high", "flagship")
 
-    private val tierTitles = mapOf(
-        "low" to "Everyday phones",
-        "mid" to "Mid-range phones",
-        "high" to "High-end phones",
-        "flagship" to "Flagships",
-    )
-
     fun parse(text: String, device: DeviceProfile): Catalog {
         val root = parseObject(text)
         if (root.string("platform") != "android") {
@@ -122,7 +115,7 @@ object PocketPalCatalogParser {
             version = version,
             models = byFile.values.toList(),
             groups = tierOrder.filter { tierModels[it].orEmpty().isNotEmpty() }
-                .map { CatalogGroup(it, tierTitles.getValue(it)) },
+                .map { CatalogGroup(it) },
             recommendedIds = deviceTier?.let { tierModels[it] }.orEmpty(),
             deviceGroupId = deviceTier,
         )
@@ -137,15 +130,11 @@ object PocketPalCatalogParser {
         val sha = string("sha256") ?: return null
         val quant = string("quant")?.uppercase() ?: ""
         val minRam = double("min_ram_gb")?.let { (it * GIB).roundToLong() } ?: 0L
-        val speed = double("obs_tg")
         return CatalogModel(
             id = "pocketpal-" + "$key-$quant".lowercase().replace(Regex("[^a-z0-9.]+"), "-"),
             source = CatalogSource.PocketPal,
             name = string("display_name") ?: key,
-            description = speed?.let {
-                "About ${it.roundToLong()} tokens a second on a typical ${tierTitles.getValue(tier)
-                    .lowercase().removeSuffix("s")}."
-            },
+            description = null,
             publisher = repo.substringBefore('/'),
             parametersLabel = parametersLabel(long("params")),
             quantization = quant,
@@ -161,6 +150,7 @@ object PocketPalCatalogParser {
                 if (boolean("native_low_bit") == true) add("low-bit")
             },
             groupId = tier,
+            typicalTokensPerSecond = double("obs_tg"),
         )
     }
 

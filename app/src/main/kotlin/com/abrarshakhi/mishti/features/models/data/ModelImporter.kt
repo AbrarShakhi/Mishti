@@ -7,6 +7,7 @@ import androidx.core.net.toUri
 import com.abrarshakhi.mishti.features.models.data.gguf.GgufInfo
 import com.abrarshakhi.mishti.features.models.data.gguf.GgufReader
 import com.abrarshakhi.mishti.features.models.data.gguf.NotGgufException
+import com.abrarshakhi.mishti.features.models.domain.model.TransferError
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -41,15 +42,15 @@ class ModelImporter(
 
         val info = try {
             resolver.openInputStream(source)?.buffered()?.use { GgufReader.read(it) }
-                ?: throw DownloadFailure("Could not open $displayName.")
+                ?: throw DownloadFailure(TransferError.CannotOpen)
         } catch (_: EOFException) {
-            throw DownloadFailure("$displayName is not a GGUF model file.")
+            throw DownloadFailure(TransferError.NotGguf)
         } catch (_: NotGgufException) {
-            throw DownloadFailure("$displayName is not a GGUF model file.")
+            throw DownloadFailure(TransferError.NotGguf)
         }
 
         if (declaredSize > 0 && !storage.hasRoomFor(id, declaredSize)) {
-            throw DownloadFailure("Not enough free space to import $displayName.")
+            throw DownloadFailure(TransferError.NotEnoughSpace)
         }
 
         val partial = storage.partialFile(id)
@@ -67,11 +68,11 @@ class ModelImporter(
                         onProgress(copied, declaredSize)
                     }
                 }
-            } ?: throw DownloadFailure("Could not open $displayName.")
+            } ?: throw DownloadFailure(TransferError.CannotOpen)
 
             val target = storage.modelFile(id)
             target.delete()
-            if (!partial.renameTo(target)) throw DownloadFailure("Could not save $displayName.")
+            if (!partial.renameTo(target)) throw DownloadFailure(TransferError.CannotSave)
             ImportedFile(displayName, copied, info)
         } catch (e: Throwable) {
             partial.delete()

@@ -1,9 +1,16 @@
 package com.abrarshakhi.mishti.features.models.domain.model
 
-enum class ModelOrigin(val label: String) {
-    MistirBhandar("Mistir Bhandar"),
-    PocketPal("PocketPal"),
-    Imported("Imported"),
+enum class ModelOrigin { MistirBhandar, PocketPal, Imported }
+
+enum class TransferError {
+    NotEnoughSpace,
+    VerificationFailed,
+    ServerError,
+    Network,
+    CannotOpen,
+    NotGguf,
+    CannotSave,
+    Unknown,
 }
 
 fun CatalogSource.toOrigin(): ModelOrigin = when (this) {
@@ -39,7 +46,7 @@ sealed interface TransferStatus {
             get() = if (totalBytes <= 0L) 0f else (doneBytes.toFloat() / totalBytes).coerceIn(0f, 1f)
     }
 
-    data class Failed(val reason: String) : TransferStatus
+    data class Failed(val error: TransferError) : TransferStatus
 }
 
 data class Transfer(

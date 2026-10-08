@@ -15,7 +15,6 @@ data class CatalogItem(
 
 data class CatalogSection(
     val id: String,
-    val title: String,
     val isDeviceGroup: Boolean,
     val items: List<CatalogItem>,
 )
@@ -29,6 +28,8 @@ data class BrowseContent(
 private const val FAST_MAX_BYTES = 600_000_000L
 private const val BALANCED_MAX_BYTES = 1_500_000_000L
 private const val RECOMMENDED_LIMIT = 6
+
+const val ALL_SECTION_ID = "all"
 
 fun CatalogModel.matches(filter: CatalogFilter): Boolean = when (filter) {
     CatalogFilter.All -> true
@@ -74,8 +75,7 @@ fun browseContent(state: ModelsUiState): BrowseContent {
     val sections = if (catalog.groups.isEmpty()) {
         listOf(
             CatalogSection(
-                id = catalog.source.name,
-                title = "All sweets",
+                id = ALL_SECTION_ID,
                 isDeviceGroup = false,
                 items = visible.sortedBy { it.sizeBytes }.map(::item),
             ),
@@ -84,7 +84,6 @@ fun browseContent(state: ModelsUiState): BrowseContent {
         catalog.groups.map { group ->
             CatalogSection(
                 id = group.id,
-                title = group.title,
                 isDeviceGroup = group.id == catalog.deviceGroupId,
                 items = visible.filter { it.groupId == group.id }.sortedBy { it.sizeBytes }.map(::item),
             )

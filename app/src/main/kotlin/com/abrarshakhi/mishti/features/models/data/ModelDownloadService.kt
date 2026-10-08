@@ -38,7 +38,7 @@ class ModelDownloadService : Service() {
             return START_NOT_STICKY
         }
 
-        startForegroundWith(buildNotification(title = "Preparing", progress = null))
+        startForegroundWith(buildNotification(title = getString(R.string.notification_preparing), progress = null))
         observeDownloads()
 
         return START_NOT_STICKY
@@ -60,21 +60,26 @@ class ModelDownloadService : Service() {
 
         val transfer = active.first()
         val extra = active.size - 1
-        val suffix = if (extra > 0) " (+$extra more)" else ""
 
         val notification = when (val status = transfer.status) {
             is TransferStatus.Downloading -> buildNotification(
-                title = transfer.name + suffix,
+                title = withMore(transfer.name, extra),
                 progress = (status.fraction * 100).toInt(),
             )
             is TransferStatus.Importing -> buildNotification(
-                title = "Importing ${transfer.name}$suffix",
+                title = withMore(getString(R.string.notification_importing, transfer.name), extra),
                 progress = if (status.totalBytes > 0) (status.fraction * 100).toInt() else null,
             )
-            else -> buildNotification(title = "Verifying ${transfer.name}", progress = null)
+            else -> buildNotification(
+                title = getString(R.string.notification_verifying, transfer.name),
+                progress = null,
+            )
         }
         notificationManager()?.notify(NOTIFICATION_ID, notification)
     }
+
+    private fun withMore(title: String, extra: Int): String =
+        if (extra > 0) resources.getQuantityString(R.plurals.notification_more, extra, title, extra) else title
 
     private fun cancelAll() {
         repository.cancelAll()
@@ -108,10 +113,16 @@ class ModelDownloadService : Service() {
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(title)
-            .setContentText(if (progress == null) "Working…" else "$progress%")
+            .setContentText(
+                if (progress == null) {
+                    getString(R.string.notification_working)
+                } else {
+                    getString(R.string.notification_percent, progress)
+                },
+            )
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(open)
-            .addAction(0, "Cancel", cancel)
+            .addAction(0, getString(R.string.action_cancel), cancel)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -127,7 +138,7 @@ class ModelDownloadService : Service() {
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_ID,
-                "Model downloads and imports",
+                getString(R.string.notification_channel_transfers),
                 NotificationManager.IMPORTANCE_LOW,
             ).apply { setShowBadge(false) }
         )

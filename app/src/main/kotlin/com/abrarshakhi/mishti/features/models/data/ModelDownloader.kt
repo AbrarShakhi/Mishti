@@ -1,5 +1,6 @@
 package com.abrarshakhi.mishti.features.models.data
 
+import com.abrarshakhi.mishti.features.models.domain.model.TransferError
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.prepareGet
@@ -21,7 +22,7 @@ sealed interface DownloadProgress {
     data object Verifying : DownloadProgress
 }
 
-class DownloadFailure(message: String, cause: Throwable? = null) : Exception(message, cause)
+class DownloadFailure(val error: TransferError, cause: Throwable? = null) : Exception(error.name, cause)
 
 data class DownloadRequest(
     val id: String,
@@ -42,7 +43,7 @@ class ModelDownloader(
         onProgress: suspend (DownloadProgress) -> Unit,
     ): File = withContext(ioDispatcher) {
         if (!storage.hasRoomFor(request.id, request.sizeBytes)) {
-            throw DownloadFailure("Not enough free space for ${request.name}.")
+            throw DownloadFailure(TransferError.NotEnoughSpace)
         }
 
         val partial = storage.partialFile(request.id)
@@ -54,7 +55,7 @@ class ModelDownloader(
             val resuming = response.status == HttpStatusCode.PartialContent
             if (alreadyHave > 0 && !resuming) partial.delete()
             if (!response.status.isSuccessOrPartial()) {
-                throw DownloadFailure("Download failed (HTTP ${response.status.value}).")
+                throw DownloadFailure(TransferError.ServerError)
             }
 
             val startAt = if (resuming) alreadyHave else 0L
@@ -80,13 +81,13 @@ class ModelDownloader(
         val actual = storage.sha256(partial)
         if (!actual.equals(request.sha256, ignoreCase = true)) {
             partial.delete()
-            throw DownloadFailure("${request.name} failed verification and was discarded.")
+            throw DownloadFailure(TransferError.VerificationFailed)
         }
 
         val target = storage.modelFile(request.id)
         target.delete()
         if (!partial.renameTo(target)) {
-            throw DownloadFailure("Could not save ${request.name}.")
+            throw DownloadFailure(TransferError.CannotSave)
         }
         target
     }

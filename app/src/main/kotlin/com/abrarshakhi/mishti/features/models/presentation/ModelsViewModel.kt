@@ -1,6 +1,7 @@
 package com.abrarshakhi.mishti.features.models.presentation
 
 import androidx.lifecycle.viewModelScope
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.device.DeviceCapability
 import com.abrarshakhi.mishti.common.device.DeviceCapabilityProvider
 import com.abrarshakhi.mishti.common.mvi.MviViewModel
@@ -93,13 +94,11 @@ class ModelsViewModel(
 
     private fun onDownload(model: CatalogModel) {
         if (deviceCapability is DeviceCapability.UnsupportedLowMemory) {
-            snackbar.showError("This phone does not have enough memory to run a model.")
+            snackbar.showError(R.string.models_phone_unsupported)
             return
         }
         if (memoryFit(model.requiredRamBytes, deviceCapability.totalMemoryBytes) == MemoryFit.TooBig) {
-            snackbar.showError(
-                "${model.name} needs about ${gigabytes(model.requiredRamBytes)} of memory.",
-            )
+            snackbar.showError(R.string.models_needs_memory, model.name, gigabytes(model.requiredRamBytes))
             return
         }
         updateState { copy(details = null) }
@@ -111,12 +110,12 @@ class ModelsViewModel(
             try {
                 repository.select(modelId)
                 currentState.shelf.find { it.id == modelId }?.let {
-                    snackbar.show("Chatting with ${it.name} now.")
+                    snackbar.show(R.string.models_now_chatting, it.name)
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                snackbar.showError("Could not switch models.")
+                snackbar.showError(R.string.models_switch_failed)
             }
         }
     }
@@ -127,11 +126,11 @@ class ModelsViewModel(
         viewModelScope.launch {
             try {
                 repository.delete(target.id)
-                snackbar.show("${target.name} deleted.")
+                snackbar.show(R.string.models_deleted, target.name)
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                snackbar.showError("Could not delete ${target.name}.")
+                snackbar.showError(R.string.models_delete_failed, target.name)
             }
         }
     }
@@ -144,4 +143,4 @@ class ModelsViewModel(
     )
 }
 
-fun gigabytes(bytes: Long): String = String.format(Locale.US, "%.1f GB", bytes / 1_000_000_000.0)
+fun gigabytes(bytes: Long): String = String.format(Locale.getDefault(), "%.1f", bytes / 1_000_000_000.0)

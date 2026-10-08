@@ -41,6 +41,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import com.abrarshakhi.mishti.common.ui.components.SectionHeader
 import com.abrarshakhi.mishti.common.ui.components.ShapedIcon
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
+import androidx.annotation.StringRes
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -64,7 +67,7 @@ internal fun SettingsScaffold(
                 subtitle = { Text(subtitle) },
                 navigationIcon = {
                     IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -174,11 +177,11 @@ internal fun SettingsPanel(
 }
 
 internal data class SliderSpec(
-    val title: String,
-    val description: String,
+    @param:StringRes val title: Int,
+    @param:StringRes val description: Int,
     val value: Float,
     val range: ClosedFloatingPointRange<Float>,
-    val display: (Float) -> String,
+    val display: @Composable (Float) -> String,
     val intent: (Float) -> SettingsIntent,
     val steps: Int = 0,
 )
@@ -204,8 +207,8 @@ private fun SliderPanel(
 
     SettingsPanel(
         shapes = shapes,
-        title = spec.title,
-        supporting = spec.description,
+        title = stringResource(spec.title),
+        supporting = stringResource(spec.description),
         trailing = { ValueBadge(spec.display(sliderState.value)) },
     ) {
         Slider(
@@ -259,8 +262,10 @@ internal fun RestoreDefaultsRow(
                 },
             )
         },
-        supportingContent = { Text(if (enabled) defaults else "Already using the defaults") },
+        supportingContent = {
+            Text(if (enabled) defaults else stringResource(R.string.settings_already_defaults))
+        },
     ) {
-        Text("Restore defaults")
+        Text(stringResource(R.string.settings_restore_defaults))
     }
 }

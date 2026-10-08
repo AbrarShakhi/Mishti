@@ -81,6 +81,8 @@ import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -138,7 +140,10 @@ internal fun BrowseTab(
                 is CatalogState.Loading -> item(key = "loading") { CatalogPlaceholder() }
                 is CatalogState.Unavailable -> item(key = "unavailable") {
                     CatalogUnavailable(
-                        reason = catalog.reason,
+                        reason = stringResource(
+                            catalog.problem.messageRes,
+                            stringResource(state.catalogSource.labelRes),
+                        ),
                         onRetry = { onIntent(ModelsIntent.RefreshRequested) },
                     )
                 }
@@ -170,7 +175,7 @@ private fun LazyListScope.readyContent(
         item(key = "recommended-header") {
             Column(Modifier.padding(top = Spacing.Large).animateItem()) {
                 SectionHeader(
-                    title = "Recommended for your phone",
+                    title = stringResource(R.string.models_recommended),
                     modifier = Modifier.padding(horizontal = Spacing.ScreenMargin),
                 )
             }
@@ -201,9 +206,9 @@ private fun LazyListScope.readyContent(
         item(key = "no-results") {
             Text(
                 text = if (state.query.isBlank()) {
-                    "Nothing on this shelf yet."
+                    stringResource(R.string.models_nothing_here)
                 } else {
-                    "No sweets match “${state.query.trim()}”."
+                    stringResource(R.string.models_no_results, state.query.trim())
                 },
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -220,10 +225,10 @@ private fun LazyListScope.readyContent(
                     .padding(start = Spacing.ScreenMargin, end = Spacing.ScreenMargin, top = Spacing.Large),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                SectionHeader(section.title)
+                SectionHeader(stringResource(sectionTitleRes(section.id)))
                 if (section.isDeviceGroup) {
                     InfoPill(
-                        label = "Your phone",
+                        label = stringResource(R.string.models_your_phone),
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                     )
                 }
@@ -247,7 +252,7 @@ private fun LazyListScope.readyContent(
     if (state.catalogSource == CatalogSource.PocketPal) {
         item(key = "credit") {
             Text(
-                text = "This list is curated and published by the PocketPal AI project.",
+                text = stringResource(R.string.models_pocketpal_credit),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = Spacing.ExtraLarge, vertical = Spacing.Large),
@@ -296,7 +301,7 @@ private fun CatalogSourceSelector(
                     modifier = Modifier.size(ToggleButtonDefaults.IconSize),
                 )
                 Spacer(Modifier.width(ToggleButtonDefaults.IconSpacing))
-                Text(source.label, maxLines = 1)
+                Text(stringResource(source.labelRes), maxLines = 1)
             }
         }
     }
@@ -305,18 +310,24 @@ private fun CatalogSourceSelector(
 @Composable
 private fun CatalogStatusLine(state: CatalogState, modifier: Modifier = Modifier) {
     val text = when (state) {
-        is CatalogState.Loading -> "Opening the shop…"
-        is CatalogState.Unavailable -> if (state.isRefreshing) "Trying again…" else "Couldn't load this list"
+        is CatalogState.Loading -> stringResource(R.string.models_status_opening)
+        is CatalogState.Unavailable -> stringResource(
+            if (state.isRefreshing) R.string.models_status_retrying else R.string.models_status_unavailable,
+        )
         is CatalogState.Ready -> when {
-            state.isRefreshing -> "Checking for new sweets…"
-            state.isOffline -> "Offline · showing the saved list"
-            state.updatedAtMillis == null -> "Built-in list"
-            System.currentTimeMillis() - state.updatedAtMillis < DateUtils.MINUTE_IN_MILLIS -> "Updated just now"
-            else -> "Updated " + DateUtils.getRelativeTimeSpanString(
-                state.updatedAtMillis,
-                System.currentTimeMillis(),
-                DateUtils.MINUTE_IN_MILLIS,
-            ).toString().replaceFirstChar { it.lowercase() }
+            state.isRefreshing -> stringResource(R.string.models_status_checking)
+            state.isOffline -> stringResource(R.string.models_status_offline)
+            state.updatedAtMillis == null -> stringResource(R.string.models_status_built_in)
+            System.currentTimeMillis() - state.updatedAtMillis < DateUtils.MINUTE_IN_MILLIS ->
+                stringResource(R.string.models_status_just_now)
+            else -> stringResource(
+                R.string.models_status_updated,
+                DateUtils.getRelativeTimeSpanString(
+                    state.updatedAtMillis,
+                    System.currentTimeMillis(),
+                    DateUtils.MINUTE_IN_MILLIS,
+                ).toString().replaceFirstChar { it.lowercase() },
+            )
         }
     }
     Text(
@@ -338,12 +349,12 @@ private fun SearchField(
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier.fillMaxWidth(),
-        placeholder = { Text("Search sweets") },
+        placeholder = { Text(stringResource(R.string.models_search)) },
         leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
         trailingIcon = if (query.isNotEmpty()) {
             {
                 IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Filled.Clear, contentDescription = "Clear search")
+                    Icon(Icons.Filled.Clear, contentDescription = stringResource(R.string.models_clear_search))
                 }
             }
         } else {
@@ -445,7 +456,7 @@ private fun FilterRow(
             FilterChip(
                 selected = isSelected,
                 onClick = { onSelect(filter) },
-                label = { Text(filter.label) },
+                label = { Text(stringResource(filter.labelRes)) },
                 leadingIcon = if (isSelected) {
                     { Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
                 } else {
@@ -510,7 +521,7 @@ private fun CatalogUnavailable(reason: String, onRetry: () -> Unit) {
             Spacer(Modifier.height(Spacing.Large))
             Text(reason, style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.height(Spacing.Large))
-            Button(onClick = onRetry, shapes = ButtonDefaults.shapes()) { Text("Try again") }
+            Button(onClick = onRetry, shapes = ButtonDefaults.shapes()) { Text(stringResource(R.string.action_try_again)) }
         }
     }
 }

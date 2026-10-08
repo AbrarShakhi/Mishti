@@ -32,6 +32,10 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.features.models.domain.model.MemoryFit
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
+import kotlin.math.roundToInt
+import androidx.compose.ui.res.pluralStringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -68,7 +72,7 @@ internal fun ModelDetailsSheet(
                 Column {
                     Text(model.name, style = MaterialTheme.typography.headlineSmallEmphasized)
                     Text(
-                        text = listOfNotNull(model.publisher, model.source.label).joinToString(" · "),
+                        text = listOfNotNull(model.publisher, stringResource(model.source.labelRes)).joinToString(" · "),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -80,14 +84,17 @@ internal fun ModelDetailsSheet(
                 horizontalArrangement = Arrangement.spacedBy(Spacing.ExtraSmall),
                 verticalArrangement = Arrangement.spacedBy(Spacing.ExtraSmall),
             ) {
-                model.parametersLabel?.let { InfoPill("$it parameters") }
+                model.parametersLabel?.let { InfoPill(stringResource(R.string.models_parameters, it)) }
                 if (model.quantization.isNotBlank()) InfoPill(model.quantization)
                 InfoPill(formatSize(model.sizeBytes))
-                model.contextLength?.let { InfoPill("${it / 1024}K context") }
+                model.contextLength?.let { InfoPill(stringResource(R.string.models_context, it / 1024)) }
                 FitBadge(item.fit)
             }
 
-            model.description?.let {
+            val description = model.description ?: model.typicalTokensPerSecond?.let {
+                pluralStringResource(R.plurals.models_typical_speed, it.roundToInt(), it.roundToInt())
+            }
+            description?.let {
                 Spacer(Modifier.height(Spacing.Large))
                 Text(it, style = MaterialTheme.typography.bodyLarge)
             }
@@ -104,7 +111,7 @@ internal fun ModelDetailsSheet(
             )
             model.license?.let {
                 Text(
-                    text = "Licence: $it",
+                    text = stringResource(R.string.models_licence, it),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -113,7 +120,7 @@ internal fun ModelDetailsSheet(
                 onClick = { uriHandler.openUri(model.pageUrl) },
                 modifier = Modifier.padding(top = Spacing.ExtraSmall),
             ) {
-                Text("View on Hugging Face")
+                Text(stringResource(R.string.models_view_on_hugging_face))
                 Spacer(Modifier.width(Spacing.ExtraSmall))
                 Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
             }
@@ -124,13 +131,13 @@ internal fun ModelDetailsSheet(
     }
 }
 
+@Composable
 private fun memoryLine(required: Long, device: Long?, fit: MemoryFit): String {
-    val needs = "Needs about ${gigabytes(required)} of memory"
-    if (device == null) return "$needs."
-    val has = "this phone has ${gigabytes(device)}"
-    return when (fit) {
-        MemoryFit.TooBig -> "$needs, but $has."
-        MemoryFit.Tight -> "$needs and $has, so close other apps first."
-        else -> "$needs; $has."
+    if (device == null) return stringResource(R.string.models_memory_needs, gigabytes(required))
+    val id = when (fit) {
+        MemoryFit.TooBig -> R.string.models_memory_too_big
+        MemoryFit.Tight -> R.string.models_memory_tight
+        else -> R.string.models_memory_fits
     }
+    return stringResource(id, gigabytes(required), gigabytes(device))
 }

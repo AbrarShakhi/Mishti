@@ -64,6 +64,8 @@ import com.abrarshakhi.mishti.features.models.domain.model.TransferStatus
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 import kotlin.math.min
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 internal fun formatSize(bytes: Long): String =
@@ -124,13 +126,13 @@ internal fun ModelGlyph(
 
 @Composable
 internal fun FitBadge(fit: MemoryFit, modifier: Modifier = Modifier) {
-    val (label, container) = when (fit) {
-        MemoryFit.Fits -> "Fits" to MaterialTheme.colorScheme.secondaryContainer
-        MemoryFit.Tight -> "Tight fit" to MaterialTheme.colorScheme.tertiaryContainer
-        MemoryFit.TooBig -> "Too big" to MaterialTheme.colorScheme.errorContainer
-        MemoryFit.Unknown -> return
+    val label = fit.labelRes ?: return
+    val container = when (fit) {
+        MemoryFit.Tight -> MaterialTheme.colorScheme.tertiaryContainer
+        MemoryFit.TooBig -> MaterialTheme.colorScheme.errorContainer
+        else -> MaterialTheme.colorScheme.secondaryContainer
     }
-    InfoPill(label = label, containerColor = container, modifier = modifier)
+    InfoPill(label = stringResource(label), containerColor = container, modifier = modifier)
 }
 
 @Composable
@@ -191,7 +193,7 @@ internal fun CompactTransferAction(
                     onClick = onDownload,
                     shapes = IconButtonDefaults.shapes(),
                 ) {
-                    Icon(Icons.Filled.Download, contentDescription = "Download ${item.model.name}")
+                    Icon(Icons.Filled.Download, contentDescription = stringResource(R.string.models_download_named, item.model.name))
                 }
                 ActionKind.Downloading -> {
                     val fraction = (item.transfer as? TransferStatus.Downloading)?.fraction ?: 0f
@@ -207,7 +209,7 @@ internal fun CompactTransferAction(
                     IconButton(onClick = onCancel) {
                         Icon(
                             Icons.Filled.Close,
-                            contentDescription = "Cancel download",
+                            contentDescription = stringResource(R.string.models_cancel_download),
                             modifier = Modifier.size(18.dp),
                         )
                     }
@@ -219,13 +221,13 @@ internal fun CompactTransferAction(
                 ) {
                     Icon(
                         Icons.Filled.Refresh,
-                        contentDescription = "Try ${item.model.name} again",
+                        contentDescription = stringResource(R.string.models_retry_named, item.model.name),
                         tint = MaterialTheme.colorScheme.error,
                     )
                 }
                 ActionKind.OnShelf -> Icon(
                     Icons.Filled.CheckCircle,
-                    contentDescription = "On your shelf",
+                    contentDescription = stringResource(R.string.models_on_shelf),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
@@ -265,9 +267,9 @@ internal fun WideTransferAction(
                 Spacer(Modifier.width(Spacing.Small))
                 Text(
                     text = if (kind == ActionKind.Failed) {
-                        "Try again"
+                        stringResource(R.string.action_try_again)
                     } else {
-                        "Download · ${formatSize(item.model.sizeBytes)}"
+                        stringResource(R.string.models_download_size, formatSize(item.model.sizeBytes))
                     },
                     style = MaterialTheme.typography.titleMedium,
                 )
@@ -285,15 +287,19 @@ internal fun WideTransferAction(
                         Text(
                             text = when (status) {
                                 is TransferStatus.Downloading ->
-                                    "${formatSize(status.doneBytes)} of ${formatSize(status.totalBytes)}"
-                                else -> "Checking the file…"
+                                    stringResource(
+                                        R.string.models_progress,
+                                        formatSize(status.doneBytes),
+                                        formatSize(status.totalBytes),
+                                    )
+                                else -> stringResource(R.string.models_checking_file)
                             },
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.weight(1f),
                         )
                         if (status is TransferStatus.Downloading) {
                             IconButton(onClick = onCancel) {
-                                Icon(Icons.Filled.Close, contentDescription = "Cancel download")
+                                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.models_cancel_download))
                             }
                         }
                     }
@@ -316,7 +322,7 @@ internal fun WideTransferAction(
             ) {
                 Icon(Icons.Filled.Check, contentDescription = null)
                 Spacer(Modifier.width(Spacing.Small))
-                Text("On your shelf", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.models_on_shelf), style = MaterialTheme.typography.titleMedium)
             }
         }
     }

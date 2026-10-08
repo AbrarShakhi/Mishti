@@ -101,7 +101,7 @@ class BrowseContentTest {
             source = CatalogSource.PocketPal,
             version = "1",
             models = listOf(small.copy(groupId = "low"), coder.copy(groupId = "mid")),
-            groups = listOf(CatalogGroup("low", "Everyday phones"), CatalogGroup("mid", "Mid-range phones")),
+            groups = listOf(CatalogGroup("low"), CatalogGroup("mid")),
             deviceGroupId = "mid",
         )
 

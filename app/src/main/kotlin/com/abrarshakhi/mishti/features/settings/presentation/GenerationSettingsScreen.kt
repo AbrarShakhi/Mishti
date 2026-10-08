@@ -6,6 +6,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.abrarshakhi.mishti.common.llm.InferenceSettings
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import kotlin.math.roundToInt
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun GenerationSettingsScreen(
@@ -18,8 +20,8 @@ fun GenerationSettingsScreen(
     val defaults = InferenceSettings()
 
     SettingsScaffold(
-        title = "Generation",
-        subtitle = GenerationSubtitle,
+        title = stringResource(R.string.settings_generation),
+        subtitle = stringResource(R.string.settings_generation_subtitle),
         onBack = onBack,
         modifier = modifier,
     ) {
@@ -27,31 +29,30 @@ fun GenerationSettingsScreen(
             SettingsGroup {
                 sliderRow(
                     spec = SliderSpec(
-                        title = "Temperature",
-                        description = "Lower is more focused, higher is more varied.",
+                        title = R.string.settings_temperature,
+                        description = R.string.settings_temperature_hint,
                         value = inference.temperature,
                         range = InferenceSettings.TemperatureRange,
-                        display = ::decimal,
+                        display = { decimal(it) },
                         intent = { SettingsIntent.TemperatureChanged(it) },
                     ),
                     onIntent = onIntent,
                 )
                 sliderRow(
                     spec = SliderSpec(
-                        title = "Top-p",
-                        description = "Considers only the likeliest tokens that add up to this " +
-                            "probability.",
+                        title = R.string.settings_top_p,
+                        description = R.string.settings_top_p_hint,
                         value = inference.topP,
                         range = InferenceSettings.TopPRange,
-                        display = ::decimal,
+                        display = { decimal(it) },
                         intent = { SettingsIntent.TopPChanged(it) },
                     ),
                     onIntent = onIntent,
                 )
                 sliderRow(
                     spec = SliderSpec(
-                        title = "Top-k",
-                        description = "Considers at most this many candidate tokens at each step.",
+                        title = R.string.settings_top_k,
+                        description = R.string.settings_top_k_hint,
                         value = inference.topK.toFloat(),
                         range = InferenceSettings.TopKRange.toFloatRange(),
                         display = { it.roundToInt().toString() },
@@ -66,8 +67,12 @@ fun GenerationSettingsScreen(
                 row { shapes ->
                     RestoreDefaultsRow(
                         shapes = shapes,
-                        defaults = "Temperature ${decimal(defaults.temperature)}, " +
-                            "top-p ${decimal(defaults.topP)}, top-k ${defaults.topK}",
+                        defaults = stringResource(
+                            R.string.settings_sampling_defaults,
+                            decimal(defaults.temperature),
+                            decimal(defaults.topP),
+                            defaults.topK,
+                        ),
                         enabled = !state.isSamplingDefault,
                         onClick = { onIntent(SettingsIntent.SamplingReset) },
                     )

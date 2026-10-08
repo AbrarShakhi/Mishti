@@ -51,9 +51,13 @@ Uncomment once the images are in place.
   rename, delete and a conversation drawer.
 - **Streaming replies.** Tokens appear as they are produced, and generation can be stopped
   mid-reply — the partial answer is kept.
-- **A model library.** Download, verify, select and delete models from inside the app.
-  Transfers resume after an interruption, continue while the app is in the background, and are
-  checked against a SHA-256 before the file is accepted.
+- **Mistir Bhandar, the model shop.** Browse two catalogs: Mishti's own, which ships with the
+  app and updates online when you open the shop, and PocketPal AI's community-tested list.
+  Models are marked by whether they fit your phone's memory, with picks recommended for it.
+  Downloads resume after an interruption, continue in the background, and are checked against
+  a SHA-256 before the file is accepted.
+- **Bring your own model.** Import any GGUF file from your phone's storage. Mishti checks the
+  file's header and reads its name, architecture and quantisation before copying it in.
 - **Device-aware.** Available RAM is checked against each model's requirement *before* any
   bandwidth is spent, rather than after an out-of-memory kill.
 - **Tunable.** Temperature, top-p, top-k, response limit, context window, thread count and a
@@ -62,19 +66,23 @@ Uncomment once the images are in place.
 - **Material 3 throughout.** System / light / dark, dynamic colour from your wallpaper on
   Android 12+ plus four hand-tuned palettes, and a choice of four typefaces.
 
-## Supported models
+## Models
 
-The catalogue ships with the app, so the model list renders without a connection.
+Mishti's catalog lives in [`hub/catalog.v1.json`](hub/catalog.v1.json). It is bundled in the
+APK, so the list renders without a connection, and the app picks up changes to the copy on
+`main` when you open the shop. To add a model:
 
-| Model | Parameters | Quantization | Download | RAM required |
-|---|---|---|---|---|
-| SmolLM2 360M Instruct | 360M | `Q4_K_M` | 258 MB | 3.2 GB |
-| Qwen2.5 0.5B Instruct | 0.5B | `Q4_K_M` | 379 MB | 3.2 GB |
-| Llama 3.2 1B Instruct | 1B | `Q4_K_M` | 770 MB | 4.0 GB |
+```bash
+python3 tools/hub.py add --id qwen3-0.6b-q4km --name "Qwen3 0.6B" \
+    --repo bartowski/Qwen_Qwen3-0.6B-GGUF --file Qwen_Qwen3-0.6B-Q4_K_M.gguf \
+    --quant Q4_K_M --description "…" --tags recommended
+python3 tools/hub.py validate
+```
 
-Weights are fetched from Hugging Face on first use. Each model carries its own upstream
-licence — Llama 3.2 in particular is covered by the Llama 3.2 Community License, not an OSI
-licence.
+The script fills in the size, SHA-256, parameter count and context length from Hugging Face.
+
+Weights are fetched from Hugging Face. Each model carries its own upstream licence, shown in
+the app: Llama 3.2 and Gemma, for example, have their own terms rather than an OSI licence.
 
 ## Requirements
 
@@ -165,3 +173,6 @@ Mishti is usable but young. Known limitations, in the interest of not surprising
 - [Ensu](https://github.com/ente-io/ente/tree/main/android/apps/ensu) (AGPL-3.0) and
   [PocketPal AI](https://github.com/a-ghorbani/pocketpal-ai) (MIT) were studied as prior art.
   Their code was read, not copied.
+- The PocketPal catalog in Mistir Bhandar is fetched, unmodified, from
+  [pocketpal-device-rules](https://github.com/a-ghorbani/pocketpal-device-rules) by Asghar
+  Ghorbani. It is not bundled with Mishti.

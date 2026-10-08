@@ -20,6 +20,9 @@ needed to use it.
 
 There is no account, no server and no telemetry.
 
+*Mishti* (মিষ্টি) means *sweet* in Bengali, and its model shop is *Mistir Bhandar*, a store of
+sweets. [More about Mishti →](docs/about.md)
+
 ## Download
 
 Signed APKs are published on the releases page:
@@ -61,7 +64,7 @@ Uncomment once the images are in place.
 - **Device-aware.** Available RAM is checked against each model's requirement *before* any
   bandwidth is spent, rather than after an out-of-memory kill.
 - **Tunable.** Temperature, top-p, top-k, response limit, context window, thread count and a
-  custom pre-instruction (system prompt) are all exposed in Settings.
+  custom pre-instruction (system prompt), each on its own Settings page.
 - **Throughput readout.** Each reply reports the tokens per second it was generated at.
 - **Material 3 throughout.** System / light / dark, dynamic colour from your wallpaper on
   Android 12+ plus four hand-tuned palettes, and a choice of four typefaces.
@@ -137,8 +140,7 @@ persistence are written against a seam rather than against llama.cpp directly.
 
 [`CLAUDE.md`](CLAUDE.md) documents the architecture in full — the MVI contract, the
 Navigation 3 back stack, the chrome pattern, the persistence rules, the download subsystem and
-the native binding. [`docs/reference-apps.md`](docs/reference-apps.md) records what was learned
-from two existing open-source local-LLM apps before any of it was designed.
+the native binding.
 
 ## Tech stack
 
@@ -163,16 +165,31 @@ Mishti is usable but young. Known limitations, in the interest of not surprising
 - Sampling settings are global, not per model.
 - Deleting a conversation is confirmed but cannot be undone.
 
+## Privacy
+
+Mishti has no accounts, analytics, ads or crash reporting, and the model runs on your phone, so
+your conversations are never sent anywhere. The app goes online only to fetch model catalogs
+(when you open Mistir Bhandar) and to download models from Hugging Face. The
+[Privacy Policy](docs/privacy-policy.md) lists every request and everything stored on the phone.
+
+## Documentation
+
+- [About Mishti](docs/about.md)
+- [Privacy Policy](docs/privacy-policy.md)
+- [Terms of Service](docs/terms-of-service.md)
+- [Credits](docs/credits.md): llama.cpp, the model catalogs, every library, typeface and model
+  licence
+
+## Licence
+
+Mishti is released under the [MIT License](LICENSE). Models you download keep their own
+licences; see [Credits](docs/credits.md).
+
 ## Credits
 
-- [llama.cpp](https://github.com/ggml-org/llama.cpp) by Georgi Gerganov and contributors — MIT.
-- Typefaces: [Inter](https://rsms.me/inter/), [Lora](https://github.com/cyrealtype/Lora-Cyrillic)
-  and [JetBrains Mono](https://www.jetbrains.com/lp/mono/), all under the SIL Open Font License.
-  Copies of the licences ship in the APK.
-- <a href="https://www.flaticon.com/free-icons/sweet" title="sweet icons">Sweet icons created by Magnific — Flaticon</a>
-- [Ensu](https://github.com/ente-io/ente/tree/main/android/apps/ensu) (AGPL-3.0) and
-  [PocketPal AI](https://github.com/a-ghorbani/pocketpal-ai) (MIT) were studied as prior art.
-  Their code was read, not copied.
-- The PocketPal catalog in Mistir Bhandar is fetched, unmodified, from
-  [pocketpal-device-rules](https://github.com/a-ghorbani/pocketpal-device-rules) by Asghar
-  Ghorbani. It is not bundled with Mishti.
+Mishti is built on [llama.cpp](https://github.com/ggml-org/llama.cpp) by Georgi Gerganov and
+contributors. Its second catalog comes from [PocketPal AI](https://github.com/a-ghorbani/pocketpal-ai)'s
+[pocketpal-device-rules](https://github.com/a-ghorbani/pocketpal-device-rules), fetched unmodified
+and never bundled. The typefaces (Inter, Lora, JetBrains Mono) are under the SIL Open Font
+License, and the app icon is <a href="https://www.flaticon.com/free-icons/sweet" title="sweet icons">Sweet
+icons created by Magnific — Flaticon</a>. The full list is in [docs/credits.md](docs/credits.md).

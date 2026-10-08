@@ -183,6 +183,10 @@ documents and have not been reviewed by a lawyer.
 - [Terms of Service](docs/terms-of-service.md) (draft)
 - [Credits](docs/credits.md): llama.cpp, the model catalogs, every library, typeface and model
   licence
+- [Contributing](CONTRIBUTING.md): report bugs, suggest models, translate, or send code
+
+These pages are also built into the app (Settings → About), copied from this repository at build
+time.
 
 ## Licence
 

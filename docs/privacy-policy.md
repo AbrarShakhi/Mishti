@@ -4,9 +4,9 @@
 > describe how Mishti behaves. It has not been reviewed by a lawyer and is not a legal document.
 > It may change before Mishti is published on an app store.
 
-**Last updated:** 8 October 2026
-**App:** Mishti for Android (`com.abrarshakhi.mishti`)
-**Developer:** MD. Shakhiul Abrar
+- **Last updated:** 8 October 2026
+- **App:** Mishti for Android (`com.abrarshakhi.mishti`)
+- **Developer:** MD. Shakhiul Abrar
 
 Mishti is built so that your conversations stay on your phone. This policy explains exactly what
 the app stores, what it sends over the network, and why.

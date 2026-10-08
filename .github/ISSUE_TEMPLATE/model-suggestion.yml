@@ -1,0 +1,30 @@
+name: Model suggestion
+description: Suggest a model for the Mistir Bhandar catalog.
+labels: ["model suggestion"]
+body:
+  - type: input
+    id: repo
+    attributes:
+      label: Hugging Face repository
+      placeholder: e.g. bartowski/Qwen_Qwen3-0.6B-GGUF
+    validations:
+      required: true
+  - type: input
+    id: file
+    attributes:
+      label: GGUF file
+      placeholder: e.g. Qwen_Qwen3-0.6B-Q4_K_M.gguf
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why this model?
+      description: What is it good at? Have you tried it on a phone, and how fast was it?
+    validations:
+      required: true
+  - type: input
+    id: phone
+    attributes:
+      label: Phone you tried it on
+      placeholder: e.g. Galaxy A54, 6 GB RAM

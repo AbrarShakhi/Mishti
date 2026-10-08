@@ -9,4 +9,16 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     }
 }
 
-val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2)
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `installed_models` (" +
+                "`id` TEXT NOT NULL, `name` TEXT NOT NULL, `origin` TEXT NOT NULL, " +
+                "`quantization` TEXT, `parametersLabel` TEXT, `sizeBytes` INTEGER NOT NULL, " +
+                "`hfRepo` TEXT, `hfFile` TEXT, `architecture` TEXT, `contextLength` INTEGER, " +
+                "`license` TEXT, `installedAtMillis` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        )
+    }
+}
+
+val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3)

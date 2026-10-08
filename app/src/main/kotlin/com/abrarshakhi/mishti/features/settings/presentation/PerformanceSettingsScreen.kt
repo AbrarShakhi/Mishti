@@ -6,6 +6,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.abrarshakhi.mishti.common.llm.InferenceSettings
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import kotlin.math.roundToInt
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 
 @Composable
 fun PerformanceSettingsScreen(
@@ -19,8 +22,8 @@ fun PerformanceSettingsScreen(
     val threads = InferenceSettings.ThreadsRange
 
     SettingsScaffold(
-        title = "Performance",
-        subtitle = PerformanceSubtitle,
+        title = stringResource(R.string.settings_performance),
+        subtitle = stringResource(R.string.settings_performance_subtitle),
         onBack = onBack,
         modifier = modifier,
     ) {
@@ -28,21 +31,19 @@ fun PerformanceSettingsScreen(
             SettingsGroup {
                 sliderRow(
                     spec = SliderSpec(
-                        title = "Context window",
-                        description = "How much of the conversation the model can see. Larger " +
-                            "uses more memory, and changing it reloads the model.",
+                        title = R.string.settings_context_window,
+                        description = R.string.settings_context_window_hint,
                         value = inference.contextTokens.toFloat(),
                         range = InferenceSettings.ContextRange.toFloatRange(),
-                        display = { "${it.roundToInt()} tokens" },
+                        display = { pluralStringResource(R.plurals.settings_tokens, it.roundToInt(), it.roundToInt()) },
                         intent = { SettingsIntent.ContextTokensChanged(it.roundToInt()) },
                     ),
                     onIntent = onIntent,
                 )
                 sliderRow(
                     spec = SliderSpec(
-                        title = "Threads",
-                        description = "More is not always faster, as phone cores throttle " +
-                            "under load. Changing it reloads the model.",
+                        title = R.string.settings_threads,
+                        description = R.string.settings_threads_hint,
                         value = inference.threads.toFloat(),
                         range = threads.toFloatRange(),
                         display = { it.roundToInt().toString() },
@@ -58,8 +59,11 @@ fun PerformanceSettingsScreen(
                 row { shapes ->
                     RestoreDefaultsRow(
                         shapes = shapes,
-                        defaults = "${defaults.contextTokens}-token context, " +
-                            "${defaults.threads} threads",
+                        defaults = stringResource(
+                            R.string.settings_performance_defaults,
+                            defaults.contextTokens,
+                            defaults.threads,
+                        ),
                         enabled = !state.isPerformanceDefault,
                         onClick = { onIntent(SettingsIntent.PerformanceReset) },
                     )

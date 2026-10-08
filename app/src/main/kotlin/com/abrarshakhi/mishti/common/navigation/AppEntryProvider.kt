@@ -6,6 +6,7 @@ import com.abrarshakhi.mishti.features.models.presentation.ModelsRoute
 import com.abrarshakhi.mishti.features.onboarding.presentation.OnboardingRoute
 import com.abrarshakhi.mishti.features.settings.presentation.AppearanceSettingsRoute
 import com.abrarshakhi.mishti.features.settings.presentation.ChatSettingsRoute
+import com.abrarshakhi.mishti.features.settings.presentation.DocumentRoute
 import com.abrarshakhi.mishti.features.settings.presentation.GenerationSettingsRoute
 import com.abrarshakhi.mishti.features.settings.presentation.PerformanceSettingsRoute
 import com.abrarshakhi.mishti.features.settings.presentation.SettingsRoute
@@ -31,6 +32,14 @@ fun appEntryProvider(
             onOpenChat = { navigator.navigate(AppRouteKey.ChatSettings) },
             onOpenGeneration = { navigator.navigate(AppRouteKey.GenerationSettings) },
             onOpenPerformance = { navigator.navigate(AppRouteKey.PerformanceSettings) },
+            onOpenDocument = { navigator.navigate(AppRouteKey.Document(it)) },
+        )
+    }
+    entry<AppRouteKey.Document> { key ->
+        DocumentRoute(
+            document = key.document,
+            onBack = { navigator.goBack() },
+            onOpenDocument = { navigator.navigate(AppRouteKey.Document(it)) },
         )
     }
     entry<AppRouteKey.AppearanceSettings> {

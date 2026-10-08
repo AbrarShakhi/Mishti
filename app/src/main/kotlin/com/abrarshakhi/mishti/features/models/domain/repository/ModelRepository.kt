@@ -1,12 +1,15 @@
 package com.abrarshakhi.mishti.features.models.domain.repository
 
-import com.abrarshakhi.mishti.features.models.domain.model.ModelEntry
+import com.abrarshakhi.mishti.features.models.domain.model.CatalogModel
+import com.abrarshakhi.mishti.features.models.domain.model.ShelfModel
+import com.abrarshakhi.mishti.features.models.domain.model.Transfer
 import kotlinx.coroutines.flow.Flow
-
 
 interface ModelRepository {
 
-    val entries: Flow<List<ModelEntry>>
+    val shelf: Flow<List<ShelfModel>>
+
+    val transfers: Flow<List<Transfer>>
 
     val storage: Flow<StorageUsage>
 
@@ -14,11 +17,15 @@ interface ModelRepository {
 
     suspend fun select(modelId: String?)
 
-    fun download(modelId: String)
+    fun download(model: CatalogModel)
 
-    fun cancel(modelId: String)
+    fun import(uri: String)
+
+    fun cancel(transferId: String)
 
     fun cancelAll()
+
+    fun dismissTransfer(transferId: String)
 
     suspend fun delete(modelId: String)
 }

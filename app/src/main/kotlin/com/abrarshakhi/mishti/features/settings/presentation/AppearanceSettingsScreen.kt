@@ -66,6 +66,9 @@ import com.abrarshakhi.mishti.common.ui.theme.fontFamily
 import com.abrarshakhi.mishti.common.ui.theme.isDark
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
+import com.abrarshakhi.mishti.common.ui.theme.labelRes
 
 private val SwatchSize = 56.dp
 private val SwatchRingGap = 4.dp
@@ -81,15 +84,15 @@ fun AppearanceSettingsScreen(
     val theme = state.theme
 
     SettingsScaffold(
-        title = "Appearance",
-        subtitle = AppearanceSubtitle,
+        title = stringResource(R.string.settings_appearance),
+        subtitle = stringResource(R.string.settings_appearance_subtitle),
         onBack = onBack,
         modifier = modifier,
     ) {
         item {
             SettingsGroup {
                 row { shapes ->
-                    SettingsPanel(shapes = shapes, title = "Theme") {
+                    SettingsPanel(shapes = shapes, title = stringResource(R.string.settings_theme)) {
                         ThemeModeSelector(
                             selected = theme.mode,
                             onSelect = { onIntent(SettingsIntent.ThemeModeSelected(it)) },
@@ -99,9 +102,9 @@ fun AppearanceSettingsScreen(
                 row { shapes ->
                     SettingsPanel(
                         shapes = shapes,
-                        title = "Colour",
+                        title = stringResource(R.string.settings_colour),
                         supporting = if (AppColorScheme.Dynamic in state.colorSchemes) {
-                            "Dynamic takes its colours from your wallpaper"
+                            stringResource(R.string.settings_colour_dynamic_hint)
                         } else {
                             null
                         },
@@ -118,8 +121,8 @@ fun AppearanceSettingsScreen(
                 row { shapes ->
                     SettingsPanel(
                         shapes = shapes,
-                        title = "Typeface",
-                        supporting = "Code always uses JetBrains Mono",
+                        title = stringResource(R.string.settings_typeface),
+                        supporting = stringResource(R.string.settings_typeface_hint),
                     ) {
                         FontSelector(
                             selected = theme.font,
@@ -178,7 +181,7 @@ private fun ThemeModeSelector(
                     )
                     Spacer(Modifier.height(Spacing.ExtraSmall))
                     Text(
-                        text = mode.label,
+                        text = stringResource(mode.labelRes),
                         style = MaterialTheme.typography.labelLarge,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -273,7 +276,7 @@ private fun PaletteSwatch(
             )
         }
         Text(
-            text = scheme.label,
+            text = stringResource(scheme.labelRes),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
@@ -378,12 +381,12 @@ private fun FontSample(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Aa",
+                text = stringResource(R.string.settings_typeface_sample),
                 fontFamily = family,
                 style = MaterialTheme.typography.headlineMedium,
             )
             Text(
-                text = font.label,
+                text = stringResource(font.labelRes),
                 fontFamily = family,
                 style = MaterialTheme.typography.labelLarge,
                 maxLines = 1,

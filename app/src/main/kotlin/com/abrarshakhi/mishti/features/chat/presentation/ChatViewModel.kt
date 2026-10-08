@@ -1,5 +1,7 @@
 package com.abrarshakhi.mishti.features.chat.presentation
 
+import com.abrarshakhi.mishti.R
+import com.abrarshakhi.mishti.common.ui.text.uiText
 import androidx.lifecycle.viewModelScope
 import com.abrarshakhi.mishti.common.data.preferences.AppPreferences
 import com.abrarshakhi.mishti.common.llm.EngineState
@@ -62,7 +64,7 @@ class ChatViewModel(
             throw e
         } catch (_: Exception) {
             updateState { copy(isLoading = false) }
-            emitEffect(ChatEffect.ShowError("Could not open this conversation."))
+            emitEffect(ChatEffect.ShowError(uiText(R.string.chat_error_open)))
             return
         }
 
@@ -116,7 +118,7 @@ class ChatViewModel(
                 throw e
             } catch (_: Exception) {
                 updateState { copy(draft = message.content, canSend = true) }
-                emitEffect(ChatEffect.ShowError("Could not send that message."))
+                emitEffect(ChatEffect.ShowError(uiText(R.string.chat_error_send)))
                 return@launch
             }
             generateReply(sessionId, history)
@@ -157,7 +159,7 @@ class ChatViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                emitEffect(ChatEffect.ShowError("Generation failed."))
+                emitEffect(ChatEffect.ShowError(uiText(R.string.chat_error_generation)))
             } finally {
                 withContext(NonCancellable) {
                     persistReply(sessionId, reply.toString(), throughput)

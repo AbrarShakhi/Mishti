@@ -23,6 +23,9 @@ import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 
 private const val PersistDebounceMillis = 350L
 
@@ -36,8 +39,8 @@ fun ChatSettingsScreen(
     val inference = state.inference
 
     SettingsScaffold(
-        title = "Chat",
-        subtitle = ChatSubtitle,
+        title = stringResource(R.string.settings_chat),
+        subtitle = stringResource(R.string.settings_chat_subtitle),
         onBack = onBack,
         modifier = modifier,
     ) {
@@ -46,9 +49,8 @@ fun ChatSettingsScreen(
                 row { shapes ->
                     SettingsPanel(
                         shapes = shapes,
-                        title = "Pre-instruction",
-                        supporting = "Sent before every conversation to set the assistant's " +
-                            "role and tone.",
+                        title = stringResource(R.string.settings_pre_instruction),
+                        supporting = stringResource(R.string.settings_pre_instruction_hint),
                     ) {
                         PreInstructionField(
                             value = inference.systemPrompt,
@@ -58,11 +60,11 @@ fun ChatSettingsScreen(
                 }
                 sliderRow(
                     spec = SliderSpec(
-                        title = "Response limit",
-                        description = "The most tokens a single reply may use.",
+                        title = R.string.settings_response_limit,
+                        description = R.string.settings_response_limit_hint,
                         value = inference.maxTokens.toFloat(),
                         range = InferenceSettings.MaxTokensRange.toFloatRange(),
-                        display = { "${it.roundToInt()} tokens" },
+                        display = { pluralStringResource(R.plurals.settings_tokens, it.roundToInt(), it.roundToInt()) },
                         intent = { SettingsIntent.MaxTokensChanged(it.roundToInt()) },
                     ),
                     onIntent = onIntent,
@@ -95,7 +97,7 @@ private fun PreInstructionField(
     OutlinedTextField(
         value = text,
         onValueChange = { text = it },
-        placeholder = { Text("e.g. You are a friendly, concise assistant.") },
+        placeholder = { Text(stringResource(R.string.settings_pre_instruction_placeholder)) },
         minLines = 3,
         maxLines = 6,
         keyboardOptions = KeyboardOptions(

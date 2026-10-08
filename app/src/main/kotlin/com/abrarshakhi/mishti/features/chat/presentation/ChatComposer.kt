@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
 
 private const val ComposerMaxLines = 6
 
@@ -57,7 +59,7 @@ internal fun ChatComposer(
                 value = draft,
                 onValueChange = onDraftChange,
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("Message Mishti") },
+                placeholder = { Text(stringResource(R.string.chat_composer_placeholder)) },
                 textStyle = MaterialTheme.typography.bodyLarge,
                 maxLines = ComposerMaxLines,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
@@ -107,12 +109,12 @@ private fun SendButton(
             if (stopping) {
                 Icon(
                     imageVector = Icons.Rounded.Stop,
-                    contentDescription = "Stop generating",
+                    contentDescription = stringResource(R.string.chat_stop),
                 )
             } else {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "Send message",
+                    contentDescription = stringResource(R.string.chat_send),
                 )
             }
         }

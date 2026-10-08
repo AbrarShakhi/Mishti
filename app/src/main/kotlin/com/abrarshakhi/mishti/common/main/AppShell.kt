@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
@@ -61,11 +62,12 @@ fun AppShell(startRoute: NavKey) {
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val resources = LocalResources.current
     val snackbarDispatcher: SnackbarDispatcher = koinInject()
     LaunchedEffect(snackbarDispatcher) {
         snackbarDispatcher.messages.collect { message ->
             snackbarHostState.showSnackbar(
-                message = message.text,
+                message = message.text.resolve(resources),
                 withDismissAction = message.duration != SnackbarDuration.Short,
                 duration = message.duration,
             )

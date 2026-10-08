@@ -2,7 +2,6 @@ package com.abrarshakhi.mishti.features.models.data
 
 import android.content.Context
 import android.os.StatFs
-import com.abrarshakhi.mishti.features.models.domain.model.LlmModel
 import java.io.File
 import java.security.MessageDigest
 
@@ -11,20 +10,24 @@ class ModelStorage(private val context: Context) {
     private val modelsDir: File
         get() = File(context.filesDir, "models").apply { mkdirs() }
 
-    fun modelFile(model: LlmModel): File = File(modelsDir, "${model.id}.gguf")
+    fun modelFile(id: String): File = File(modelsDir, "$id.gguf")
 
-    fun partialFile(model: LlmModel): File = File(modelsDir, "${model.id}.gguf.part")
+    fun partialFile(id: String): File = File(modelsDir, "$id.gguf.part")
 
-    fun isDownloaded(model: LlmModel): Boolean = modelFile(model).let { it.isFile && it.length() > 0 }
+    fun isPresent(id: String): Boolean = modelFile(id).let { it.isFile && it.length() > 0 }
 
-    fun sizeOnDisk(model: LlmModel): Long = modelFile(model).takeIf { it.isFile }?.length() ?: 0L
+    fun sizeOnDisk(id: String): Long = modelFile(id).takeIf { it.isFile }?.length() ?: 0L
 
-    fun partialBytes(model: LlmModel): Long =
-        partialFile(model).takeIf { it.isFile }?.length() ?: 0L
+    fun partialBytes(id: String): Long = partialFile(id).takeIf { it.isFile }?.length() ?: 0L
 
-    fun delete(model: LlmModel): Boolean {
-        partialFile(model).delete()
-        return modelFile(model).delete()
+    fun presentIds(): List<String> =
+        modelsDir.listFiles { file -> file.isFile && file.name.endsWith(".gguf") }
+            ?.map { it.name.removeSuffix(".gguf") }
+            .orEmpty()
+
+    fun delete(id: String): Boolean {
+        partialFile(id).delete()
+        return modelFile(id).delete()
     }
 
     fun usedBytes(): Long =
@@ -35,8 +38,8 @@ class ModelStorage(private val context: Context) {
         stat.availableBlocksLong * stat.blockSizeLong
     }.getOrDefault(0L)
 
-    fun hasRoomFor(model: LlmModel): Boolean {
-        val needed = model.sizeBytes - partialBytes(model) + STORAGE_HEADROOM_BYTES
+    fun hasRoomFor(id: String, sizeBytes: Long): Boolean {
+        val needed = sizeBytes - partialBytes(id) + STORAGE_HEADROOM_BYTES
         return availableBytes() >= needed
     }
 

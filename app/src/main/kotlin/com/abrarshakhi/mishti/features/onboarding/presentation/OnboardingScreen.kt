@@ -55,29 +55,30 @@ import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
+import androidx.compose.ui.res.stringResource
+import androidx.annotation.StringRes
 
 private data class OnboardingPage(
     @RawRes val animation: Int,
-    val title: String,
-    val body: String,
+    @param:StringRes val title: Int,
+    @param:StringRes val body: Int,
 )
 
 private val Pages = listOf(
     OnboardingPage(
         animation = R.raw.onboarding_chat,
-        title = "Meet Mishti",
-        body = "A language model that runs entirely on your phone.",
+        title = R.string.onboarding_meet_title,
+        body = R.string.onboarding_meet_body,
     ),
     OnboardingPage(
         animation = R.raw.onboarding_private,
-        title = "Private and offline",
-        body = "Conversations never leave this device, and once a model is downloaded no " +
-            "network is needed.",
+        title = R.string.onboarding_private_title,
+        body = R.string.onboarding_private_body,
     ),
     OnboardingPage(
         animation = R.raw.onboarding_personalize,
-        title = "Make it yours",
-        body = "Choose the model, the colours and the typeface, and tune how it answers.",
+        title = R.string.onboarding_personalize_title,
+        body = R.string.onboarding_personalize_body,
     ),
 )
 
@@ -159,7 +160,7 @@ fun OnboardingScreen(
                     ) { last ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = if (last) "Get started" else "Next",
+                                text = stringResource(if (last) R.string.onboarding_get_started else R.string.onboarding_next),
                                 style = ButtonDefaults.textStyleFor(ButtonDefaults.MediumContainerHeight),
                             )
                             if (!last) {
@@ -183,7 +184,7 @@ fun OnboardingScreen(
 @Composable
 private fun SkipButton(visible: Boolean, onClick: () -> Unit) {
     AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
-        TextButton(onClick = onClick) { Text("Skip") }
+        TextButton(onClick = onClick) { Text(stringResource(R.string.onboarding_skip)) }
     }
 }
 
@@ -215,7 +216,7 @@ private fun PageContent(
         )
         Spacer(Modifier.height(Spacing.ExtraLarge))
         Text(
-            text = page.title,
+            text = stringResource(page.title),
             style = MaterialTheme.typography.headlineMediumEmphasized,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
@@ -223,7 +224,7 @@ private fun PageContent(
         )
         Spacer(Modifier.height(Spacing.Medium))
         Text(
-            text = page.body,
+            text = stringResource(page.body),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -240,9 +241,10 @@ private fun PageIndicator(
     currentPage: Int,
     modifier: Modifier = Modifier,
 ) {
+    val pageDescription = stringResource(R.string.onboarding_page, currentPage + 1, pageCount)
     Row(
         modifier = modifier.clearAndSetSemantics {
-            contentDescription = "Page ${currentPage + 1} of $pageCount"
+            contentDescription = pageDescription
         },
         horizontalArrangement = Arrangement.spacedBy(Spacing.Small),
         verticalAlignment = Alignment.CenterVertically,

@@ -1,0 +1,42 @@
+name: Bug report
+description: Something in Mishti doesn't work as it should.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Mistir Bhandar
+        2. Download …
+        3. …
+  - type: input
+    id: phone
+    attributes:
+      label: Phone and Android version
+      placeholder: e.g. Pixel 7a, Android 15
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Mishti version
+      description: Settings → About Mishti
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model in use
+      placeholder: e.g. Qwen3 0.6B
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or anything else

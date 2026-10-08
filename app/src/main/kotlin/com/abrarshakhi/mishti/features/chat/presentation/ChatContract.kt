@@ -1,5 +1,6 @@
 package com.abrarshakhi.mishti.features.chat.presentation
 
+import com.abrarshakhi.mishti.common.ui.text.UiText
 import com.abrarshakhi.mishti.common.llm.EngineState
 import com.abrarshakhi.mishti.common.mvi.UiEffect
 import com.abrarshakhi.mishti.common.mvi.UiIntent
@@ -28,5 +29,5 @@ sealed interface ChatIntent : UiIntent {
 }
 
 sealed interface ChatEffect : UiEffect {
-    data class ShowError(val text: String) : ChatEffect
+    data class ShowError(val text: UiText) : ChatEffect
 }

@@ -1,17 +1,23 @@
 package com.abrarshakhi.mishti.features.chat.presentation
 
+import androidx.annotation.StringRes
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.features.chat.domain.model.ChatSession
 import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
-enum class Recency(val label: String) {
-    Today("Today"),
-    Yesterday("Yesterday"),
-    PreviousWeek("Previous 7 days"),
-    PreviousMonth("Previous 30 days"),
-    Older("Older"),
-}
+enum class Recency { Today, Yesterday, PreviousWeek, PreviousMonth, Older }
+
+@get:StringRes
+val Recency.labelRes: Int
+    get() = when (this) {
+        Recency.Today -> R.string.recency_today
+        Recency.Yesterday -> R.string.recency_yesterday
+        Recency.PreviousWeek -> R.string.recency_previous_week
+        Recency.PreviousMonth -> R.string.recency_previous_month
+        Recency.Older -> R.string.recency_older
+    }
 
 data class SessionGroup(val recency: Recency, val sessions: List<ChatSession>)
 

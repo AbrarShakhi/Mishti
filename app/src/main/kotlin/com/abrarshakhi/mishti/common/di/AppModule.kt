@@ -23,6 +23,8 @@ val appModule = module {
 
     single { get<MishtiDatabase>().chatDao() }
 
+    single { get<MishtiDatabase>().installedModelDao() }
+
     single<AppPreferences> { DataStoreAppPreferences(androidContext()) }
 
     single { SnackbarDispatcher() }

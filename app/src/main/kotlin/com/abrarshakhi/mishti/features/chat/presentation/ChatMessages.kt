@@ -46,6 +46,8 @@ import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
 
 private const val StreamingItemKey = "streaming"
 private const val MaxBubbleWidthFraction = 0.85f
@@ -172,7 +174,7 @@ private fun ThinkingIndicator(modifier: Modifier = Modifier) {
     ) {
         LoadingIndicator(modifier = Modifier.size(24.dp))
         Text(
-            text = "Thinking…",
+            text = stringResource(R.string.chat_thinking),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -185,11 +187,11 @@ private fun MessageActions(text: String, tokensPerSecond: Double?) {
         modifier = Modifier.offset(x = -Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CopyButton(text = text, contentDescription = "Copy reply")
+        CopyButton(text = text, contentDescription = stringResource(R.string.chat_copy_reply))
 
         if (tokensPerSecond != null) {
             Text(
-                text = "%.1f tokens/s".format(tokensPerSecond),
+                text = stringResource(R.string.chat_tokens_per_second, "%.1f".format(tokensPerSecond)),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

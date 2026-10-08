@@ -20,7 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
@@ -79,6 +79,8 @@ import com.abrarshakhi.mishti.features.chat.presentation.SessionGroup
 import com.abrarshakhi.mishti.features.chat.presentation.groupSessionsByRecency
 import java.time.ZoneId
 import kotlin.math.min
+import com.abrarshakhi.mishti.features.chat.presentation.labelRes
+import com.abrarshakhi.mishti.features.chat.presentation.sessionDisplayTitle
 
 private val MinimumVisibleScrim = 56.dp
 
@@ -125,7 +127,7 @@ fun AppDrawer(
         DrawerHeader()
 
         NavigationDrawerItem(
-            label = { Text("New chat") },
+            label = { Text(stringResource(R.string.drawer_new_chat)) },
             icon = { Icon(Icons.Filled.Add, contentDescription = null) },
             selected = false,
             onClick = onNewChatClick,
@@ -233,7 +235,7 @@ private fun ConversationHistory(
         if (groups.isEmpty()) {
             item(key = "empty") {
                 Text(
-                    text = "Your conversations will appear here.",
+                    text = stringResource(R.string.drawer_empty),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = Spacing.Large, vertical = Spacing.Large),
@@ -243,7 +245,7 @@ private fun ConversationHistory(
         groups.forEachIndexed { groupIndex, group ->
             item(key = group.recency, contentType = "recency") {
                 SectionHeader(
-                    title = group.recency.label,
+                    title = stringResource(group.recency.labelRes),
                     modifier = Modifier
                         .animateItem()
                         .padding(top = if (groupIndex == 0) 0.dp else Spacing.Medium),
@@ -331,11 +333,14 @@ private fun ConversationItem(
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 onShowActions()
             },
-            onLongClickLabel = "Conversation actions",
+            onLongClickLabel = stringResource(R.string.drawer_conversation_actions),
             trailingContent = if (selected) {
                 {
                     IconButton(onClick = onShowActions, shapes = IconButtonDefaults.shapes()) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Conversation actions")
+                        Icon(
+                            Icons.Filled.MoreVert,
+                            contentDescription = stringResource(R.string.drawer_conversation_actions),
+                        )
                     }
                 }
             } else {
@@ -343,7 +348,7 @@ private fun ConversationItem(
             },
         ) {
             Text(
-                text = session.title,
+                text = sessionDisplayTitle(session.title),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -374,7 +379,7 @@ private fun ConversationActionsMenu(
         ) {
             DropdownMenuItem(
                 onClick = onRename,
-                text = { Text("Rename") },
+                text = { Text(stringResource(R.string.drawer_rename)) },
                 shape = MenuDefaults.itemShape(index = 0, count = 1).shape,
                 leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null) },
             )
@@ -386,7 +391,7 @@ private fun ConversationActionsMenu(
         ) {
             DropdownMenuItem(
                 onClick = onDelete,
-                text = { Text("Delete") },
+                text = { Text(stringResource(R.string.action_delete)) },
                 shape = MenuDefaults.itemShape(index = 0, count = 1).shape,
                 leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
                 colors = MenuDefaults.itemColors(
@@ -404,14 +409,14 @@ private fun DrawerFooter(
     onSettingsClick: () -> Unit,
 ) {
     NavigationDrawerItem(
-        label = { Text("Models") },
-        icon = { Icon(Icons.Filled.Memory, contentDescription = null) },
+        label = { Text(stringResource(R.string.models_title)) },
+        icon = { Icon(Icons.Filled.Storefront, contentDescription = null) },
         selected = false,
         onClick = onModelsClick,
         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
     )
     NavigationDrawerItem(
-        label = { Text("Settings") },
+        label = { Text(stringResource(R.string.drawer_settings)) },
         icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
         selected = false,
         onClick = onSettingsClick,
@@ -434,13 +439,13 @@ private fun RenameDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Filled.Edit, contentDescription = null) },
-        title = { Text("Rename conversation") },
+        title = { Text(stringResource(R.string.drawer_rename_title)) },
         text = {
             OutlinedTextField(
                 value = state.title,
                 onValueChange = onTitleChange,
                 singleLine = true,
-                label = { Text("Title") },
+                label = { Text(stringResource(R.string.drawer_rename_field)) },
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
                     imeAction = ImeAction.Done,
@@ -450,9 +455,9 @@ private fun RenameDialog(
             )
         },
         confirmButton = {
-            TextButton(onClick = onConfirm, enabled = state.canConfirm) { Text("Rename") }
+            TextButton(onClick = onConfirm, enabled = state.canConfirm) { Text(stringResource(R.string.drawer_rename)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
     )
 }
 
@@ -465,16 +470,16 @@ private fun DeleteDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
-        title = { Text("Delete conversation?") },
+        title = { Text(stringResource(R.string.drawer_delete_title)) },
         text = {
-            Text("\"${session.title}\" and all of its messages will be deleted. This can't be undone.")
+            Text(stringResource(R.string.drawer_delete_body, sessionDisplayTitle(session.title)))
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("Delete", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error)
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
     )
 }
 

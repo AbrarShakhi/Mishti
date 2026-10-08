@@ -76,6 +76,8 @@ import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.parser.CancellationToken
 import org.intellij.markdown.parser.MarkdownParser
 import kotlin.time.Duration.Companion.milliseconds
+import com.abrarshakhi.mishti.R
+import androidx.compose.ui.res.stringResource
 
 private val StreamingRenderInterval = 50.milliseconds
 
@@ -306,7 +308,7 @@ private fun CodeBlock(code: String, language: String?, style: TextStyle) {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    CopyButton(text = code, contentDescription = "Copy code")
+                    CopyButton(text = code, contentDescription = stringResource(R.string.chat_copy_code))
                 }
             }
             Text(

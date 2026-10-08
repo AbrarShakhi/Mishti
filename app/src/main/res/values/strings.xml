@@ -1,3 +1,278 @@
 <resources>
     <string name="app_name">Mishti</string>
+
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_dismiss">Dismiss</string>
+    <string name="action_try_again">Try again</string>
+    <string name="action_copied">Copied</string>
+
+    <string name="onboarding_meet_title">Meet Mishti</string>
+    <string name="onboarding_meet_body">A language model that runs entirely on your phone.</string>
+    <string name="onboarding_private_title">Private and offline</string>
+    <string name="onboarding_private_body">Conversations never leave this device, and once a model is downloaded no network is needed.</string>
+    <string name="onboarding_personalize_title">Make it yours</string>
+    <string name="onboarding_personalize_body">Choose the model, the colours and the typeface, and tune how it answers.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_page">Page %1$d of %2$d</string>
+
+    <string name="drawer_new_chat">New chat</string>
+    <string name="drawer_empty">Your conversations will appear here.</string>
+    <string name="drawer_conversation_actions">Conversation actions</string>
+    <string name="drawer_rename">Rename</string>
+    <string name="drawer_rename_title">Rename conversation</string>
+    <string name="drawer_rename_field">Title</string>
+    <string name="drawer_delete_title">Delete conversation?</string>
+    <string name="drawer_delete_body">“%1$s” and all of its messages will be deleted. This can\'t be undone.</string>
+    <string name="drawer_settings">Settings</string>
+    <string name="recency_today">Today</string>
+    <string name="recency_yesterday">Yesterday</string>
+    <string name="recency_previous_week">Previous 7 days</string>
+    <string name="recency_previous_month">Previous 30 days</string>
+    <string name="recency_older">Older</string>
+
+    <string name="chat_untitled">New chat</string>
+    <string name="chat_open_conversations">Open conversations</string>
+    <string name="chat_status_loading">Loading %1$s…</string>
+    <string name="chat_status_failed">Model failed to load</string>
+    <string name="chat_status_idle">No model selected</string>
+    <string name="chat_composer_placeholder">Message Mishti</string>
+    <string name="chat_send">Send message</string>
+    <string name="chat_stop">Stop generating</string>
+    <string name="chat_thinking">Thinking…</string>
+    <string name="chat_copy_reply">Copy reply</string>
+    <string name="chat_copy_code">Copy code</string>
+    <string name="chat_tokens_per_second">%1$s tokens/s</string>
+    <string name="chat_ready_title">How can I help?</string>
+    <string name="chat_ready_body_model">%1$s runs on this phone, so your messages never leave it.</string>
+    <string name="chat_ready_body">Your messages never leave this phone.</string>
+    <string name="chat_suggestions_shuffle">Other ideas</string>
+    <string name="chat_loading_title">Getting %1$s ready</string>
+    <string name="chat_loading_fallback_name">the model</string>
+    <string name="chat_loading_body">Loading it into memory takes a few seconds.</string>
+    <string name="chat_no_model_title">Choose a model to start</string>
+    <string name="chat_no_model_body">Mishti runs a small language model entirely on this phone. Pick one from Mistir Bhandar to begin.</string>
+    <string name="chat_no_model_action">Visit Mistir Bhandar</string>
+    <string name="chat_failed_title">The model couldn\'t be loaded</string>
+    <string name="chat_failed_body">It may need more memory than is free right now. Try a smaller model.</string>
+    <string name="chat_failed_action">Open Mistir Bhandar</string>
+    <string name="chat_error_open">Could not open this conversation.</string>
+    <string name="chat_error_send">Could not send that message.</string>
+    <string name="chat_error_generation">Generation failed.</string>
+    <string name="chat_error_new">Could not start a new chat.</string>
+    <string name="chat_error_rename">Could not rename that conversation.</string>
+    <string name="chat_error_delete">Could not delete that conversation.</string>
+    <string name="chat_deleted">Conversation deleted.</string>
+
+    <string-array name="chat_suggestions">
+        <item>Explain how rainbows form</item>
+        <item>Write a haiku about the monsoon</item>
+        <item>Suggest a name for a kitten</item>
+        <item>Give me three quick dinner ideas</item>
+        <item>Plan a relaxed weekend in the hills</item>
+        <item>Explain black holes like I\'m ten</item>
+        <item>Help me write a polite thank-you note</item>
+        <item>What is a good morning routine?</item>
+        <item>Tell me a fun fact about octopuses</item>
+        <item>Give me a riddle to solve</item>
+        <item>Explain compound interest simply</item>
+        <item>Write a short bedtime story</item>
+        <item>How do I make a cup of milk tea?</item>
+        <item>Suggest five books for a long journey</item>
+        <item>Explain recursion with an example</item>
+        <item>Help me practise for a job interview</item>
+    </string-array>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Make Mishti yours</string>
+    <string name="settings_section_model">Model</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_section_advanced">Advanced</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_section_open_source">Open source</string>
+    <string name="settings_model_ready">Using %1$s</string>
+    <string name="settings_model_loading">Loading %1$s…</string>
+    <string name="settings_model_failed">The selected model failed to load</string>
+    <string name="settings_model_idle">Pick a sweet to start chatting</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_appearance_subtitle">Theme, colour and typeface</string>
+    <string name="settings_chat">Chat</string>
+    <string name="settings_chat_subtitle">Pre-instruction and reply length</string>
+    <string name="settings_generation">Generation</string>
+    <string name="settings_generation_subtitle">How Mishti picks each word</string>
+    <string name="settings_performance">Performance</string>
+    <string name="settings_performance_subtitle">Memory and processor use</string>
+    <string name="settings_version">Version %1$s</string>
+    <string name="settings_credits_subtitle">The people and projects Mishti is built on</string>
+    <string name="settings_privacy_subtitle">What stays on your phone, and what goes online</string>
+    <string name="settings_terms_subtitle">The rules for using Mishti</string>
+    <string name="settings_source_code">Source code</string>
+    <string name="settings_source_code_subtitle">Mishti is free and open source on GitHub</string>
+    <string name="settings_report_issue">Report an issue</string>
+    <string name="settings_report_issue_subtitle">Tell us what went wrong</string>
+    <string name="settings_suggest_model">Suggest a model</string>
+    <string name="settings_suggest_model_subtitle">Know a sweet that belongs in the shop?</string>
+    <string name="settings_contribute_subtitle">Translate, add models or improve the code</string>
+    <string name="settings_star">Give a star</string>
+    <string name="settings_star_subtitle">Star Mishti on GitHub if you enjoy it</string>
+    <string name="settings_opens_browser">Opens in your browser</string>
+    <string name="settings_save_failed">Could not save that setting.</string>
+
+    <string name="settings_theme">Theme</string>
+    <string name="settings_colour">Colour</string>
+    <string name="settings_colour_dynamic_hint">Dynamic takes its colours from your wallpaper</string>
+    <string name="settings_typeface">Typeface</string>
+    <string name="settings_typeface_hint">Code always uses JetBrains Mono</string>
+    <string name="settings_typeface_sample">Aa</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="palette_dynamic">Dynamic</string>
+    <string name="palette_honey">Honey</string>
+    <string name="palette_indigo">Indigo</string>
+    <string name="palette_forest">Forest</string>
+    <string name="palette_rose">Rose</string>
+    <string name="font_system">System</string>
+    <string name="font_inter">Inter</string>
+    <string name="font_lora">Lora</string>
+    <string name="font_jetbrains_mono">JetBrains Mono</string>
+
+    <string name="settings_pre_instruction">Pre-instruction</string>
+    <string name="settings_pre_instruction_hint">Sent before every conversation to set the assistant\'s role and tone.</string>
+    <string name="settings_pre_instruction_placeholder">e.g. You are a friendly, concise assistant.</string>
+    <string name="settings_response_limit">Response limit</string>
+    <string name="settings_response_limit_hint">The most tokens a single reply may use.</string>
+    <plurals name="settings_tokens">
+        <item quantity="one">%1$d token</item>
+        <item quantity="other">%1$d tokens</item>
+    </plurals>
+    <string name="settings_temperature">Temperature</string>
+    <string name="settings_temperature_hint">Lower is more focused, higher is more varied.</string>
+    <string name="settings_top_p">Top-p</string>
+    <string name="settings_top_p_hint">Considers only the likeliest tokens that add up to this probability.</string>
+    <string name="settings_top_k">Top-k</string>
+    <string name="settings_top_k_hint">Considers at most this many candidate tokens at each step.</string>
+    <string name="settings_sampling_defaults">Temperature %1$s, top-p %2$s, top-k %3$d</string>
+    <string name="settings_context_window">Context window</string>
+    <string name="settings_context_window_hint">How much of the conversation the model can see. Larger uses more memory, and changing it reloads the model.</string>
+    <string name="settings_threads">Threads</string>
+    <string name="settings_threads_hint">More is not always faster, as phone cores throttle under load. Changing it reloads the model.</string>
+    <string name="settings_performance_defaults">Context window %1$d · Threads %2$d</string>
+    <string name="settings_restore_defaults">Restore defaults</string>
+    <string name="settings_already_defaults">Already using the defaults</string>
+
+    <string name="document_about">About Mishti</string>
+    <string name="document_about_subtitle">A sweet language model on your phone</string>
+    <string name="document_credits">Credits</string>
+    <string name="document_credits_subtitle">Thank you to everyone who made this possible</string>
+    <string name="document_privacy">Privacy policy</string>
+    <string name="document_terms">Terms of service</string>
+    <string name="document_draft_subtitle">Draft, not legal advice</string>
+    <string name="document_contributing">Contribute</string>
+    <string name="document_contributing_subtitle">Help make Mishti sweeter</string>
+    <string name="document_missing">This page could not be opened.</string>
+
+    <string name="models_title">Mistir Bhandar</string>
+    <string name="models_storage">%1$s on your shelf · %2$s free</string>
+    <string name="models_import">Import a model file</string>
+    <string name="models_tab_shelf">My shelf</string>
+    <string name="models_tab_browse">Browse</string>
+    <string name="models_source_mistir_bhandar">Mistir Bhandar</string>
+    <string name="models_source_pocketpal">PocketPal</string>
+    <string name="models_origin_imported">Imported</string>
+    <string name="models_in_the_oven">In the oven</string>
+    <string name="models_in_use">In use</string>
+    <string name="models_on_shelf">On your shelf</string>
+    <string name="models_also_on_shelf">Also on your shelf</string>
+    <string name="models_chatting_now">Chatting now</string>
+    <string name="models_use">Use</string>
+    <string name="models_delete_named">Delete %1$s</string>
+    <string name="models_delete_title">Delete %1$s?</string>
+    <string name="models_delete_imported_body">The copy on Mishti\'s shelf will be removed. Your original file is not touched.</string>
+    <string name="models_delete_downloaded_body">The file will be removed from this phone. You can download it again later.</string>
+    <string name="models_downloading">Downloading · %1$s of %2$s</string>
+    <string name="models_importing">Importing · %1$s of %2$s</string>
+    <string name="models_reading_file">Reading the file…</string>
+    <string name="models_checking_file">Checking the file…</string>
+    <string name="models_empty_title">Your shelf is empty</string>
+    <string name="models_empty_body">Pick a sweet from the shop, or bring your own GGUF file.</string>
+    <string name="models_empty_browse">Browse sweets</string>
+    <string name="models_empty_import">Import a file</string>
+    <string name="models_recommended">Recommended for your phone</string>
+    <string name="models_no_results">No sweets match “%1$s”.</string>
+    <string name="models_nothing_here">Nothing on this shelf yet.</string>
+    <string name="models_your_phone">Your phone</string>
+    <string name="models_section_all">All sweets</string>
+    <string name="models_tier_low">Everyday phones</string>
+    <string name="models_tier_mid">Mid-range phones</string>
+    <string name="models_tier_high">High-end phones</string>
+    <string name="models_tier_flagship">Flagships</string>
+    <string name="models_pocketpal_credit">This list is curated and published by the PocketPal AI project.</string>
+    <string name="models_status_opening">Opening the shop…</string>
+    <string name="models_status_retrying">Trying again…</string>
+    <string name="models_status_unavailable">Couldn\'t load this list</string>
+    <string name="models_status_checking">Checking for new sweets…</string>
+    <string name="models_status_offline">Offline · showing the saved list</string>
+    <string name="models_status_built_in">Built-in list</string>
+    <string name="models_status_just_now">Updated just now</string>
+    <string name="models_status_updated">Updated %1$s</string>
+    <string name="models_catalog_offline">Couldn\'t reach %1$s. Check your connection and try again.</string>
+    <string name="models_catalog_unreadable">%1$s\'s list could not be read.</string>
+    <string name="models_catalog_unavailable">%1$s\'s list is unavailable right now. Try again later.</string>
+    <string name="models_search">Search sweets</string>
+    <string name="models_clear_search">Clear search</string>
+    <string name="filter_all">All</string>
+    <string name="filter_fast">Fast</string>
+    <string name="filter_balanced">Balanced</string>
+    <string name="filter_smart">Smart</string>
+    <string name="filter_coding">Coding</string>
+    <string name="fit_fits">Fits</string>
+    <string name="fit_tight">Tight fit</string>
+    <string name="fit_too_big">Too big</string>
+    <string name="models_download_named">Download %1$s</string>
+    <string name="models_download_size">Download · %1$s</string>
+    <string name="models_cancel_download">Cancel download</string>
+    <string name="models_retry_named">Try %1$s again</string>
+    <string name="models_progress">%1$s of %2$s</string>
+    <string name="models_parameters">%1$s parameters</string>
+    <string name="models_context">%1$dK context</string>
+    <string name="models_licence">Licence: %1$s</string>
+    <string name="models_view_on_hugging_face">View on Hugging Face</string>
+    <plurals name="models_typical_speed">
+        <item quantity="one">About %1$d token a second on a typical phone in this group.</item>
+        <item quantity="other">About %1$d tokens a second on a typical phone in this group.</item>
+    </plurals>
+    <string name="models_memory_needs">Needs about %1$s GB of memory.</string>
+    <string name="models_memory_fits">Needs about %1$s GB of memory; this phone has %2$s GB.</string>
+    <string name="models_memory_tight">Needs about %1$s GB of memory and this phone has %2$s GB, so close other apps first.</string>
+    <string name="models_memory_too_big">Needs about %1$s GB of memory, but this phone has %2$s GB.</string>
+    <string name="models_phone_unsupported">This phone does not have enough memory to run a model.</string>
+    <string name="models_needs_memory">%1$s needs about %2$s GB of memory.</string>
+    <string name="models_now_chatting">Chatting with %1$s now.</string>
+    <string name="models_switch_failed">Could not switch models.</string>
+    <string name="models_deleted">%1$s deleted.</string>
+    <string name="models_delete_failed">Could not delete %1$s.</string>
+    <string name="models_import_default_name">Model file</string>
+    <string name="transfer_error_space">Not enough free space on this phone.</string>
+    <string name="transfer_error_verification">The file did not pass its check and was discarded.</string>
+    <string name="transfer_error_server">The server could not send the file.</string>
+    <string name="transfer_error_network">The connection was lost. Try again.</string>
+    <string name="transfer_error_open">The file could not be opened.</string>
+    <string name="transfer_error_not_gguf">This is not a GGUF model file.</string>
+    <string name="transfer_error_save">The file could not be saved.</string>
+    <string name="transfer_error_unknown">Something went wrong.</string>
+
+    <string name="notification_channel_transfers">Model downloads and imports</string>
+    <string name="notification_preparing">Preparing</string>
+    <string name="notification_working">Working…</string>
+    <string name="notification_percent">%1$d%%</string>
+    <string name="notification_importing">Importing %1$s</string>
+    <string name="notification_verifying">Verifying %1$s</string>
+    <plurals name="notification_more">
+        <item quantity="one">%1$s (+%2$d more)</item>
+        <item quantity="other">%1$s (+%2$d more)</item>
+    </plurals>
 </resources>

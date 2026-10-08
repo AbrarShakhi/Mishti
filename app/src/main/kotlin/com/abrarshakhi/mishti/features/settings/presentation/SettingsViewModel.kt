@@ -1,5 +1,6 @@
 package com.abrarshakhi.mishti.features.settings.presentation
 
+import com.abrarshakhi.mishti.R
 import androidx.lifecycle.viewModelScope
 import com.abrarshakhi.mishti.common.data.preferences.AppPreferences
 import com.abrarshakhi.mishti.common.llm.InferenceSettings
@@ -64,7 +65,7 @@ class SettingsViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                snackbar.showError("Could not save that setting.")
+                snackbar.showError(R.string.settings_save_failed)
             }
         }
     }

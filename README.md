@@ -32,7 +32,7 @@ Signed APKs are published on the releases page:
 Release builds ship `arm64-v8a` and `x86_64`. Install the APK directly; you will need to allow
 installation from unknown sources.
 
-## Screenshots
+[//]: # (## Screenshots)
 
 <!--
 Uncomment once the images are in place.
@@ -48,26 +48,16 @@ Uncomment once the images are in place.
 
 ## Features
 
-- **Fully offline inference.** llama.cpp runs the model on the device's CPU through a JNI
-  bridge. Nothing is sent anywhere.
-- **Conversations that persist.** Sessions and messages are stored in a local database, with
-  rename, delete and a conversation drawer.
-- **Streaming replies.** Tokens appear as they are produced, and generation can be stopped
-  mid-reply — the partial answer is kept.
-- **Mistir Bhandar, the model shop.** Browse two catalogs: Mishti's own, which ships with the
-  app and updates online when you open the shop, and PocketPal AI's community-tested list.
-  Models are marked by whether they fit your phone's memory, with picks recommended for it.
-  Downloads resume after an interruption, continue in the background, and are checked against
-  a SHA-256 before the file is accepted.
-- **Bring your own model.** Import any GGUF file from your phone's storage. Mishti checks the
-  file's header and reads its name, architecture and quantisation before copying it in.
-- **Device-aware.** Available RAM is checked against each model's requirement *before* any
-  bandwidth is spent, rather than after an out-of-memory kill.
-- **Tunable.** Temperature, top-p, top-k, response limit, context window, thread count and a
-  custom pre-instruction (system prompt), each on its own Settings page.
-- **Throughput readout.** Each reply reports the tokens per second it was generated at.
-- **Material 3 throughout.** System / light / dark, dynamic colour from your wallpaper on
-  Android 12+ plus four hand-tuned palettes, and a choice of four typefaces.
+- **Fully offline inference.** llama.cpp runs the model on the device's CPU through a JNI bridge. Nothing is sent anywhere.
+- **Conversations that persist.** Sessions and messages are stored in a local database, featuring rename, delete, and a conversation drawer functionality.
+- **Streaming replies.** Tokens appear dynamically as they are produced, and generation can be interrupted mid-reply, preserving the partial answer.
+- **Toggleable thinking process.** Enables or disables model-supported reasoning or "thinking" outputs, allowing users to view or hide the model's step-by-step cognitive process depending on capability.
+- **Mistir Bhandar, the model shop.** Browse two distinct catalogs: Mishti’s native catalog, which ships with the app and updates online upon opening the shop, and PocketPal AI's community-tested list. Models are evaluated against device memory constraints with personalized recommendations, supporting resumable background downloads and SHA-256 integrity verification prior to acceptance.
+- **Bring your own model.** Import any GGUF file directly from device storage. Mishti inspects the file header, identifying its name, architecture, and quantization parameters before securely importing it.
+- **Device-aware.** Available RAM is cross-referenced against each model's requirements prior to downloading, preventing out-of-memory errors and optimizing bandwidth usage.
+- **Tunable.** Configurable parameters including temperature, top-p, top-k, response limits, context windows, thread counts, and custom pre-instructions (system prompts), each managed via dedicated settings pages.
+- **Throughput readout.** Each generated reply provides a real-time performance readout of the tokens per second achieved during generation.
+- **Material 3 throughout.** Comprehensive support for system, light, and dark themes, dynamic color extraction from device wallpapers on Android 12+, four hand-tuned color palettes, and a choice of four distinct typefaces.
 
 ## Models
 

@@ -12,20 +12,16 @@ class SessionGroupsTest {
     private val today = LocalDate.of(2026, 10, 3)
     private val now = today.atTime(12, 0).toInstant(zone).toEpochMilli()
 
-    private fun session(
-        id: String,
-        daysAgo: Long,
-        hour: Int = 9,
-    ) = ChatSession(
+    private fun session(id: String, daysAgo: Long, hour: Int = 9) = ChatSession(
         id = id,
         title = id,
         createdAtMillis = 0L,
         updatedAtMillis =
-            today
-                .minusDays(daysAgo)
-                .atTime(hour, 0)
-                .toInstant(zone)
-                .toEpochMilli(),
+        today
+            .minusDays(daysAgo)
+            .atTime(hour, 0)
+            .toInstant(zone)
+            .toEpochMilli(),
     )
 
     @Test
@@ -33,13 +29,13 @@ class SessionGroupsTest {
         val groups =
             groupSessionsByRecency(
                 sessions =
-                    listOf(
-                        session("today", daysAgo = 0),
-                        session("yesterday", daysAgo = 1),
-                        session("this week", daysAgo = 3),
-                        session("this month", daysAgo = 12),
-                        session("older", daysAgo = 45),
-                    ),
+                listOf(
+                    session("today", daysAgo = 0),
+                    session("yesterday", daysAgo = 1),
+                    session("this week", daysAgo = 3),
+                    session("this month", daysAgo = 12),
+                    session("older", daysAgo = 45),
+                ),
                 now = now,
                 zone = zone,
             )

@@ -104,6 +104,7 @@ internal fun MessageList(
         items(items = messages.asReversed(), key = { it.id }) { message ->
             when (message.author) {
                 MessageAuthor.User -> UserMessage(text = message.content)
+
                 MessageAuthor.Assistant -> AssistantMessage(
                     text = message.content,
                     reasoning = message.reasoning,
@@ -134,7 +135,7 @@ private fun UserMessage(text: String, modifier: Modifier = Modifier) {
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(
                         horizontal = Spacing.Large,
-                        vertical = Spacing.Medium
+                        vertical = Spacing.Medium,
                     ),
                 )
             }
@@ -182,7 +183,9 @@ private fun AssistantMessage(
                             placeholder = {
                                 if (reasoning == null) {
                                     DisableSelection {
-                                        ReadingIndicator(modifier = Modifier.padding(top = Spacing.ExtraSmall))
+                                        ReadingIndicator(
+                                            modifier = Modifier.padding(top = Spacing.ExtraSmall),
+                                        )
                                     }
                                 }
                             },
@@ -231,7 +234,7 @@ private fun MessageActions(text: String, tokensPerSecond: Double?) {
             Text(
                 text = stringResource(
                     R.string.chat_tokens_per_second,
-                    "%.1f".format(tokensPerSecond)
+                    "%.1f".format(tokensPerSecond),
                 ),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

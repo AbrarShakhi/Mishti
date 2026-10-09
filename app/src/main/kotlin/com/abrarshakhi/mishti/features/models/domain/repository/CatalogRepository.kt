@@ -7,8 +7,5 @@ import kotlinx.coroutines.flow.Flow
 interface CatalogRepository {
     fun state(source: CatalogSource): Flow<CatalogState>
 
-    suspend fun refresh(
-        source: CatalogSource,
-        force: Boolean,
-    )
+    suspend fun refresh(source: CatalogSource, force: Boolean)
 }

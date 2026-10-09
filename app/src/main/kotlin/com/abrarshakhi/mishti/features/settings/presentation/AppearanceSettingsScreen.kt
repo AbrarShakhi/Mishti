@@ -92,7 +92,7 @@ fun AppearanceSettingsScreen(
                 row { shapes ->
                     SettingsPanel(
                         shapes = shapes,
-                        title = stringResource(R.string.settings_theme)
+                        title = stringResource(R.string.settings_theme),
                     ) {
                         ThemeModeSelector(
                             selected = theme.mode,
@@ -137,10 +137,7 @@ fun AppearanceSettingsScreen(
 }
 
 @Composable
-private fun ThemeModeSelector(
-    selected: ThemeMode,
-    onSelect: (ThemeMode) -> Unit,
-) {
+private fun ThemeModeSelector(selected: ThemeMode, onSelect: (ThemeMode) -> Unit) {
     val modes = ThemeMode.entries
     val colors = ToggleButtonDefaults.colors(
         containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -226,12 +223,7 @@ private fun PaletteRow(
 }
 
 @Composable
-private fun PaletteSwatch(
-    scheme: AppColorScheme,
-    dark: Boolean,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
+private fun PaletteSwatch(scheme: AppColorScheme, dark: Boolean, selected: Boolean, onClick: () -> Unit) {
     val context = LocalContext.current
     val colors by produceState<ColorScheme?>(null, scheme, dark) {
         value = withContext(Dispatchers.Default) { appColorScheme(context, scheme, dark) }
@@ -242,12 +234,12 @@ private fun PaletteSwatch(
     val secondary by animateColorAsState(
         colors?.secondary ?: placeholder,
         effects,
-        label = "Secondary"
+        label = "Secondary",
     )
     val tertiary by animateColorAsState(
         colors?.tertiary ?: placeholder,
         effects,
-        label = "Tertiary"
+        label = "Tertiary",
     )
 
     val ringColor by animateColorAsState(
@@ -297,11 +289,7 @@ private fun PaletteSwatch(
 }
 
 @Composable
-private fun SelectedBadge(
-    visible: Boolean,
-    containerColor: Color,
-    contentColor: Color,
-) {
+private fun SelectedBadge(visible: Boolean, containerColor: Color, contentColor: Color) {
     AnimatedVisibility(
         visible = visible,
         enter = scaleIn() + fadeIn(),
@@ -320,10 +308,7 @@ private fun SelectedBadge(
 }
 
 @Composable
-private fun FontSelector(
-    selected: AppFont,
-    onSelect: (AppFont) -> Unit,
-) {
+private fun FontSelector(selected: AppFont, onSelect: (AppFont) -> Unit) {
     FlowRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -344,12 +329,7 @@ private fun FontSelector(
 }
 
 @Composable
-private fun FontSample(
-    font: AppFont,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun FontSample(font: AppFont, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val family = font.fontFamily()
     val effects = MaterialTheme.motionScheme.fastEffectsSpec<Color>()
     val containerColor by animateColorAsState(

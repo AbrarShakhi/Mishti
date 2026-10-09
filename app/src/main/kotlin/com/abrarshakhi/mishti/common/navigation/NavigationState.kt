@@ -18,10 +18,7 @@ import androidx.navigation3.runtime.serialization.NavKeySerializer
 import androidx.savedstate.compose.serialization.serializers.MutableStateSerializer
 
 @Composable
-fun rememberNavigationState(
-    startRoute: NavKey,
-    topLevelRoutes: Set<NavKey>,
-): NavigationState {
+fun rememberNavigationState(startRoute: NavKey, topLevelRoutes: Set<NavKey>): NavigationState {
     val topLevelRoute =
         rememberSerializable(
             startRoute,
@@ -57,10 +54,10 @@ class NavigationState(
                 rememberDecoratedNavEntries(
                     backStack = stack,
                     entryDecorators =
-                        listOf(
-                            rememberSaveableStateHolderNavEntryDecorator(),
-                            rememberViewModelStoreNavEntryDecorator(),
-                        ),
+                    listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator(),
+                    ),
                     entryProvider = entryProvider,
                 )
             }

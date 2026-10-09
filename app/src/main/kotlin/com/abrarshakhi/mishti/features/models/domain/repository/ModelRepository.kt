@@ -29,7 +29,4 @@ interface ModelRepository {
     suspend fun delete(modelId: String)
 }
 
-data class StorageUsage(
-    val usedBytes: Long = 0L,
-    val availableBytes: Long = 0L,
-)
+data class StorageUsage(val usedBytes: Long = 0L, val availableBytes: Long = 0L)

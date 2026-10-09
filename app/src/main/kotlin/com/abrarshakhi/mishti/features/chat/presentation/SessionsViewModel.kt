@@ -9,10 +9,8 @@ import com.abrarshakhi.mishti.features.chat.domain.repository.ChatRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
-class SessionsViewModel(
-    private val repository: ChatRepository,
-    private val snackBar: SnackBarDispatcher,
-) : MviViewModel<SessionsUiState, SessionsIntent, SessionsEffect>(SessionsUiState()) {
+class SessionsViewModel(private val repository: ChatRepository, private val snackBar: SnackBarDispatcher) :
+    MviViewModel<SessionsUiState, SessionsIntent, SessionsEffect>(SessionsUiState()) {
     init {
         viewModelScope.launch {
             repository.observeSessions().collect { sessions ->

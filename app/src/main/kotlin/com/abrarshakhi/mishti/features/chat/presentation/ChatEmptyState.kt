@@ -96,7 +96,11 @@ internal fun ChatEmptyState(
 }
 
 private enum class EmptyKind {
-    Ready, Loading, NoModel, Failed;
+    Ready,
+    Loading,
+    NoModel,
+    Failed,
+    ;
 
     companion object {
         fun of(state: EngineState) = when (state) {
@@ -135,7 +139,7 @@ private fun ReadyState(engineState: EngineState, onSuggestion: (String) -> Unit)
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(
                         Spacing.Small,
-                        Alignment.CenterHorizontally
+                        Alignment.CenterHorizontally,
                     ),
                     verticalArrangement = Arrangement.spacedBy(Spacing.Small),
                 ) {
@@ -213,7 +217,7 @@ private fun FailedState(onOpenModels: () -> Unit) {
                     Icon(
                         Icons.Filled.Warning,
                         contentDescription = null,
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier.size(36.dp),
                     )
                 }
             }

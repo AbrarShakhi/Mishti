@@ -10,10 +10,7 @@ import androidx.compose.ui.semantics.semantics
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 
 @Composable
-fun SectionHeader(
-    title: String,
-    modifier: Modifier = Modifier,
-) {
+fun SectionHeader(title: String, modifier: Modifier = Modifier) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleSmallEmphasized,

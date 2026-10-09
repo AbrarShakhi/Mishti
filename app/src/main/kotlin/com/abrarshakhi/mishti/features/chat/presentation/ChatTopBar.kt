@@ -50,7 +50,7 @@ internal fun ChatTopBar(
             IconButton(onClick = onOpenDrawer) {
                 Icon(
                     Icons.Filled.Menu,
-                    contentDescription = stringResource(R.string.chat_open_conversations)
+                    contentDescription = stringResource(R.string.chat_open_conversations),
                 )
             }
         },
@@ -58,7 +58,7 @@ internal fun ChatTopBar(
             IconButton(onClick = onNewChat) {
                 Icon(
                     Icons.Filled.Add,
-                    contentDescription = stringResource(R.string.drawer_new_chat)
+                    contentDescription = stringResource(R.string.drawer_new_chat),
                 )
             }
         },
@@ -71,10 +71,12 @@ private fun ModelStatus(engineState: EngineState) {
     val colors = MaterialTheme.colorScheme
     val (label, dotColor) = when (engineState) {
         is EngineState.Ready -> engineState.model.name to colors.primary
+
         is EngineState.Loading ->
             stringResource(R.string.chat_status_loading, engineState.model.name) to colors.tertiary
 
         is EngineState.Failed -> stringResource(R.string.chat_status_failed) to colors.error
+
         EngineState.Idle -> stringResource(R.string.chat_status_idle) to colors.outline
     }
 

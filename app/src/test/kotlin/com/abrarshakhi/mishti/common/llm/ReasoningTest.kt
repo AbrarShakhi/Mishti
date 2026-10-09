@@ -21,7 +21,10 @@ class ReasoningTest {
 
     @Test
     fun `an unfinished think block is still reasoning`() {
-        assertEquals(ReasoningSplit("Still going", "", true), splitReasoning("\n<think>Still going"))
+        assertEquals(
+            ReasoningSplit("Still going", "", true),
+            splitReasoning("\n<think>Still going"),
+        )
     }
 
     @Test
@@ -45,7 +48,10 @@ class ReasoningTest {
 
     @Test
     fun `an empty think block leaves no reasoning`() {
-        assertEquals(ReasoningSplit(null, "Answer", false), splitReasoning("<think>\n\n</think>\n\nAnswer"))
+        assertEquals(
+            ReasoningSplit(null, "Answer", false),
+            splitReasoning("<think>\n\n</think>\n\nAnswer"),
+        )
     }
 
     @Test
@@ -56,7 +62,10 @@ class ReasoningTest {
 
     @Test
     fun `a reply cut off while thinking is no longer reasoning once complete`() {
-        assertEquals(ReasoningSplit("Cut </th", "", false), splitReasoning("<think>Cut </th", complete = true))
+        assertEquals(
+            ReasoningSplit("Cut </th", "", false),
+            splitReasoning("<think>Cut </th", complete = true),
+        )
     }
 
     @Test

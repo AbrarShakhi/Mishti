@@ -20,12 +20,11 @@ class CodeSpanTextTest {
         return span.codeSpanText(markdown)
     }
 
-    private fun ASTNode.findCodeSpan(): ASTNode? =
-        if (type == MarkdownElementTypes.CODE_SPAN) {
-            this
-        } else {
-            children.firstNotNullOfOrNull { it.findCodeSpan() }
-        }
+    private fun ASTNode.findCodeSpan(): ASTNode? = if (type == MarkdownElementTypes.CODE_SPAN) {
+        this
+    } else {
+        children.firstNotNullOfOrNull { it.findCodeSpan() }
+    }
 
     @Test
     fun `the backticks are left out`() {

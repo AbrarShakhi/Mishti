@@ -38,53 +38,33 @@ data class ModelsUiState(
 }
 
 sealed interface ModelsIntent : UiIntent {
-    data class CatalogSourceSelected(
-        val source: CatalogSource,
-    ) : ModelsIntent
+    data class CatalogSourceSelected(val source: CatalogSource) : ModelsIntent
 
-    data class FilterSelected(
-        val filter: CatalogFilter,
-    ) : ModelsIntent
+    data class FilterSelected(val filter: CatalogFilter) : ModelsIntent
 
-    data class QueryChanged(
-        val query: String,
-    ) : ModelsIntent
+    data class QueryChanged(val query: String) : ModelsIntent
 
     data object RefreshRequested : ModelsIntent
 
-    data class DownloadClicked(
-        val model: CatalogModel,
-    ) : ModelsIntent
+    data class DownloadClicked(val model: CatalogModel) : ModelsIntent
 
-    data class CancelClicked(
-        val transferId: String,
-    ) : ModelsIntent
+    data class CancelClicked(val transferId: String) : ModelsIntent
 
-    data class TransferDismissed(
-        val transferId: String,
-    ) : ModelsIntent
+    data class TransferDismissed(val transferId: String) : ModelsIntent
 
-    data class UseClicked(
-        val modelId: String,
-    ) : ModelsIntent
+    data class UseClicked(val modelId: String) : ModelsIntent
 
-    data class DeleteRequested(
-        val modelId: String,
-    ) : ModelsIntent
+    data class DeleteRequested(val modelId: String) : ModelsIntent
 
     data object DeleteConfirmed : ModelsIntent
 
     data object DeleteCancelled : ModelsIntent
 
-    data class DetailsOpened(
-        val model: CatalogModel,
-    ) : ModelsIntent
+    data class DetailsOpened(val model: CatalogModel) : ModelsIntent
 
     data object DetailsDismissed : ModelsIntent
 
-    data class ImportPicked(
-        val uri: String,
-    ) : ModelsIntent
+    data class ImportPicked(val uri: String) : ModelsIntent
 }
 
 sealed interface ModelsEffect : UiEffect {

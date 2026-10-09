@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
-
 class ChatViewModel(
     private val requestedSessionId: String?,
     private val repository: ChatRepository,
@@ -51,7 +50,7 @@ class ChatViewModel(
             combine(
                 engine.state,
                 preferences.thinkingModelIds,
-                ::Pair
+                ::Pair,
             ).collect { (engineState, thinkingIds) ->
                 val ready = engineState as? EngineState.Ready
                 updateState {
@@ -69,7 +68,7 @@ class ChatViewModel(
     private suspend fun openSession() {
         val sessionId = try {
             requestedSessionId ?: repository.latestSessionId() ?: repository.createSession(
-                UNTITLED_SESSION
+                UNTITLED_SESSION,
             )
         } catch (e: CancellationException) {
             throw e
@@ -214,11 +213,7 @@ class ChatViewModel(
         }
     }
 
-    private suspend fun persistReply(
-        sessionId: String,
-        reply: ReplyBuffer,
-        tokensPerSecond: Double?,
-    ) {
+    private suspend fun persistReply(sessionId: String, reply: ReplyBuffer, tokensPerSecond: Double?) {
         val finished = reply.finish()
         val content = finished.answer.trim()
         val reasoning = finished.reasoning?.takeIf { it.isNotBlank() }
@@ -248,10 +243,7 @@ class ChatViewModel(
     }
 }
 
-private class ReplyBuffer(
-    private val splitsReasoning: Boolean,
-    private val clock: () -> Long,
-) {
+private class ReplyBuffer(private val splitsReasoning: Boolean, private val clock: () -> Long) {
     private val raw = StringBuilder()
     private var firstTokenAtMillis: Long? = null
 
@@ -274,22 +266,36 @@ private class ReplyBuffer(
         return split
     }
 
-    private fun split(complete: Boolean): ReasoningSplit =
-        if (splitsReasoning) splitReasoning(raw.toString(), complete)
-        else ReasoningSplit(reasoning = null, answer = raw.toString(), isReasoning = false)
+    private fun split(complete: Boolean): ReasoningSplit = if (splitsReasoning) {
+        splitReasoning(raw.toString(), complete)
+    } else {
+        ReasoningSplit(reasoning = null, answer = raw.toString(), isReasoning = false)
+    }
 
     private fun elapsedMillis(): Long? = firstTokenAtMillis?.let { clock() - it }
 }
 
 private const val ThinkingTokenFactor = 2
 
-private fun GenerationParams.withThinking(enabled: Boolean) =
-    if (enabled) copy(thinking = true, maxTokens = maxTokens * ThinkingTokenFactor) else this
+private fun GenerationParams.withThinking(enabled: Boolean) = if (enabled) {
+    copy(
+        thinking = true,
+        maxTokens =
+        maxTokens * ThinkingTokenFactor,
+    )
+} else {
+    this
+}
 
 private fun EngineState.isReady() = this is EngineState.Ready
 
-private fun GenerationEvent.Completed.tokensPerSecond(): Double? =
-    if (durationMillis > 0 && tokenCount > 0) tokenCount * 1000.0 / durationMillis else null
+private fun GenerationEvent.Completed.tokensPerSecond(): Double? = if (durationMillis > 0 &&
+    tokenCount > 0
+) {
+    tokenCount * 1000.0 / durationMillis
+} else {
+    null
+}
 
 private fun ChatMessage.toLlmMessage() = LlmMessage(
     role = when (author) {

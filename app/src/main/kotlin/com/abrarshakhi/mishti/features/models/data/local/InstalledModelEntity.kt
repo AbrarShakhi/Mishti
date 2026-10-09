@@ -44,34 +44,32 @@ interface InstalledModelDao {
     suspend fun delete(id: String)
 }
 
-fun InstalledModelEntity.toDomain() =
-    ShelfModel(
-        id = id,
-        name = name,
-        origin = runCatching { ModelOrigin.valueOf(origin) }.getOrDefault(ModelOrigin.Imported),
-        quantization = quantization,
-        parametersLabel = parametersLabel,
-        sizeBytes = sizeBytes,
-        hfRepo = hfRepo,
-        hfFile = hfFile,
-        architecture = architecture,
-        contextLength = contextLength,
-        license = license,
-        installedAtMillis = installedAtMillis,
-    )
+fun InstalledModelEntity.toDomain() = ShelfModel(
+    id = id,
+    name = name,
+    origin = runCatching { ModelOrigin.valueOf(origin) }.getOrDefault(ModelOrigin.Imported),
+    quantization = quantization,
+    parametersLabel = parametersLabel,
+    sizeBytes = sizeBytes,
+    hfRepo = hfRepo,
+    hfFile = hfFile,
+    architecture = architecture,
+    contextLength = contextLength,
+    license = license,
+    installedAtMillis = installedAtMillis,
+)
 
-fun ShelfModel.toEntity() =
-    InstalledModelEntity(
-        id = id,
-        name = name,
-        origin = origin.name,
-        quantization = quantization,
-        parametersLabel = parametersLabel,
-        sizeBytes = sizeBytes,
-        hfRepo = hfRepo,
-        hfFile = hfFile,
-        architecture = architecture,
-        contextLength = contextLength,
-        license = license,
-        installedAtMillis = installedAtMillis,
-    )
+fun ShelfModel.toEntity() = InstalledModelEntity(
+    id = id,
+    name = name,
+    origin = origin.name,
+    quantization = quantization,
+    parametersLabel = parametersLabel,
+    sizeBytes = sizeBytes,
+    hfRepo = hfRepo,
+    hfFile = hfFile,
+    architecture = architecture,
+    contextLength = contextLength,
+    license = license,
+    installedAtMillis = installedAtMillis,
+)

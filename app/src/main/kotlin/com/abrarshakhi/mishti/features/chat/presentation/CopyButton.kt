@@ -33,11 +33,7 @@ import kotlin.time.Duration.Companion.milliseconds
 private const val CopiedFeedbackMillis = 1_500L
 
 @Composable
-internal fun CopyButton(
-    text: String,
-    contentDescription: String,
-    modifier: Modifier = Modifier,
-) {
+internal fun CopyButton(text: String, contentDescription: String, modifier: Modifier = Modifier) {
     val clipboard = LocalClipboard.current
     val appName = stringResource(R.string.app_name)
     val scope = rememberCoroutineScope()
@@ -66,7 +62,13 @@ internal fun CopyButton(
         ) { isCopied ->
             Icon(
                 imageVector = if (isCopied) Icons.Filled.Check else Icons.Filled.ContentCopy,
-                contentDescription = if (isCopied) stringResource(R.string.action_copied) else contentDescription,
+                contentDescription = if (isCopied) {
+                    stringResource(
+                        R.string.action_copied,
+                    )
+                } else {
+                    contentDescription
+                },
                 modifier = Modifier.size(20.dp),
             )
         }

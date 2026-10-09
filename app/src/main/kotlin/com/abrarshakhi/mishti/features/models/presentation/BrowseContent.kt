@@ -13,11 +13,7 @@ data class CatalogItem(
     val transfer: TransferStatus?,
 )
 
-data class CatalogSection(
-    val id: String,
-    val isDeviceGroup: Boolean,
-    val items: List<CatalogItem>,
-)
+data class CatalogSection(val id: String, val isDeviceGroup: Boolean, val items: List<CatalogItem>)
 
 data class BrowseContent(
     val recommended: List<CatalogItem> = emptyList(),
@@ -31,14 +27,13 @@ private const val RECOMMENDED_LIMIT = 6
 
 const val ALL_SECTION_ID = "all"
 
-fun CatalogModel.matches(filter: CatalogFilter): Boolean =
-    when (filter) {
-        CatalogFilter.All -> true
-        CatalogFilter.Fast -> sizeBytes < FAST_MAX_BYTES
-        CatalogFilter.Balanced -> sizeBytes in FAST_MAX_BYTES until BALANCED_MAX_BYTES
-        CatalogFilter.Smart -> sizeBytes >= BALANCED_MAX_BYTES
-        CatalogFilter.Coding -> "coding" in tags
-    }
+fun CatalogModel.matches(filter: CatalogFilter): Boolean = when (filter) {
+    CatalogFilter.All -> true
+    CatalogFilter.Fast -> sizeBytes < FAST_MAX_BYTES
+    CatalogFilter.Balanced -> sizeBytes in FAST_MAX_BYTES until BALANCED_MAX_BYTES
+    CatalogFilter.Smart -> sizeBytes >= BALANCED_MAX_BYTES
+    CatalogFilter.Coding -> "coding" in tags
+}
 
 fun CatalogModel.matches(query: String): Boolean {
     val words =
@@ -61,18 +56,17 @@ fun browseContent(state: ModelsUiState): BrowseContent {
     val deviceRam = state.capability.totalMemoryBytes
     val transfers = state.transfers.associateBy { it.id }
 
-    fun item(model: CatalogModel) =
-        CatalogItem(
-            model = model,
-            fit = memoryFit(model.requiredRamBytes, deviceRam),
-            isOnShelf = state.shelf.any {
-                it.id == model.id || model.isSameFileAs(
-                    it.hfRepo,
-                    it.hfFile
-                )
-            },
-            transfer = transfers[model.id]?.status,
-        )
+    fun item(model: CatalogModel) = CatalogItem(
+        model = model,
+        fit = memoryFit(model.requiredRamBytes, deviceRam),
+        isOnShelf = state.shelf.any {
+            it.id == model.id || model.isSameFileAs(
+                it.hfRepo,
+                it.hfFile,
+            )
+        },
+        transfer = transfers[model.id]?.status,
+    )
 
     val byId = catalog.models.associateBy { it.id }
     val recommended =

@@ -6,5 +6,10 @@ import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.features.chat.domain.model.UNTITLED_SESSION
 
 @Composable
-fun sessionDisplayTitle(title: String): String =
-    if (title == UNTITLED_SESSION) stringResource(R.string.chat_untitled) else title
+fun sessionDisplayTitle(title: String): String = if (title ==
+    UNTITLED_SESSION
+) {
+    stringResource(R.string.chat_untitled)
+} else {
+    title
+}

@@ -156,10 +156,12 @@ internal fun StreamingMarkdownReply(
     }
 }
 
-private fun StreamingMarkdownState.Snapshot.hasBlocks(): Boolean =
-    (stableAst.asSequence() + unstableAstTail).any { node ->
-        node.type != MarkdownTokenTypes.EOL && node.type != MarkdownTokenTypes.WHITE_SPACE
-    }
+private fun StreamingMarkdownState.Snapshot.hasBlocks(): Boolean = (
+    stableAst.asSequence() +
+        unstableAstTail
+    ).any { node ->
+    node.type != MarkdownTokenTypes.EOL && node.type != MarkdownTokenTypes.WHITE_SPACE
+}
 
 private class ReplyStyle(
     val colors: MarkdownColors,
@@ -201,7 +203,7 @@ private fun replyStyle(): ReplyStyle {
             textLink = TextLinkStyles(
                 style = SpanStyle(
                     color = colorScheme.primary,
-                    textDecoration = TextDecoration.Underline
+                    textDecoration = TextDecoration.Underline,
                 ),
             ),
             table = type.bodyMedium,
@@ -223,16 +225,18 @@ private fun replyStyle(): ReplyStyle {
     )
 }
 
-private fun inlineCodeAnnotator(chipColor: Color): MarkdownAnnotator =
-    markdownAnnotator { content, node ->
-        if (node.type != MarkdownElementTypes.CODE_SPAN) return@markdownAnnotator false
-        withStyle(SpanStyle(background = chipColor)) {
-            append(NoBreakSpace)
-            withStyle(InlineCodeStyle) { append(node.codeSpanText(content)) }
-            append(NoBreakSpace)
-        }
-        true
+private fun inlineCodeAnnotator(chipColor: Color): MarkdownAnnotator = markdownAnnotator {
+        content,
+        node,
+    ->
+    if (node.type != MarkdownElementTypes.CODE_SPAN) return@markdownAnnotator false
+    withStyle(SpanStyle(background = chipColor)) {
+        append(NoBreakSpace)
+        withStyle(InlineCodeStyle) { append(node.codeSpanText(content)) }
+        append(NoBreakSpace)
     }
+    true
+}
 
 internal fun ASTNode.codeSpanText(content: CharSequence): String {
     val code = content
@@ -247,7 +251,7 @@ private val ReplyComponents = markdownComponents(
         MarkdownCodeFence(
             model.content,
             model.node,
-            model.typography.code
+            model.typography.code,
         ) { code, language, style ->
             CodeBlock(code = code, language = language, style = style)
         }
@@ -256,7 +260,7 @@ private val ReplyComponents = markdownComponents(
         MarkdownCodeBlock(
             model.content,
             model.node,
-            model.typography.code
+            model.typography.code,
         ) { code, language, style ->
             CodeBlock(code = code, language = language, style = style)
         }
@@ -322,7 +326,7 @@ private fun CodeBlock(code: String, language: String?, style: TextStyle) {
                     )
                     CopyButton(
                         text = code,
-                        contentDescription = stringResource(R.string.chat_copy_code)
+                        contentDescription = stringResource(R.string.chat_copy_code),
                     )
                 }
             }

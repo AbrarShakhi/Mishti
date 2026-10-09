@@ -8,10 +8,7 @@ data class GenerationParams(
     val thinking: Boolean = false,
 )
 
-data class EngineOptions(
-    val contextTokens: Int = 2048,
-    val threads: Int = 4,
-)
+data class EngineOptions(val contextTokens: Int = 2048, val threads: Int = 4)
 
 data class InferenceSettings(
     val systemPrompt: String = "",

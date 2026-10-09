@@ -81,9 +81,9 @@ internal fun ReasoningSection(
         AnimatedVisibility(
             visible = expanded && reasoning.isNotBlank(),
             enter = expandVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) +
-                    fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
+                fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
             exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()) +
-                    fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
         ) {
             val body = Modifier
                 .padding(top = Spacing.Small)
@@ -99,12 +99,7 @@ internal fun ReasoningSection(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ReasoningHeader(
-    isReasoning: Boolean,
-    durationMillis: Long?,
-    expanded: Boolean,
-    onToggle: () -> Unit,
-) {
+private fun ReasoningHeader(isReasoning: Boolean, durationMillis: Long?, expanded: Boolean, onToggle: () -> Unit) {
     val chevronRotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
@@ -161,6 +156,7 @@ private fun ReasoningHeader(
 @Composable
 private fun reasoningLabel(isReasoning: Boolean, durationMillis: Long?): String = when {
     isReasoning -> stringResource(R.string.chat_reasoning_active)
+
     durationMillis != null -> {
         val seconds = ((durationMillis + 500) / 1000).coerceAtLeast(1).toInt()
         pluralStringResource(R.plurals.chat_reasoning_duration, seconds, seconds)
@@ -209,14 +205,13 @@ private fun ReasoningText(text: String, modifier: Modifier = Modifier) {
     )
 }
 
-private fun Modifier.reasoningRule(color: Color): Modifier =
-    drawBehind {
-        val x = RuleWidth.toPx() / 2
-        drawLine(
-            color = color,
-            start = Offset(x, 0f),
-            end = Offset(x, size.height),
-            strokeWidth = RuleWidth.toPx(),
-            cap = StrokeCap.Round,
-        )
-    }.padding(start = Spacing.Medium)
+private fun Modifier.reasoningRule(color: Color): Modifier = drawBehind {
+    val x = RuleWidth.toPx() / 2
+    drawLine(
+        color = color,
+        start = Offset(x, 0f),
+        end = Offset(x, size.height),
+        strokeWidth = RuleWidth.toPx(),
+        cap = StrokeCap.Round,
+    )
+}.padding(start = Spacing.Medium)

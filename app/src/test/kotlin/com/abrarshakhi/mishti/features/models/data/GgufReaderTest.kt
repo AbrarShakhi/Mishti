@@ -15,11 +15,23 @@ class GgufReaderTest {
         private var kvCount = 0
         private val body = ByteArrayOutputStream()
 
-        private fun ByteArrayOutputStream.u32(v: Long) =
-            repeat(4) { write(((v shr (8 * it)) and 0xFF).toInt()) }
+        private fun ByteArrayOutputStream.u32(v: Long) = repeat(4) {
+            write(
+                (
+                    (v shr (8 * it)) and
+                        0xFF
+                    ).toInt(),
+            )
+        }
 
-        private fun ByteArrayOutputStream.u64(v: Long) =
-            repeat(8) { write(((v shr (8 * it)) and 0xFF).toInt()) }
+        private fun ByteArrayOutputStream.u64(v: Long) = repeat(8) {
+            write(
+                (
+                    (v shr (8 * it)) and
+                        0xFF
+                    ).toInt(),
+            )
+        }
 
         private fun ByteArrayOutputStream.str(s: String) {
             val bytes = s.toByteArray()
@@ -27,30 +39,21 @@ class GgufReaderTest {
             write(bytes)
         }
 
-        fun string(
-            key: String,
-            value: String,
-        ) = apply {
+        fun string(key: String, value: String) = apply {
             kvCount++
             body.str(key)
             body.u32(8)
             body.str(value)
         }
 
-        fun u32(
-            key: String,
-            value: Long,
-        ) = apply {
+        fun u32(key: String, value: Long) = apply {
             kvCount++
             body.str(key)
             body.u32(4)
             body.u32(value)
         }
 
-        fun stringArray(
-            key: String,
-            values: List<String>,
-        ) = apply {
+        fun stringArray(key: String, values: List<String>) = apply {
             kvCount++
             body.str(key)
             body.u32(9)
@@ -59,10 +62,7 @@ class GgufReaderTest {
             values.forEach { body.str(it) }
         }
 
-        fun float32Array(
-            key: String,
-            count: Int,
-        ) = apply {
+        fun float32Array(key: String, count: Int) = apply {
             kvCount++
             body.str(key)
             body.u32(9)
@@ -111,9 +111,9 @@ class GgufReaderTest {
             ByteArrayInputStream(
                 GgufWriter().string(
                     "general.architecture",
-                    "llama"
-                ).bytes()
-            )
+                    "llama",
+                ).bytes(),
+            ),
         )
 
         assertEquals("llama", info.architecture)

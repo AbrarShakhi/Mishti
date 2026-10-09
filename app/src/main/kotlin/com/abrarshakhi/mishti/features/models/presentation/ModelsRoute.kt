@@ -21,10 +21,7 @@ import com.abrarshakhi.mishti.common.mvi.CollectEffects
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun ModelsRoute(
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun ModelsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel: ModelsViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -32,7 +29,9 @@ fun ModelsRoute(
     var openedOnBrowse by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(state.isLoading) {
-        if (!state.isLoading && !openedOnBrowse && state.shelf.isEmpty() && state.transfers.isEmpty()) {
+        if (!state.isLoading && !openedOnBrowse && state.shelf.isEmpty() &&
+            state.transfers.isEmpty()
+        ) {
             openedOnBrowse = true
             pagerState.scrollToPage(BrowsePage)
         }

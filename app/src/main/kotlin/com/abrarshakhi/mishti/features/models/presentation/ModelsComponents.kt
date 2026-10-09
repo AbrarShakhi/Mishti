@@ -69,8 +69,7 @@ import kotlin.math.min
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
-internal fun formatSize(bytes: Long): String =
-    Formatter.formatShortFileSize(LocalContext.current, bytes)
+internal fun formatSize(bytes: Long): String = Formatter.formatShortFileSize(LocalContext.current, bytes)
 
 private val GlyphPolygons
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -183,7 +182,7 @@ internal fun CompactTransferAction(
         modifier = modifier,
         transitionSpec = {
             (scaleIn(spatial, initialScale = 0.6f) + fadeIn(effects)) togetherWith
-                    (scaleOut(spatial, targetScale = 0.6f) + fadeOut(effects))
+                (scaleOut(spatial, targetScale = 0.6f) + fadeOut(effects))
         },
         contentAlignment = Alignment.Center,
         label = "TransferAction",
@@ -198,8 +197,8 @@ internal fun CompactTransferAction(
                         Icons.Filled.Download,
                         contentDescription = stringResource(
                             R.string.models_download_named,
-                            item.model.name
-                        )
+                            item.model.name,
+                        ),
                     )
                 }
 
@@ -224,6 +223,7 @@ internal fun CompactTransferAction(
                 }
 
                 ActionKind.Verifying -> LoadingIndicator(modifier = Modifier.size(40.dp))
+
                 ActionKind.Failed -> FilledTonalIconButton(
                     onClick = onDownload,
                     shapes = IconButtonDefaults.shapes(),
@@ -232,7 +232,7 @@ internal fun CompactTransferAction(
                         Icons.Filled.Refresh,
                         contentDescription = stringResource(
                             R.string.models_retry_named,
-                            item.model.name
+                            item.model.name,
                         ),
                         tint = MaterialTheme.colorScheme.error,
                     )
@@ -273,7 +273,13 @@ internal fun WideTransferAction(
                     .height(56.dp),
             ) {
                 Icon(
-                    imageVector = if (kind == ActionKind.Failed) Icons.Filled.Refresh else Icons.Filled.Download,
+                    imageVector = if (kind ==
+                        ActionKind.Failed
+                    ) {
+                        Icons.Filled.Refresh
+                    } else {
+                        Icons.Filled.Download
+                    },
                     contentDescription = null,
                 )
                 Spacer(Modifier.width(Spacing.Small))
@@ -283,7 +289,7 @@ internal fun WideTransferAction(
                     } else {
                         stringResource(
                             R.string.models_download_size,
-                            formatSize(item.model.sizeBytes)
+                            formatSize(item.model.sizeBytes),
                         )
                     },
                     style = MaterialTheme.typography.titleMedium,
@@ -318,7 +324,9 @@ internal fun WideTransferAction(
                             IconButton(onClick = onCancel) {
                                 Icon(
                                     Icons.Filled.Close,
-                                    contentDescription = stringResource(R.string.models_cancel_download)
+                                    contentDescription = stringResource(
+                                        R.string.models_cancel_download,
+                                    ),
                                 )
                             }
                         }
@@ -345,7 +353,7 @@ internal fun WideTransferAction(
                 Spacer(Modifier.width(Spacing.Small))
                 Text(
                     stringResource(R.string.models_on_shelf),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
         }

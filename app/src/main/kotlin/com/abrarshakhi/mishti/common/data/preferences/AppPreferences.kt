@@ -30,8 +30,5 @@ interface AppPreferences {
 
     val thinkingModelIds: Flow<Set<String>>
 
-    suspend fun setThinking(
-        modelId: String,
-        enabled: Boolean,
-    )
+    suspend fun setThinking(modelId: String, enabled: Boolean)
 }

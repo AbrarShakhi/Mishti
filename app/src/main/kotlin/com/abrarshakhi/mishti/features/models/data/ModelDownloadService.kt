@@ -31,11 +31,7 @@ class ModelDownloadService : Service() {
 
     override fun onBind(intent: Intent?) = null
 
-    override fun onStartCommand(
-        intent: Intent?,
-        flags: Int,
-        startId: Int,
-    ): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_CANCEL_ALL) {
             cancelAll()
             return START_NOT_STICKY
@@ -44,8 +40,8 @@ class ModelDownloadService : Service() {
         startForegroundWith(
             buildNotification(
                 title = getString(R.string.notification_preparing),
-                progress = null
-            )
+                progress = null,
+            ),
         )
         observeDownloads()
 
@@ -83,9 +79,15 @@ class ModelDownloadService : Service() {
                     buildNotification(
                         title = withMore(
                             getString(R.string.notification_importing, transfer.name),
-                            extra
+                            extra,
                         ),
-                        progress = if (status.totalBytes > 0) (status.fraction * 100).toInt() else null,
+                        progress = if (status.totalBytes >
+                            0
+                        ) {
+                            (status.fraction * 100).toInt()
+                        } else {
+                            null
+                        },
                     )
                 }
 
@@ -99,15 +101,16 @@ class ModelDownloadService : Service() {
         notificationManager()?.notify(NOTIFICATION_ID, notification)
     }
 
-    private fun withMore(
-        title: String,
-        extra: Int,
-    ): String = if (extra > 0) resources.getQuantityString(
-        R.plurals.notification_more,
-        extra,
-        title,
-        extra
-    ) else title
+    private fun withMore(title: String, extra: Int): String = if (extra > 0) {
+        resources.getQuantityString(
+            R.plurals.notification_more,
+            extra,
+            title,
+            extra,
+        )
+    } else {
+        title
+    }
 
     private fun cancelAll() {
         repository.cancelAll()
@@ -123,10 +126,7 @@ class ModelDownloadService : Service() {
         )
     }
 
-    private fun buildNotification(
-        title: String,
-        progress: Int?,
-    ): Notification {
+    private fun buildNotification(title: String, progress: Int?): Notification {
         ensureChannel()
 
         val open =

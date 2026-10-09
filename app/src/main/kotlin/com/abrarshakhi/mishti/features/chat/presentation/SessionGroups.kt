@@ -20,16 +20,9 @@ val Recency.labelRes: Int
             Recency.Older -> R.string.recency_older
         }
 
-data class SessionGroup(
-    val recency: Recency,
-    val sessions: List<ChatSession>,
-)
+data class SessionGroup(val recency: Recency, val sessions: List<ChatSession>)
 
-fun groupSessionsByRecency(
-    sessions: List<ChatSession>,
-    now: Long,
-    zone: ZoneId,
-): List<SessionGroup> {
+fun groupSessionsByRecency(sessions: List<ChatSession>, now: Long, zone: ZoneId): List<SessionGroup> {
     val today = Instant.ofEpochMilli(now).atZone(zone).toLocalDate()
 
     return sessions

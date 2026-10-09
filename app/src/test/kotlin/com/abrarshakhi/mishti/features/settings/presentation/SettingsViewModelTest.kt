@@ -25,9 +25,7 @@ import org.junit.Rule
 import org.junit.Test
 import java.io.IOException
 
-private class FailingPreferences(
-    delegate: FakeAppPreferences = FakeAppPreferences(),
-) : AppPreferences by delegate {
+private class FailingPreferences(delegate: FakeAppPreferences = FakeAppPreferences()) : AppPreferences by delegate {
     override suspend fun updateInferenceSettings(transform: (InferenceSettings) -> InferenceSettings): Unit =
         throw IOException("No space left on device")
 }
@@ -60,128 +58,120 @@ class SettingsViewModelTest {
     )
 
     @Test
-    fun `the state follows the saved settings`() =
-        runTest {
-            val vm = viewModel()
-            advanceUntilIdle()
+    fun `the state follows the saved settings`() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
 
-            assertEquals(tuned, vm.state.value.inference)
-            assertFalse(vm.state.value.isSamplingDefault)
-            assertFalse(vm.state.value.isPerformanceDefault)
-        }
-
-    @Test
-    fun `changing one value leaves the other settings alone`() =
-        runTest {
-            val preferences = FakeAppPreferences(tuned)
-            val vm = viewModel(preferences)
-            advanceUntilIdle()
-
-            vm.onIntent(SettingsIntent.TemperatureChanged(0.3f))
-            advanceUntilIdle()
-
-            assertEquals(tuned.copy(temperature = 0.3f), preferences.inferenceSettings.first())
-        }
+        assertEquals(tuned, vm.state.value.inference)
+        assertFalse(vm.state.value.isSamplingDefault)
+        assertFalse(vm.state.value.isPerformanceDefault)
+    }
 
     @Test
-    fun `changes sent before the state catches up are all kept`() =
-        runTest {
-            val preferences = FakeAppPreferences(tuned)
-            val vm = viewModel(preferences)
+    fun `changing one value leaves the other settings alone`() = runTest {
+        val preferences = FakeAppPreferences(tuned)
+        val vm = viewModel(preferences)
+        advanceUntilIdle()
 
-            vm.onIntent(SettingsIntent.SystemPromptChanged("Answer in French."))
-            vm.onIntent(SettingsIntent.MaxTokensChanged(256))
-            vm.onIntent(SettingsIntent.ThreadsChanged(2))
-            advanceUntilIdle()
+        vm.onIntent(SettingsIntent.TemperatureChanged(0.3f))
+        advanceUntilIdle()
 
-            assertEquals(
-                tuned.copy(systemPrompt = "Answer in French.", maxTokens = 256, threads = 2),
-                preferences.inferenceSettings.first(),
-            )
-        }
+        assertEquals(tuned.copy(temperature = 0.3f), preferences.inferenceSettings.first())
+    }
 
     @Test
-    fun `restoring sampling defaults keeps the pre-instruction and performance settings`() =
-        runTest {
-            val preferences = FakeAppPreferences(tuned)
-            val vm = viewModel(preferences)
-            advanceUntilIdle()
+    fun `changes sent before the state catches up are all kept`() = runTest {
+        val preferences = FakeAppPreferences(tuned)
+        val vm = viewModel(preferences)
 
-            vm.onIntent(SettingsIntent.SamplingReset)
-            advanceUntilIdle()
+        vm.onIntent(SettingsIntent.SystemPromptChanged("Answer in French."))
+        vm.onIntent(SettingsIntent.MaxTokensChanged(256))
+        vm.onIntent(SettingsIntent.ThreadsChanged(2))
+        advanceUntilIdle()
 
-            val defaults = InferenceSettings()
-            assertEquals(
-                tuned.copy(
-                    temperature = defaults.temperature,
-                    topK = defaults.topK,
-                    topP = defaults.topP,
-                ),
-                preferences.inferenceSettings.first(),
-            )
-            assertTrue(vm.state.value.isSamplingDefault)
-            assertFalse(vm.state.value.isPerformanceDefault)
-        }
+        assertEquals(
+            tuned.copy(systemPrompt = "Answer in French.", maxTokens = 256, threads = 2),
+            preferences.inferenceSettings.first(),
+        )
+    }
 
     @Test
-    fun `restoring performance defaults keeps sampling and the pre-instruction`() =
-        runTest {
-            val preferences = FakeAppPreferences(tuned)
-            val vm = viewModel(preferences)
-            advanceUntilIdle()
+    fun `restoring sampling defaults keeps the pre-instruction and performance settings`() = runTest {
+        val preferences = FakeAppPreferences(tuned)
+        val vm = viewModel(preferences)
+        advanceUntilIdle()
 
-            vm.onIntent(SettingsIntent.PerformanceReset)
-            advanceUntilIdle()
+        vm.onIntent(SettingsIntent.SamplingReset)
+        advanceUntilIdle()
 
-            val defaults = InferenceSettings()
-            assertEquals(
-                tuned.copy(contextTokens = defaults.contextTokens, threads = defaults.threads),
-                preferences.inferenceSettings.first(),
-            )
-            assertTrue(vm.state.value.isPerformanceDefault)
-            assertFalse(vm.state.value.isSamplingDefault)
-        }
-
-    @Test
-    fun `theme choices are saved`() =
-        runTest {
-            val vm = viewModel()
-            advanceUntilIdle()
-
-            vm.onIntent(SettingsIntent.ThemeModeSelected(ThemeMode.Dark))
-            vm.onIntent(SettingsIntent.ColorSchemeSelected(AppColorScheme.Rose))
-            vm.onIntent(SettingsIntent.FontSelected(AppFont.Lora))
-            advanceUntilIdle()
-
-            assertEquals(
-                ThemeSettings(ThemeMode.Dark, AppColorScheme.Rose, AppFont.Lora),
-                vm.state.value.theme,
-            )
-        }
+        val defaults = InferenceSettings()
+        assertEquals(
+            tuned.copy(
+                temperature = defaults.temperature,
+                topK = defaults.topK,
+                topP = defaults.topP,
+            ),
+            preferences.inferenceSettings.first(),
+        )
+        assertTrue(vm.state.value.isSamplingDefault)
+        assertFalse(vm.state.value.isPerformanceDefault)
+    }
 
     @Test
-    fun `Dynamic is offered only where the platform has wallpaper colours`() =
-        runTest {
-            assertTrue(AppColorScheme.Dynamic in viewModel().state.value.colorSchemes)
-            assertFalse(
-                AppColorScheme.Dynamic in
-                    viewModel(isDynamicColorAvailable = false).state.value.colorSchemes,
-            )
-        }
+    fun `restoring performance defaults keeps sampling and the pre-instruction`() = runTest {
+        val preferences = FakeAppPreferences(tuned)
+        val vm = viewModel(preferences)
+        advanceUntilIdle()
+
+        vm.onIntent(SettingsIntent.PerformanceReset)
+        advanceUntilIdle()
+
+        val defaults = InferenceSettings()
+        assertEquals(
+            tuned.copy(contextTokens = defaults.contextTokens, threads = defaults.threads),
+            preferences.inferenceSettings.first(),
+        )
+        assertTrue(vm.state.value.isPerformanceDefault)
+        assertFalse(vm.state.value.isSamplingDefault)
+    }
 
     @Test
-    fun `a setting that cannot be saved is reported`() =
-        runTest {
-            val snackBar = SnackBarDispatcher()
-            val vm = viewModel(preferences = FailingPreferences(), snackBar = snackBar)
-            advanceUntilIdle()
+    fun `theme choices are saved`() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
 
-            vm.onIntent(SettingsIntent.TopKChanged(10))
-            advanceUntilIdle()
+        vm.onIntent(SettingsIntent.ThemeModeSelected(ThemeMode.Dark))
+        vm.onIntent(SettingsIntent.ColorSchemeSelected(AppColorScheme.Rose))
+        vm.onIntent(SettingsIntent.FontSelected(AppFont.Lora))
+        advanceUntilIdle()
 
-            assertEquals(
-                SnackBarMessage(uiText(R.string.settings_save_failed), SnackbarDuration.Long),
-                snackBar.messages.first(),
-            )
-        }
+        assertEquals(
+            ThemeSettings(ThemeMode.Dark, AppColorScheme.Rose, AppFont.Lora),
+            vm.state.value.theme,
+        )
+    }
+
+    @Test
+    fun `Dynamic is offered only where the platform has wallpaper colours`() = runTest {
+        assertTrue(AppColorScheme.Dynamic in viewModel().state.value.colorSchemes)
+        assertFalse(
+            AppColorScheme.Dynamic in
+                viewModel(isDynamicColorAvailable = false).state.value.colorSchemes,
+        )
+    }
+
+    @Test
+    fun `a setting that cannot be saved is reported`() = runTest {
+        val snackBar = SnackBarDispatcher()
+        val vm = viewModel(preferences = FailingPreferences(), snackBar = snackBar)
+        advanceUntilIdle()
+
+        vm.onIntent(SettingsIntent.TopKChanged(10))
+        advanceUntilIdle()
+
+        assertEquals(
+            SnackBarMessage(uiText(R.string.settings_save_failed), SnackbarDuration.Long),
+            snackBar.messages.first(),
+        )
+    }
 }

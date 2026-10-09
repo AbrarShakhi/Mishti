@@ -85,11 +85,7 @@ import com.valentinilk.shimmer.shimmer
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-internal fun BrowseTab(
-    state: ModelsUiState,
-    onIntent: (ModelsIntent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+internal fun BrowseTab(state: ModelsUiState, onIntent: (ModelsIntent) -> Unit, modifier: Modifier = Modifier) {
     val catalog = state.activeCatalog
     val content = remember(state) { state.browse }
     val pullState = rememberPullToRefreshState()
@@ -137,6 +133,7 @@ internal fun BrowseTab(
 
             when (catalog) {
                 is CatalogState.Loading -> item(key = "loading") { CatalogPlaceholder() }
+
                 is CatalogState.Unavailable -> item(key = "unavailable") {
                     CatalogUnavailable(
                         reason = stringResource(
@@ -176,7 +173,7 @@ private fun LazyListScope.readyContent(
             Column(
                 Modifier
                     .padding(top = Spacing.Large)
-                    .animateItem()
+                    .animateItem(),
             ) {
                 SectionHeader(
                     title = stringResource(R.string.models_recommended),
@@ -231,7 +228,7 @@ private fun LazyListScope.readyContent(
                     .padding(
                         start = Spacing.ScreenMargin,
                         end = Spacing.ScreenMargin,
-                        top = Spacing.Large
+                        top = Spacing.Large,
                     ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -246,7 +243,8 @@ private fun LazyListScope.readyContent(
         }
         itemsIndexed(
             section.items,
-            key = { _, it -> "${section.id}-${it.model.id}" }) { index, item ->
+            key = { _, it -> "${section.id}-${it.model.id}" },
+        ) { index, item ->
             CatalogRow(
                 item = item,
                 shapes = ListItemDefaults.segmentedShapes(index, section.items.size),
@@ -257,7 +255,7 @@ private fun LazyListScope.readyContent(
                     .animateItem()
                     .padding(
                         horizontal = Spacing.ScreenMargin,
-                        vertical = ListItemDefaults.SegmentedGap / 2
+                        vertical = ListItemDefaults.SegmentedGap / 2,
                     )
                     .enterOnce(index, seen.add("${section.id}-${item.model.id}")),
             )
@@ -272,7 +270,7 @@ private fun LazyListScope.readyContent(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(
                     horizontal = Spacing.ExtraLarge,
-                    vertical = Spacing.Large
+                    vertical = Spacing.Large,
                 ),
             )
         }
@@ -313,7 +311,13 @@ private fun CatalogSourceSelector(
                 colors = colors,
             ) {
                 Icon(
-                    imageVector = if (source == CatalogSource.MishtirBhandar) Icons.Filled.Storefront else Icons.Filled.Public,
+                    imageVector = if (source ==
+                        CatalogSource.MishtirBhandar
+                    ) {
+                        Icons.Filled.Storefront
+                    } else {
+                        Icons.Filled.Public
+                    },
                     contentDescription = null,
                     modifier = Modifier.size(ToggleButtonDefaults.IconSize),
                 )
@@ -328,14 +332,18 @@ private fun CatalogSourceSelector(
 private fun CatalogStatusLine(state: CatalogState, modifier: Modifier = Modifier) {
     val text = when (state) {
         is CatalogState.Loading -> stringResource(R.string.models_status_opening)
+
         is CatalogState.Unavailable -> stringResource(
             if (state.isRefreshing) R.string.models_status_retrying else R.string.models_status_unavailable,
         )
 
         is CatalogState.Ready -> when {
             state.isRefreshing -> stringResource(R.string.models_status_checking)
+
             state.isOffline -> stringResource(R.string.models_status_offline)
+
             state.updatedAtMillis == null -> stringResource(R.string.models_status_built_in)
+
             System.currentTimeMillis() - state.updatedAtMillis < DateUtils.MINUTE_IN_MILLIS ->
                 stringResource(R.string.models_status_just_now)
 
@@ -358,11 +366,7 @@ private fun CatalogStatusLine(state: CatalogState, modifier: Modifier = Modifier
 }
 
 @Composable
-private fun SearchField(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun SearchField(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier) {
     val focusManager = LocalFocusManager.current
     OutlinedTextField(
         value = query,
@@ -375,7 +379,7 @@ private fun SearchField(
                 IconButton(onClick = { onQueryChange("") }) {
                     Icon(
                         Icons.Filled.Clear,
-                        contentDescription = stringResource(R.string.models_clear_search)
+                        contentDescription = stringResource(R.string.models_clear_search),
                     )
                 }
             }
@@ -482,7 +486,7 @@ private fun FilterRow(
                         Icon(
                             Icons.Filled.Check,
                             contentDescription = null,
-                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                            modifier = Modifier.size(FilterChipDefaults.IconSize),
                         )
                     }
                 } else {
@@ -515,8 +519,8 @@ private fun CatalogRow(
                         formatSize(model.sizeBytes),
                         model.parametersLabel,
                         model.quantization,
-                        model.publisher
-                    )
+                        model.publisher,
+                    ),
                 )
                 if (item.fit != MemoryFit.Fits && item.fit != MemoryFit.Unknown) FitBadge(item.fit)
             }
@@ -554,7 +558,7 @@ private fun CatalogUnavailable(reason: String, onRetry: () -> Unit) {
             Spacer(Modifier.height(Spacing.Large))
             Button(
                 onClick = onRetry,
-                shapes = ButtonDefaults.shapes()
+                shapes = ButtonDefaults.shapes(),
             ) { Text(stringResource(R.string.action_try_again)) }
         }
     }
@@ -579,12 +583,12 @@ private fun CatalogPlaceholder() {
             ) {
                 Row(
                     modifier = Modifier.padding(Spacing.Large),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(
                         Modifier
                             .size(40.dp)
-                            .background(bone, CircleShape)
+                            .background(bone, CircleShape),
                     )
                     Spacer(Modifier.width(Spacing.Large))
                     Column(verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
@@ -592,13 +596,13 @@ private fun CatalogPlaceholder() {
                             Modifier
                                 .fillMaxWidth(0.6f)
                                 .height(14.dp)
-                                .background(bone, CircleShape)
+                                .background(bone, CircleShape),
                         )
                         Box(
                             Modifier
                                 .fillMaxWidth(0.4f)
                                 .height(12.dp)
-                                .background(bone, CircleShape)
+                                .background(bone, CircleShape),
                         )
                     }
                 }

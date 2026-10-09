@@ -75,7 +75,9 @@ internal fun ChatComposer(
                     placeholder = { Text(stringResource(R.string.chat_composer_placeholder)) },
                     textStyle = MaterialTheme.typography.bodyLarge,
                     maxLines = ComposerMaxLines,
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                    ),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
@@ -98,9 +100,9 @@ internal fun ChatComposer(
             AnimatedVisibility(
                 visible = thinkingSupported,
                 enter = expandVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) +
-                        fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
+                    fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
                 exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()) +
-                        fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                    fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
             ) {
                 ThinkingChip(
                     selected = thinkingEnabled,
@@ -113,11 +115,7 @@ internal fun ChatComposer(
 }
 
 @Composable
-private fun ThinkingChip(
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun ThinkingChip(selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     FilterChip(
         selected = selected,
         onClick = onClick,

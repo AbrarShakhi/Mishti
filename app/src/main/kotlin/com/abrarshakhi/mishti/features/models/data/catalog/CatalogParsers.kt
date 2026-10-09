@@ -19,16 +19,9 @@ import kotlinx.serialization.json.longOrNull
 import kotlin.math.max
 import kotlin.math.roundToLong
 
-class CatalogFormatException(
-    message: String,
-) : Exception(message)
+class CatalogFormatException(message: String) : Exception(message)
 
-data class DeviceProfile(
-    val totalRamBytes: Long?,
-    val socModel: String?,
-    val hardware: String?,
-    val board: String?,
-)
+data class DeviceProfile(val totalRamBytes: Long?, val socModel: String?, val hardware: String?, val board: String?)
 
 const val MISHTI_SCHEMA_VERSION = 1
 
@@ -87,10 +80,7 @@ object MishtiCatalogParser {
 object PocketPalCatalogParser {
     private val tierOrder = listOf("low", "mid", "high", "flagship")
 
-    fun parse(
-        text: String,
-        device: DeviceProfile,
-    ): Catalog {
+    fun parse(text: String, device: DeviceProfile): Catalog {
         val root = parseObject(text)
         if (root.string("platform") != "android") {
             throw CatalogFormatException("PocketPal's list is not for Android.")
@@ -122,9 +112,9 @@ object PocketPalCatalogParser {
             version = version,
             models = byFile.values.toList(),
             groups =
-                tierOrder
-                    .filter { tierModels[it].orEmpty().isNotEmpty() }
-                    .map { CatalogGroup(it) },
+            tierOrder
+                .filter { tierModels[it].orEmpty().isNotEmpty() }
+                .map { CatalogGroup(it) },
             recommendedIds = deviceTier?.let { tierModels[it] }.orEmpty(),
             deviceGroupId = deviceTier,
         )
@@ -155,19 +145,16 @@ object PocketPalCatalogParser {
             contextLength = null,
             license = null,
             tags =
-                buildSet {
-                    if (boolean("multimodal") == true) add("multimodal")
-                    if (boolean("native_low_bit") == true) add("low-bit")
-                },
+            buildSet {
+                if (boolean("multimodal") == true) add("multimodal")
+                if (boolean("native_low_bit") == true) add("low-bit")
+            },
             groupId = tier,
             typicalTokensPerSecond = double("obs_tg"),
         )
     }
 
-    fun classify(
-        classifier: JsonObject,
-        device: DeviceProfile,
-    ): String? {
+    fun classify(classifier: JsonObject, device: DeviceProfile): String? {
         val ram = device.totalRamBytes ?: return null
         val band =
             classifier
@@ -202,14 +189,18 @@ private fun parseObject(text: String): JsonObject =
 
 private fun JsonElement.asObject(): JsonObject? = this as? JsonObject
 
-private fun JsonObject.primitive(key: String): JsonPrimitive? =
-    this[key]?.takeIf { it !is JsonNull } as? JsonPrimitive
+private fun JsonObject.primitive(key: String): JsonPrimitive? = this[key]?.takeIf {
+    it !is JsonNull
+} as? JsonPrimitive
 
-private fun JsonObject.string(key: String): String? =
-    primitive(key)?.takeIf { it.isString }?.content?.takeIf { it.isNotBlank() }
+private fun JsonObject.string(key: String): String? = primitive(key)?.takeIf {
+    it.isString
+}?.content?.takeIf { it.isNotBlank() }
 
-private fun JsonObject.long(key: String): Long? =
-    primitive(key)?.let { it.longOrNull ?: it.doubleOrNull?.roundToLong() }
+private fun JsonObject.long(key: String): Long? = primitive(key)?.let {
+    it.longOrNull
+        ?: it.doubleOrNull?.roundToLong()
+}
 
 private fun JsonObject.double(key: String): Double? = primitive(key)?.doubleOrNull
 

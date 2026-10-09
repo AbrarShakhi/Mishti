@@ -30,45 +30,25 @@ data class SettingsUiState(
 }
 
 sealed interface SettingsIntent : UiIntent {
-    data class ThemeModeSelected(
-        val mode: ThemeMode,
-    ) : SettingsIntent
+    data class ThemeModeSelected(val mode: ThemeMode) : SettingsIntent
 
-    data class ColorSchemeSelected(
-        val scheme: AppColorScheme,
-    ) : SettingsIntent
+    data class ColorSchemeSelected(val scheme: AppColorScheme) : SettingsIntent
 
-    data class FontSelected(
-        val font: AppFont,
-    ) : SettingsIntent
+    data class FontSelected(val font: AppFont) : SettingsIntent
 
-    data class SystemPromptChanged(
-        val prompt: String,
-    ) : SettingsIntent
+    data class SystemPromptChanged(val prompt: String) : SettingsIntent
 
-    data class MaxTokensChanged(
-        val tokens: Int,
-    ) : SettingsIntent
+    data class MaxTokensChanged(val tokens: Int) : SettingsIntent
 
-    data class TemperatureChanged(
-        val temperature: Float,
-    ) : SettingsIntent
+    data class TemperatureChanged(val temperature: Float) : SettingsIntent
 
-    data class TopPChanged(
-        val topP: Float,
-    ) : SettingsIntent
+    data class TopPChanged(val topP: Float) : SettingsIntent
 
-    data class TopKChanged(
-        val topK: Int,
-    ) : SettingsIntent
+    data class TopKChanged(val topK: Int) : SettingsIntent
 
-    data class ContextTokensChanged(
-        val tokens: Int,
-    ) : SettingsIntent
+    data class ContextTokensChanged(val tokens: Int) : SettingsIntent
 
-    data class ThreadsChanged(
-        val threads: Int,
-    ) : SettingsIntent
+    data class ThreadsChanged(val threads: Int) : SettingsIntent
 
     data object SamplingReset : SettingsIntent
 

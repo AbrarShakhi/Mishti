@@ -7,9 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
-class FakeChatRepository(
-    private val existingSessionId: String? = null,
-) : ChatRepository {
+class FakeChatRepository(private val existingSessionId: String? = null) : ChatRepository {
     private val sessions = MutableStateFlow<List<ChatSession>>(emptyList())
     private val messages = MutableStateFlow<Map<String, List<ChatMessage>>>(emptyMap())
 
@@ -20,8 +18,9 @@ class FakeChatRepository(
 
     override fun observeSessions(): Flow<List<ChatSession>> = sessions
 
-    override fun observeMessages(sessionId: String): Flow<List<ChatMessage>> =
-        messages.map { it[sessionId].orEmpty() }
+    override fun observeMessages(sessionId: String): Flow<List<ChatMessage>> = messages.map {
+        it[sessionId].orEmpty()
+    }
 
     override suspend fun latestSessionId(): String? =
         sessions.value.maxByOrNull { it.updatedAtMillis }?.id ?: existingSessionId
@@ -33,13 +32,9 @@ class FakeChatRepository(
         return id
     }
 
-    override suspend fun isSessionEmpty(sessionId: String): Boolean =
-        messages.value[sessionId].isNullOrEmpty()
+    override suspend fun isSessionEmpty(sessionId: String): Boolean = messages.value[sessionId].isNullOrEmpty()
 
-    override suspend fun appendMessage(
-        sessionId: String,
-        message: ChatMessage,
-    ) {
+    override suspend fun appendMessage(sessionId: String, message: ChatMessage) {
         if (failOnAppend) error("write failed")
         messages.value =
             messages.value.toMutableMap().apply {
@@ -47,10 +42,7 @@ class FakeChatRepository(
             }
     }
 
-    override suspend fun renameSession(
-        sessionId: String,
-        title: String,
-    ) {
+    override suspend fun renameSession(sessionId: String, title: String) {
         sessions.value =
             sessions.value.map {
                 if (it.id == sessionId) it.copy(title = title) else it

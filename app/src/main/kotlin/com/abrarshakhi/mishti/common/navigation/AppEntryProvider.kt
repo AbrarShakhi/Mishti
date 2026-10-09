@@ -11,11 +11,7 @@ import com.abrarshakhi.mishti.features.settings.presentation.GenerationSettingsR
 import com.abrarshakhi.mishti.features.settings.presentation.PerformanceSettingsRoute
 import com.abrarshakhi.mishti.features.settings.presentation.SettingsRoute
 
-fun appEntryProvider(
-    navigator: Navigator,
-    onOpenDrawer: () -> Unit,
-    onNewChat: () -> Unit,
-) = entryProvider {
+fun appEntryProvider(navigator: Navigator, onOpenDrawer: () -> Unit, onNewChat: () -> Unit) = entryProvider {
     entry<AppRouteKey.Chat> { key ->
         ChatRoute(
             sessionId = key.sessionId,

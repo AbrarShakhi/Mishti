@@ -27,7 +27,9 @@ class AppDocumentTest {
             resolveDocumentLink("../LICENSE"),
         )
         assertEquals(
-            DocumentLink.External("https://github.com/AbrarShakhi/Mishti/blob/main/hub/catalog.v1.json"),
+            DocumentLink.External(
+                "https://github.com/AbrarShakhi/Mishti/blob/main/hub/catalog.v1.json",
+            ),
             resolveDocumentLink("../hub/catalog.v1.json"),
         )
     }

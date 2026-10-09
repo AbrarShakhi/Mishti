@@ -18,10 +18,7 @@ class ScriptedLlmEngine(
     private val _state = MutableStateFlow<EngineState>(EngineState.Idle)
     override val state: StateFlow<EngineState> = _state.asStateFlow()
 
-    override suspend fun load(
-        model: ModelHandle,
-        options: EngineOptions,
-    ) {
+    override suspend fun load(model: ModelHandle, options: EngineOptions) {
         val current = _state.value
         if (current is EngineState.Ready && current.model.id == model.id) return
         _state.value = EngineState.Loading(model)
@@ -33,30 +30,26 @@ class ScriptedLlmEngine(
         _state.value = EngineState.Idle
     }
 
-    override fun generate(
-        messages: List<LlmMessage>,
-        params: GenerationParams,
-    ): Flow<GenerationEvent> =
-        flow {
-            check(_state.value is EngineState.Ready) { "No model is loaded" }
+    override fun generate(messages: List<LlmMessage>, params: GenerationParams): Flow<GenerationEvent> = flow {
+        check(_state.value is EngineState.Ready) { "No model is loaded" }
 
-            val startedAt = clock()
-            val reply = script[messages.count { it.role == LlmRole.User } % script.size]
+        val startedAt = clock()
+        val reply = script[messages.count { it.role == LlmRole.User } % script.size]
 
-            var emitted = 0
-            for (chunk in reply.chunkedForStreaming()) {
-                delay(tokenDelayMillis.milliseconds)
-                emit(GenerationEvent.Token(chunk))
-                emitted++
-            }
-
-            emit(
-                GenerationEvent.Completed(
-                    tokenCount = emitted,
-                    durationMillis = clock() - startedAt,
-                ),
-            )
+        var emitted = 0
+        for (chunk in reply.chunkedForStreaming()) {
+            delay(tokenDelayMillis.milliseconds)
+            emit(GenerationEvent.Token(chunk))
+            emitted++
         }
+
+        emit(
+            GenerationEvent.Completed(
+                tokenCount = emitted,
+                durationMillis = clock() - startedAt,
+            ),
+        )
+    }
 
     private fun String.chunkedForStreaming(): List<String> {
         val out = mutableListOf<String>()
@@ -74,11 +67,11 @@ class ScriptedLlmEngine(
         val DEFAULT_SCRIPT =
             listOf(
                 "I am a placeholder. No model is running yet — this reply is scripted so the " +
-                        "streaming UI can be built and tested before the engine is wired up.",
+                    "streaming UI can be built and tested before the engine is wired up.",
                 "Still scripted. Cancelling mid-reply works: whatever has been generated so far " +
-                        "is kept, exactly as it will be with a real model.",
+                    "is kept, exactly as it will be with a real model.",
                 "Once an inference backend is bound behind LlmEngine, these canned answers go " +
-                        "away and nothing above this seam has to change.",
+                    "away and nothing above this seam has to change.",
             )
     }
 }

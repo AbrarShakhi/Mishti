@@ -43,10 +43,14 @@ class BrowseContentTest {
     ) = ModelsUiState(
         capability = DeviceCapability.Supported(ram),
         catalogSource = catalog.source,
-        catalogs = mapOf(catalog.source to CatalogState.Ready(catalog, null,
-            isOffline = false,
-            isRefreshing = false
-        )),
+        catalogs = mapOf(
+            catalog.source to CatalogState.Ready(
+                catalog,
+                null,
+                isOffline = false,
+                isRefreshing = false,
+            ),
+        ),
         shelf = shelf,
         transfers = transfers,
         filter = filter,

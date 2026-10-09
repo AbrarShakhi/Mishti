@@ -65,7 +65,7 @@ internal fun ModelDetailsSheet(
                 .padding(
                     start = Spacing.ExtraLarge,
                     end = Spacing.ExtraLarge,
-                    bottom = Spacing.ExtraLarge
+                    bottom = Spacing.ExtraLarge,
                 ),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -76,7 +76,7 @@ internal fun ModelDetailsSheet(
                     Text(
                         text = listOfNotNull(
                             model.publisher,
-                            stringResource(model.source.labelRes)
+                            stringResource(model.source.labelRes),
                         ).joinToString(" · "),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -93,8 +93,8 @@ internal fun ModelDetailsSheet(
                     InfoPill(
                         stringResource(
                             R.string.models_parameters,
-                            it
-                        )
+                            it,
+                        ),
                     )
                 }
                 if (model.quantization.isNotBlank()) InfoPill(model.quantization)
@@ -103,8 +103,8 @@ internal fun ModelDetailsSheet(
                     InfoPill(
                         stringResource(
                             R.string.models_context,
-                            it / 1024
-                        )
+                            it / 1024,
+                        ),
                     )
                 }
                 FitBadge(item.fit)
@@ -114,7 +114,7 @@ internal fun ModelDetailsSheet(
                 pluralStringResource(
                     R.plurals.models_typical_speed,
                     it.roundToInt(),
-                    it.roundToInt()
+                    it.roundToInt(),
                 )
             }
             description?.let {

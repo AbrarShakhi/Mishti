@@ -25,13 +25,13 @@ private val Context.preferencesDataStore: DataStore<Preferences> by preferencesD
     name = "mishti_preferences",
 )
 
-class DataStoreAppPreferences(
-    context: Context,
-) : AppPreferences {
+class DataStoreAppPreferences(context: Context) : AppPreferences {
     private val dataStore = context.preferencesDataStore
 
     private val preferences: Flow<Preferences> =
-        dataStore.data.catch { cause -> if (cause is IOException) emit(emptyPreferences()) else throw cause }
+        dataStore.data.catch { cause ->
+            if (cause is IOException) emit(emptyPreferences()) else throw cause
+        }
 
     override val hasCompletedOnboarding: Flow<Boolean> =
         preferences.map { it[Keys.ONBOARDING_COMPLETED] == true }
@@ -76,10 +76,7 @@ class DataStoreAppPreferences(
     override val thinkingModelIds: Flow<Set<String>> =
         preferences.map { it[Keys.THINKING_MODELS].orEmpty() }
 
-    override suspend fun setThinking(
-        modelId: String,
-        enabled: Boolean,
-    ) {
+    override suspend fun setThinking(modelId: String, enabled: Boolean) {
         dataStore.edit { prefs ->
             val current = prefs[Keys.THINKING_MODELS].orEmpty()
             prefs[Keys.THINKING_MODELS] = if (enabled) current + modelId else current - modelId

@@ -10,10 +10,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-fun <E : UiEffect> CollectEffects(
-    effects: Flow<E>,
-    onEffect: suspend (E) -> Unit,
-) {
+fun <E : UiEffect> CollectEffects(effects: Flow<E>, onEffect: suspend (E) -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val currentOnEffect by rememberUpdatedState(onEffect)
 

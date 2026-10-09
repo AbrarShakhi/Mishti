@@ -13,11 +13,10 @@ enum class TransferError {
     Unknown,
 }
 
-fun CatalogSource.toOrigin(): ModelOrigin =
-    when (this) {
-        CatalogSource.MishtirBhandar -> ModelOrigin.MishtirBhandar
-        CatalogSource.PocketPal -> ModelOrigin.PocketPal
-    }
+fun CatalogSource.toOrigin(): ModelOrigin = when (this) {
+    CatalogSource.MishtirBhandar -> ModelOrigin.MishtirBhandar
+    CatalogSource.PocketPal -> ModelOrigin.PocketPal
+}
 
 data class ShelfModel(
     val id: String,
@@ -35,39 +34,35 @@ data class ShelfModel(
 )
 
 sealed interface TransferStatus {
-    data class Downloading(
-        val doneBytes: Long,
-        val totalBytes: Long,
-    ) : TransferStatus {
+    data class Downloading(val doneBytes: Long, val totalBytes: Long) : TransferStatus {
         val fraction: Float
-            get() = if (totalBytes <= 0L) 0f else (doneBytes.toFloat() / totalBytes).coerceIn(
-                0f,
-                1f
-            )
+            get() = if (totalBytes <= 0L) {
+                0f
+            } else {
+                (doneBytes.toFloat() / totalBytes).coerceIn(
+                    0f,
+                    1f,
+                )
+            }
     }
 
     data object Verifying : TransferStatus
 
-    data class Importing(
-        val doneBytes: Long,
-        val totalBytes: Long,
-    ) : TransferStatus {
+    data class Importing(val doneBytes: Long, val totalBytes: Long) : TransferStatus {
         val fraction: Float
-            get() = if (totalBytes <= 0L) 0f else (doneBytes.toFloat() / totalBytes).coerceIn(
-                0f,
-                1f
-            )
+            get() = if (totalBytes <= 0L) {
+                0f
+            } else {
+                (doneBytes.toFloat() / totalBytes).coerceIn(
+                    0f,
+                    1f,
+                )
+            }
     }
 
-    data class Failed(
-        val error: TransferError,
-    ) : TransferStatus
+    data class Failed(val error: TransferError) : TransferStatus
 }
 
-data class Transfer(
-    val id: String,
-    val name: String,
-    val status: TransferStatus,
-) {
+data class Transfer(val id: String, val name: String, val status: TransferStatus) {
     val isActive: Boolean get() = status !is TransferStatus.Failed
 }

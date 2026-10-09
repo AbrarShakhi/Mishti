@@ -124,10 +124,7 @@ class ModelsViewModel(
         }
     }
 
-    private fun refresh(
-        source: CatalogSource,
-        force: Boolean,
-    ) {
+    private fun refresh(source: CatalogSource, force: Boolean) {
         viewModelScope.launch { catalogs.refresh(source, force) }
     }
 
@@ -190,5 +187,8 @@ class ModelsViewModel(
     )
 }
 
-fun gigabytes(bytes: Long): String =
-    String.format(Locale.getDefault(), "%.1f", bytes / 1_000_000_000.0)
+fun gigabytes(bytes: Long): String = String.format(
+    Locale.getDefault(),
+    "%.1f",
+    bytes / 1_000_000_000.0,
+)

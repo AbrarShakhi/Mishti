@@ -39,11 +39,7 @@ private val ArtRoles: List<Pair<String, (ColorScheme) -> Color>> = listOf(
 )
 
 @Composable
-internal fun OnboardingAnimation(
-    @RawRes animation: Int,
-    isActive: Boolean,
-    modifier: Modifier = Modifier,
-) {
+internal fun OnboardingAnimation(@RawRes animation: Int, isActive: Boolean, modifier: Modifier = Modifier) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(animation))
     val animatable = rememberLottieAnimatable()
     var introPlayed by rememberSaveable(animation) { mutableStateOf(false) }

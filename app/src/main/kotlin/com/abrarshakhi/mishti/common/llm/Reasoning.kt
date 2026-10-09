@@ -5,16 +5,9 @@ const val THINK_CLOSE = "</think>"
 
 fun templateSupportsThinking(chatTemplate: String): Boolean = THINK_OPEN in chatTemplate
 
-data class ReasoningSplit(
-    val reasoning: String?,
-    val answer: String,
-    val isReasoning: Boolean,
-)
+data class ReasoningSplit(val reasoning: String?, val answer: String, val isReasoning: Boolean)
 
-fun splitReasoning(
-    raw: String,
-    complete: Boolean = false,
-): ReasoningSplit {
+fun splitReasoning(raw: String, complete: Boolean = false): ReasoningSplit {
     val leading = raw.trimStart()
     if (leading.startsWith(THINK_OPEN)) {
         val bodyStart = raw.indexOf(THINK_OPEN) + THINK_OPEN.length
@@ -49,7 +42,7 @@ fun splitReasoning(
     return ReasoningSplit(
         reasoning = null,
         answer = raw.withoutPartialTag(THINK_CLOSE),
-        isReasoning = false
+        isReasoning = false,
     )
 }
 

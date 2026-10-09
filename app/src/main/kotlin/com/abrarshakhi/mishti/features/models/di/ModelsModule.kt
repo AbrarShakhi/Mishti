@@ -64,7 +64,13 @@ val modelsModule =
                 device = {
                     DeviceProfile(
                         totalRamBytes = capability.capability().totalMemoryBytes,
-                        socModel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Build.SOC_MODEL else null,
+                        socModel = if (Build.VERSION.SDK_INT >=
+                            Build.VERSION_CODES.S
+                        ) {
+                            Build.SOC_MODEL
+                        } else {
+                            null
+                        },
                         hardware = Build.HARDWARE,
                         board = Build.BOARD,
                     )

@@ -9,9 +9,7 @@ import com.abrarshakhi.mishti.common.ui.theme.ThemeSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class FakeAppPreferences(
-    initialInference: InferenceSettings = InferenceSettings(),
-) : AppPreferences {
+class FakeAppPreferences(initialInference: InferenceSettings = InferenceSettings()) : AppPreferences {
     private val onboarding = MutableStateFlow(false)
     private val theme = MutableStateFlow(ThemeSettings())
     private val selected = MutableStateFlow<String?>(null)
@@ -48,10 +46,7 @@ class FakeAppPreferences(
         inference.value = transform(inference.value)
     }
 
-    override suspend fun setThinking(
-        modelId: String,
-        enabled: Boolean,
-    ) {
+    override suspend fun setThinking(modelId: String, enabled: Boolean) {
         thinking.value = if (enabled) thinking.value + modelId else thinking.value - modelId
     }
 }

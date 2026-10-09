@@ -57,11 +57,8 @@ class CatalogParsersTest {
         }
         """.trimIndent()
 
-    private fun device(
-        ram: Long,
-        hardware: String? = null,
-        soc: String? = null,
-    ) = DeviceProfile(totalRamBytes = ram, socModel = soc, hardware = hardware, board = null)
+    private fun device(ram: Long, hardware: String? = null, soc: String? = null) =
+        DeviceProfile(totalRamBytes = ram, socModel = soc, hardware = hardware, board = null)
 
     @Test
     fun `the bundled Mistir Bhandar catalog parses and lists recommended models`() {
@@ -86,14 +83,16 @@ class CatalogParsersTest {
     @Test
     fun `the three original downloads keep their ids`() {
         val ids =
-            MishtiCatalogParser.parse(File("../hub/catalog.v1.json").readText()).models.map { it.id }
+            MishtiCatalogParser.parse(File("../hub/catalog.v1.json").readText()).models.map {
+                it.id
+            }
 
         assertTrue(
             ids.containsAll(
                 listOf(
                     "smollm2-360m-instruct-q4km",
                     "qwen2.5-0.5b-instruct-q4km",
-                    "llama-3.2-1b-instruct-q4km"
+                    "llama-3.2-1b-instruct-q4km",
                 ),
             ),
         )
@@ -130,24 +129,24 @@ class CatalogParsersTest {
     fun `the phone's tier comes from its memory and chip`() {
         assertEquals(
             "low",
-            PocketPalCatalogParser.parse(pocketPalJson, device(3_800_000_000L)).deviceGroupId
+            PocketPalCatalogParser.parse(pocketPalJson, device(3_800_000_000L)).deviceGroupId,
         )
         assertEquals(
             "low",
-            PocketPalCatalogParser.parse(pocketPalJson, device(5_000_000_000L)).deviceGroupId
+            PocketPalCatalogParser.parse(pocketPalJson, device(5_000_000_000L)).deviceGroupId,
         )
         assertEquals(
             "mid",
             PocketPalCatalogParser.parse(
                 pocketPalJson,
-                device(5_000_000_000L, hardware = "lynx")
+                device(5_000_000_000L, hardware = "lynx"),
             ).deviceGroupId,
         )
         assertEquals(
             "flagship",
             PocketPalCatalogParser.parse(
                 pocketPalJson,
-                device(12_000_000_000L, soc = "SM8650")
+                device(12_000_000_000L, soc = "SM8650"),
             ).deviceGroupId,
         )
     }

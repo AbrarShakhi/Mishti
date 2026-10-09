@@ -94,7 +94,8 @@ internal fun ShelfTab(
             }
             itemsIndexed(
                 state.transfers,
-                key = { _, it -> "transfer-${it.id}" }) { index, transfer ->
+                key = { _, it -> "transfer-${it.id}" },
+            ) { index, transfer ->
                 TransferRow(
                     transfer = transfer,
                     shapes = ListItemDefaults.segmentedShapes(index, state.transfers.size),
@@ -110,7 +111,7 @@ internal fun ShelfTab(
             item(key = "in-use-header") {
                 SectionHeader(
                     stringResource(R.string.models_in_use),
-                    Modifier.animateItem()
+                    Modifier.animateItem(),
                 )
             }
             item(key = "in-use-${inUse.id}") {
@@ -148,11 +149,7 @@ internal fun ShelfTab(
 }
 
 @Composable
-private fun InUseCard(
-    model: ShelfModel,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun InUseCard(model: ShelfModel, onDelete: () -> Unit, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -181,7 +178,7 @@ private fun InUseCard(
                         text = listOfNotNull(
                             model.parametersLabel,
                             model.quantization,
-                            formatSize(model.sizeBytes)
+                            formatSize(model.sizeBytes),
                         )
                             .joinToString(" · "),
                         style = MaterialTheme.typography.bodyMedium,
@@ -192,12 +189,12 @@ private fun InUseCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 InfoPill(
                     label = stringResource(R.string.models_chatting_now),
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.primary,
                 )
                 Spacer(Modifier.width(Spacing.ExtraSmall))
                 InfoPill(
                     label = stringResource(model.origin.labelRes),
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.surface,
                 )
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = onDelete, shapes = IconButtonDefaults.shapes()) {
@@ -205,8 +202,8 @@ private fun InUseCard(
                         Icons.Filled.Delete,
                         contentDescription = stringResource(
                             R.string.models_delete_named,
-                            model.name
-                        )
+                            model.name,
+                        ),
                     )
                 }
             }
@@ -246,7 +243,7 @@ private fun ShelfRow(
         trailingContent = {
             FilledTonalButton(onClick = onUse, shapes = ButtonDefaults.shapes()) {
                 Text(
-                    stringResource(R.string.models_use)
+                    stringResource(R.string.models_use),
                 )
             }
         },
@@ -285,20 +282,21 @@ private fun TransferRow(
                             stringResource(
                                 R.string.models_downloading,
                                 formatSize(status.doneBytes),
-                                formatSize(status.totalBytes)
+                                formatSize(status.totalBytes),
                             )
 
                         is TransferStatus.Importing -> if (status.totalBytes > 0) {
                             stringResource(
                                 R.string.models_importing,
                                 formatSize(status.doneBytes),
-                                formatSize(status.totalBytes)
+                                formatSize(status.totalBytes),
                             )
                         } else {
                             stringResource(R.string.models_reading_file)
                         }
 
                         TransferStatus.Verifying -> stringResource(R.string.models_checking_file)
+
                         is TransferStatus.Failed -> stringResource(status.error.messageRes)
                     },
                     color = if (status is TransferStatus.Failed) {
@@ -321,7 +319,7 @@ private fun TransferRow(
                         )
                         LinearWavyProgressIndicator(
                             progress = { progress },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     } else {
                         LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -345,11 +343,7 @@ private fun TransferRow(
 }
 
 @Composable
-private fun EmptyShelf(
-    onBrowse: () -> Unit,
-    onImport: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun EmptyShelf(onBrowse: () -> Unit, onImport: () -> Unit, modifier: Modifier = Modifier) {
     val rotation by rememberInfiniteTransition(label = "EmptyGlyph").animateFloat(
         initialValue = 0f,
         targetValue = 360f,
@@ -369,7 +363,7 @@ private fun EmptyShelf(
                 seed = "mishti",
                 size = 96.dp,
                 rotation = rotation,
-                modifier = Modifier.enterOnce(0, true)
+                modifier = Modifier.enterOnce(0, true),
             )
             Spacer(Modifier.height(Spacing.ExtraLarge))
             Text(

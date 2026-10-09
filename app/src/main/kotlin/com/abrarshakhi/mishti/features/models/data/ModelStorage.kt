@@ -5,9 +5,7 @@ import android.os.StatFs
 import java.io.File
 import java.security.MessageDigest
 
-class ModelStorage(
-    private val context: Context,
-) {
+class ModelStorage(private val context: Context) {
     private val modelsDir: File
         get() = File(context.filesDir, "models").apply { mkdirs() }
 
@@ -21,11 +19,10 @@ class ModelStorage(
 
     fun partialBytes(id: String): Long = partialFile(id).takeIf { it.isFile }?.length() ?: 0L
 
-    fun presentIds(): List<String> =
-        modelsDir
-            .listFiles { file -> file.isFile && file.name.endsWith(".gguf") }
-            ?.map { it.name.removeSuffix(".gguf") }
-            .orEmpty()
+    fun presentIds(): List<String> = modelsDir
+        .listFiles { file -> file.isFile && file.name.endsWith(".gguf") }
+        ?.map { it.name.removeSuffix(".gguf") }
+        .orEmpty()
 
     fun delete(id: String): Boolean {
         partialFile(id).delete()
@@ -34,16 +31,12 @@ class ModelStorage(
 
     fun usedBytes(): Long = modelsDir.listFiles()?.filter { it.isFile }?.sumOf { it.length() } ?: 0L
 
-    fun availableBytes(): Long =
-        runCatching {
-            val stat = StatFs(context.filesDir.absolutePath)
-            stat.availableBlocksLong * stat.blockSizeLong
-        }.getOrDefault(0L)
+    fun availableBytes(): Long = runCatching {
+        val stat = StatFs(context.filesDir.absolutePath)
+        stat.availableBlocksLong * stat.blockSizeLong
+    }.getOrDefault(0L)
 
-    fun hasRoomFor(
-        id: String,
-        sizeBytes: Long,
-    ): Boolean {
+    fun hasRoomFor(id: String, sizeBytes: Long): Boolean {
         val needed = sizeBytes - partialBytes(id) + STORAGE_HEADROOM_BYTES
         return availableBytes() >= needed
     }

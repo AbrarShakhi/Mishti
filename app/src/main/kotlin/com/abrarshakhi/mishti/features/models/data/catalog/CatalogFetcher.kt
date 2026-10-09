@@ -10,32 +10,19 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 
 sealed interface FetchResult {
-    data class Fresh(
-        val text: String,
-        val etag: String?,
-    ) : FetchResult
+    data class Fresh(val text: String, val etag: String?) : FetchResult
 
     data object NotModified : FetchResult
 }
 
-class CatalogFetchException(
-    message: String,
-) : Exception(message)
+class CatalogFetchException(message: String) : Exception(message)
 
 fun interface CatalogFetcher {
-    suspend fun fetch(
-        url: String,
-        etag: String?,
-    ): FetchResult
+    suspend fun fetch(url: String, etag: String?): FetchResult
 }
 
-class KtorCatalogFetcher(
-    private val client: HttpClient,
-) : CatalogFetcher {
-    override suspend fun fetch(
-        url: String,
-        etag: String?,
-    ): FetchResult {
+class KtorCatalogFetcher(private val client: HttpClient) : CatalogFetcher {
+    override suspend fun fetch(url: String, etag: String?): FetchResult {
         val response =
             client.get(url) {
                 timeout { requestTimeoutMillis = REQUEST_TIMEOUT_MILLIS }

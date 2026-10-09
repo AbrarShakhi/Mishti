@@ -68,7 +68,7 @@ fun ChatSettingsScreen(
                             pluralStringResource(
                                 R.plurals.settings_tokens,
                                 it.roundToInt(),
-                                it.roundToInt()
+                                it.roundToInt(),
                             )
                         },
                         intent = { SettingsIntent.MaxTokensChanged(it.roundToInt()) },
@@ -81,10 +81,7 @@ fun ChatSettingsScreen(
 }
 
 @Composable
-private fun PreInstructionField(
-    value: String,
-    onCommit: (String) -> Unit,
-) {
+private fun PreInstructionField(value: String, onCommit: (String) -> Unit) {
     val focusManager = LocalFocusManager.current
     var text by remember { mutableStateOf(value) }
     val currentOnCommit by rememberUpdatedState(onCommit)

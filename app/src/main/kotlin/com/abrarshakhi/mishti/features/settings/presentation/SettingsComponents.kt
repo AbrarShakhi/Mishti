@@ -67,7 +67,7 @@ internal fun SettingsScaffold(
                     IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.action_back)
+                            contentDescription = stringResource(R.string.action_back),
                         )
                     }
                 },
@@ -187,8 +187,7 @@ internal data class SliderSpec(
     val steps: Int = 0,
 )
 
-internal fun IntRange.toFloatRange(): ClosedFloatingPointRange<Float> =
-    first.toFloat()..last.toFloat()
+internal fun IntRange.toFloatRange(): ClosedFloatingPointRange<Float> = first.toFloat()..last.toFloat()
 
 internal fun SettingsGroupScope.sliderRow(spec: SliderSpec, onIntent: (SettingsIntent) -> Unit) {
     row { shapes ->
@@ -197,11 +196,7 @@ internal fun SettingsGroupScope.sliderRow(spec: SliderSpec, onIntent: (SettingsI
 }
 
 @Composable
-private fun SliderPanel(
-    spec: SliderSpec,
-    shapes: ListItemShapes,
-    onCommit: (Float) -> Unit,
-) {
+private fun SliderPanel(spec: SliderSpec, shapes: ListItemShapes, onCommit: (Float) -> Unit) {
     val sliderState = remember(spec.value, spec.steps, spec.range) {
         SliderState(value = spec.value, steps = spec.steps, trackRange = spec.range)
     }
@@ -238,12 +233,7 @@ internal fun ValueBadge(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-internal fun RestoreDefaultsRow(
-    shapes: ListItemShapes,
-    defaults: String,
-    enabled: Boolean,
-    onClick: () -> Unit,
-) {
+internal fun RestoreDefaultsRow(shapes: ListItemShapes, defaults: String, enabled: Boolean, onClick: () -> Unit) {
     SegmentedListItem(
         onClick = onClick,
         shapes = shapes,

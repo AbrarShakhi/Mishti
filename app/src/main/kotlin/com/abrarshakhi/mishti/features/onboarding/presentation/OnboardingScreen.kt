@@ -84,10 +84,7 @@ private val Pages = listOf(
 private const val ArtParallax = 0.3f
 
 @Composable
-fun OnboardingScreen(
-    onContinue: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun OnboardingScreen(onContinue: () -> Unit, modifier: Modifier = Modifier) {
     val pagerState = rememberPagerState { Pages.size }
     val scope = rememberCoroutineScope()
     val isLastPage = pagerState.currentPage == Pages.lastIndex
@@ -158,7 +155,9 @@ fun OnboardingScreen(
                     ) { last ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = stringResource(if (last) R.string.onboarding_get_started else R.string.onboarding_next),
+                                text = stringResource(
+                                    if (last) R.string.onboarding_get_started else R.string.onboarding_next,
+                                ),
                                 style = ButtonDefaults.textStyleFor(ButtonDefaults.MediumContainerHeight),
                             )
                             if (!last) {
@@ -186,15 +185,10 @@ private fun SkipButton(visible: Boolean, onClick: () -> Unit) {
     }
 }
 
-private fun PagerState.offsetOf(page: Int): Float =
-    (currentPage - page) + currentPageOffsetFraction
+private fun PagerState.offsetOf(page: Int): Float = (currentPage - page) + currentPageOffsetFraction
 
 @Composable
-private fun PageContent(
-    page: OnboardingPage,
-    isActive: Boolean,
-    offset: Float,
-) {
+private fun PageContent(page: OnboardingPage, isActive: Boolean, offset: Float) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -233,11 +227,7 @@ private fun PageContent(
 }
 
 @Composable
-private fun PageIndicator(
-    pageCount: Int,
-    currentPage: Int,
-    modifier: Modifier = Modifier,
-) {
+private fun PageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier = Modifier) {
     val pageDescription = stringResource(R.string.onboarding_page, currentPage + 1, pageCount)
     Row(
         modifier = modifier.clearAndSetSemantics {

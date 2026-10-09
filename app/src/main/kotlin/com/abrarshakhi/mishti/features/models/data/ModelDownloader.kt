@@ -17,36 +17,21 @@ import java.io.File
 import java.io.RandomAccessFile
 
 sealed interface DownloadProgress {
-    data class Downloading(
-        val downloadedBytes: Long,
-        val totalBytes: Long,
-    ) : DownloadProgress
+    data class Downloading(val downloadedBytes: Long, val totalBytes: Long) : DownloadProgress
 
     data object Verifying : DownloadProgress
 }
 
-class DownloadFailure(
-    val error: TransferError,
-    cause: Throwable? = null,
-) : Exception(error.name, cause)
+class DownloadFailure(val error: TransferError, cause: Throwable? = null) : Exception(error.name, cause)
 
-data class DownloadRequest(
-    val id: String,
-    val name: String,
-    val url: String,
-    val sizeBytes: Long,
-    val sha256: String,
-)
+data class DownloadRequest(val id: String, val name: String, val url: String, val sizeBytes: Long, val sha256: String)
 
 class ModelDownloader(
     private val client: HttpClient,
     private val storage: ModelStorage,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-    suspend fun download(
-        request: DownloadRequest,
-        onProgress: suspend (DownloadProgress) -> Unit,
-    ): File =
+    suspend fun download(request: DownloadRequest, onProgress: suspend (DownloadProgress) -> Unit): File =
         withContext(ioDispatcher) {
             if (!storage.hasRoomFor(request.id, request.sizeBytes)) {
                 throw DownloadFailure(TransferError.NotEnoughSpace)

@@ -68,7 +68,7 @@ class DefaultModelRepository(
     override suspend fun select(modelId: String?) {
         val valid =
             modelId == null ||
-                    (dao.byId(modelId) != null && storageManager.isPresent(modelId))
+                (dao.byId(modelId) != null && storageManager.isPresent(modelId))
         if (valid) preferences.setSelectedModelId(modelId)
     }
 
@@ -145,8 +145,8 @@ class DefaultModelRepository(
                         InstalledModelEntity(
                             id = id,
                             name =
-                                info.name?.takeIf { it.isNotBlank() }
-                                    ?: file.displayName.removeSuffix(".gguf"),
+                            info.name?.takeIf { it.isNotBlank() }
+                                ?: file.displayName.removeSuffix(".gguf"),
                             origin = ModelOrigin.Imported.name,
                             quantization = info.quantization,
                             parametersLabel = info.sizeLabel,
@@ -233,11 +233,7 @@ class DefaultModelRepository(
             )
     }
 
-    private fun setTransfer(
-        id: String,
-        name: String,
-        status: TransferStatus,
-    ) {
+    private fun setTransfer(id: String, name: String, status: TransferStatus) {
         _transfers.update { current ->
             val transfer = Transfer(id, name, status)
             val index = current.indexOfFirst { it.id == id }
@@ -256,17 +252,13 @@ class DefaultModelRepository(
     }
 }
 
-private fun Exception.toTransferError(): TransferError =
-    when (this) {
-        is DownloadFailure -> error
-        is IOException -> TransferError.Network
-        else -> TransferError.Unknown
-    }
+private fun Exception.toTransferError(): TransferError = when (this) {
+    is DownloadFailure -> error
+    is IOException -> TransferError.Network
+    else -> TransferError.Unknown
+}
 
-private fun CatalogModel.toEntity(
-    sizeOnDisk: Long,
-    now: Long,
-) = InstalledModelEntity(
+private fun CatalogModel.toEntity(sizeOnDisk: Long, now: Long) = InstalledModelEntity(
     id = id,
     name = name,
     origin = source.toOrigin().name,

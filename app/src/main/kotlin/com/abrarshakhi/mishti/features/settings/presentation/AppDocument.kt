@@ -1,8 +1,6 @@
 package com.abrarshakhi.mishti.features.settings.presentation
 
-enum class AppDocument(
-    val fileName: String,
-) {
+enum class AppDocument(val fileName: String) {
     About("about.md"),
     Credits("credits.md"),
     Privacy("privacy-policy.md"),
@@ -13,8 +11,7 @@ enum class AppDocument(
     val assetPath: String get() = "docs/$fileName"
 
     companion object {
-        fun byFileName(name: String): AppDocument? =
-            entries.find { it.fileName.equals(name, ignoreCase = true) }
+        fun byFileName(name: String): AppDocument? = entries.find { it.fileName.equals(name, ignoreCase = true) }
     }
 }
 
@@ -26,13 +23,9 @@ object ProjectLinks {
 }
 
 sealed interface DocumentLink {
-    data class Internal(
-        val document: AppDocument,
-    ) : DocumentLink
+    data class Internal(val document: AppDocument) : DocumentLink
 
-    data class External(
-        val url: String,
-    ) : DocumentLink
+    data class External(val url: String) : DocumentLink
 }
 
 fun resolveDocumentLink(link: String): DocumentLink {
@@ -79,7 +72,9 @@ fun unindentWrappedLines(markdown: String): String {
                     line
                 }
 
-                inFence || previousBlank || trimmed == line || BlockStart.containsMatchIn(trimmed) -> {
+                inFence || previousBlank || trimmed == line || BlockStart.containsMatchIn(
+                    trimmed,
+                ) -> {
                     line
                 }
 

@@ -85,7 +85,7 @@ fun ModelsScreen(
                     IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.action_back)
+                            contentDescription = stringResource(R.string.action_back),
                         )
                     }
                 },
@@ -93,7 +93,7 @@ fun ModelsScreen(
                     IconButton(onClick = onImport, shapes = IconButtonDefaults.shapes()) {
                         Icon(
                             Icons.Filled.UploadFile,
-                            contentDescription = stringResource(R.string.models_import)
+                            contentDescription = stringResource(R.string.models_import),
                         )
                     }
                 },
@@ -117,7 +117,8 @@ fun ModelsScreen(
                 indicator = {
                     TabRowDefaults.PrimaryIndicator(
                         modifier = Modifier.tabIndicatorOffset(
-                            pagerState.currentPage, matchContentSize = true
+                            pagerState.currentPage,
+                            matchContentSize = true,
                         ),
                         width = Dp.Unspecified,
                     )
@@ -131,8 +132,12 @@ fun ModelsScreen(
                         val active = state.transfers.count { it.isActive }
                         BadgedBox(badge = { if (active > 0) Badge { Text("$active") } }) {
                             Icon(
-                                if (pagerState.currentPage == ShelfPage) Icons.Filled.Inventory2
-                                else Icons.Outlined.Inventory2, contentDescription = "My Shelf Icon"
+                                if (pagerState.currentPage == ShelfPage) {
+                                    Icons.Filled.Inventory2
+                                } else {
+                                    Icons.Outlined.Inventory2
+                                },
+                                contentDescription = "My Shelf Icon",
                             )
                         }
                     },
@@ -145,8 +150,12 @@ fun ModelsScreen(
                     text = { Text(stringResource(R.string.models_tab_browse)) },
                     icon = {
                         Icon(
-                            if (pagerState.currentPage == BrowsePage) Icons.Filled.Storefront
-                            else Icons.Outlined.Storefront, contentDescription = "Browse Icon"
+                            if (pagerState.currentPage == BrowsePage) {
+                                Icons.Filled.Storefront
+                            } else {
+                                Icons.Outlined.Storefront
+                            },
+                            contentDescription = "Browse Icon",
                         )
                     },
                     selectedContentColor = MaterialTheme.colorScheme.primary,
@@ -175,7 +184,10 @@ fun ModelsScreen(
 
     state.details?.let { model ->
         val item = state.browse.let { content ->
-            (content.recommended + content.sections.flatMap { it.items }).find { it.model.id == model.id }
+            (content.recommended + content.sections.flatMap { it.items }).find {
+                it.model.id ==
+                    model.id
+            }
         } ?: CatalogItem(
             model = model,
             fit = memoryFit(
@@ -214,14 +226,14 @@ fun ModelsScreen(
                 TextButton(onClick = { onIntent(ModelsIntent.DeleteConfirmed) }) {
                     Text(
                         stringResource(R.string.action_delete),
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.error,
                     )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { onIntent(ModelsIntent.DeleteCancelled) }) {
                     Text(
-                        stringResource(R.string.action_cancel)
+                        stringResource(R.string.action_cancel),
                     )
                 }
             },
@@ -279,7 +291,7 @@ private fun ModelsScreenPreview() {
                             CatalogSource.MishtirBhandar,
                             "1",
                             previewModels,
-                            recommendedIds = listOf("qwen3-0.6b-q4km")
+                            recommendedIds = listOf("qwen3-0.6b-q4km"),
                         ),
                         updatedAtMillis = null,
                         isOffline = false,

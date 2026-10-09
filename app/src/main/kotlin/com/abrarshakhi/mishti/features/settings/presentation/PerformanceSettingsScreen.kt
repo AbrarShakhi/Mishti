@@ -39,7 +39,7 @@ fun PerformanceSettingsScreen(
                             pluralStringResource(
                                 R.plurals.settings_tokens,
                                 it.roundToInt(),
-                                it.roundToInt()
+                                it.roundToInt(),
                             )
                         },
                         intent = { SettingsIntent.ContextTokensChanged(it.roundToInt()) },

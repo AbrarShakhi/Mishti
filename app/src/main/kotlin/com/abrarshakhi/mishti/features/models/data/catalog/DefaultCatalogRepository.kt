@@ -36,13 +36,9 @@ class DefaultCatalogRepository(
     private val locks = CatalogSource.entries.associateWith { Mutex() }
     private val loaded = ConcurrentHashMap.newKeySet<CatalogSource>()
 
-    override fun state(source: CatalogSource): Flow<CatalogState> =
-        states.getValue(source).asStateFlow()
+    override fun state(source: CatalogSource): Flow<CatalogState> = states.getValue(source).asStateFlow()
 
-    override suspend fun refresh(
-        source: CatalogSource,
-        force: Boolean,
-    ) {
+    override suspend fun refresh(source: CatalogSource, force: Boolean) {
         val flow = states.getValue(source)
         locks.getValue(source).withLock {
             withContext(ioDispatcher) { loadSaved(source) }
@@ -148,34 +144,27 @@ class DefaultCatalogRepository(
         if (state != null) states.getValue(source).value = state
     }
 
-    private fun parse(
-        source: CatalogSource,
-        text: String,
-    ): Catalog =
-        when (source) {
-            CatalogSource.MishtirBhandar -> MishtiCatalogParser.parse(text)
-            CatalogSource.PocketPal -> PocketPalCatalogParser.parse(text, device())
-        }
+    private fun parse(source: CatalogSource, text: String): Catalog = when (source) {
+        CatalogSource.MishtirBhandar -> MishtiCatalogParser.parse(text)
+        CatalogSource.PocketPal -> PocketPalCatalogParser.parse(text, device())
+    }
 
-    private fun url(source: CatalogSource) =
-        when (source) {
-            CatalogSource.MishtirBhandar -> CatalogUrls.MISTIR_BHANDAR
-            CatalogSource.PocketPal -> CatalogUrls.POCKETPAL
-        }
+    private fun url(source: CatalogSource) = when (source) {
+        CatalogSource.MishtirBhandar -> CatalogUrls.MISTIR_BHANDAR
+        CatalogSource.PocketPal -> CatalogUrls.POCKETPAL
+    }
 
-    private fun problemFor(error: Exception): CatalogProblem =
-        when (error) {
-            is CatalogFormatException -> CatalogProblem.Unreadable
-            is IOException -> CatalogProblem.Offline
-            else -> CatalogProblem.Unavailable
-        }
+    private fun problemFor(error: Exception): CatalogProblem = when (error) {
+        is CatalogFormatException -> CatalogProblem.Unreadable
+        is IOException -> CatalogProblem.Offline
+        else -> CatalogProblem.Unavailable
+    }
 
-    private fun CatalogState.refreshing(value: Boolean): CatalogState =
-        when (this) {
-            is CatalogState.Loading -> copy(isRefreshing = value)
-            is CatalogState.Ready -> copy(isRefreshing = value)
-            is CatalogState.Unavailable -> copy(isRefreshing = value)
-        }
+    private fun CatalogState.refreshing(value: Boolean): CatalogState = when (this) {
+        is CatalogState.Loading -> copy(isRefreshing = value)
+        is CatalogState.Ready -> copy(isRefreshing = value)
+        is CatalogState.Unavailable -> copy(isRefreshing = value)
+    }
 
     companion object {
         const val FRESH_FOR_MILLIS = 6 * 60 * 60 * 1000L

@@ -70,11 +70,10 @@ val CatalogProblem.messageRes: Int
         }
 
 @StringRes
-fun sectionTitleRes(sectionId: String): Int =
-    when (sectionId) {
-        "low" -> R.string.models_tier_low
-        "mid" -> R.string.models_tier_mid
-        "high" -> R.string.models_tier_high
-        "flagship" -> R.string.models_tier_flagship
-        else -> R.string.models_section_all
-    }
+fun sectionTitleRes(sectionId: String): Int = when (sectionId) {
+    "low" -> R.string.models_tier_low
+    "mid" -> R.string.models_tier_mid
+    "high" -> R.string.models_tier_high
+    "flagship" -> R.string.models_tier_flagship
+    else -> R.string.models_section_all
+}

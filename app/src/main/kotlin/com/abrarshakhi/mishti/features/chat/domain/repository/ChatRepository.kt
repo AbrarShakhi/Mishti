@@ -15,15 +15,9 @@ interface ChatRepository {
 
     suspend fun isSessionEmpty(sessionId: String): Boolean
 
-    suspend fun appendMessage(
-        sessionId: String,
-        message: ChatMessage,
-    )
+    suspend fun appendMessage(sessionId: String, message: ChatMessage)
 
-    suspend fun renameSession(
-        sessionId: String,
-        title: String,
-    )
+    suspend fun renameSession(sessionId: String, title: String)
 
     suspend fun deleteSession(sessionId: String)
 }

@@ -1,11 +1,6 @@
 package com.abrarshakhi.mishti.features.chat.domain.model
 
-data class ChatSession(
-    val id: String,
-    val title: String,
-    val createdAtMillis: Long,
-    val updatedAtMillis: Long,
-)
+data class ChatSession(val id: String, val title: String, val createdAtMillis: Long, val updatedAtMillis: Long)
 
 const val UNTITLED_SESSION = "New chat"
 

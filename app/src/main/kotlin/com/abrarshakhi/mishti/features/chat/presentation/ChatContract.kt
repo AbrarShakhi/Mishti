@@ -26,9 +26,7 @@ data class ChatUiState(
 ) : UiState
 
 sealed interface ChatIntent : UiIntent {
-    data class DraftChanged(
-        val text: String,
-    ) : ChatIntent
+    data class DraftChanged(val text: String) : ChatIntent
 
     data object SendClicked : ChatIntent
 
@@ -38,7 +36,5 @@ sealed interface ChatIntent : UiIntent {
 }
 
 sealed interface ChatEffect : UiEffect {
-    data class ShowError(
-        val text: UiText,
-    ) : ChatEffect
+    data class ShowError(val text: UiText) : ChatEffect
 }

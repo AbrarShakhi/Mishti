@@ -237,7 +237,7 @@ private fun ConversationHistory(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(
                         horizontal = Spacing.Large,
-                        vertical = Spacing.Large
+                        vertical = Spacing.Large,
                     ),
                 )
             }
@@ -276,37 +276,39 @@ private fun ConversationHistory(
     }
 }
 
-private fun Modifier.fadingEdges(top: () -> Float, bottom: () -> Float): Modifier =
-    graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-        .drawWithContent {
-            drawContent()
-            val length = FadeLength.toPx()
-            val topAlpha = top()
-            if (topAlpha > 0f) {
-                drawRect(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color.Black.copy(alpha = 1f - topAlpha), Color.Black),
-                        startY = 0f,
-                        endY = length,
-                    ),
-                    size = Size(size.width, length),
-                    blendMode = BlendMode.DstIn,
-                )
-            }
-            val bottomAlpha = bottom()
-            if (bottomAlpha > 0f) {
-                drawRect(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color.Black, Color.Black.copy(alpha = 1f - bottomAlpha)),
-                        startY = size.height - length,
-                        endY = size.height,
-                    ),
-                    topLeft = Offset(0f, size.height - length),
-                    size = Size(size.width, length),
-                    blendMode = BlendMode.DstIn,
-                )
-            }
+private fun Modifier.fadingEdges(top: () -> Float, bottom: () -> Float): Modifier = graphicsLayer {
+    compositingStrategy =
+        CompositingStrategy.Offscreen
+}
+    .drawWithContent {
+        drawContent()
+        val length = FadeLength.toPx()
+        val topAlpha = top()
+        if (topAlpha > 0f) {
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color.Black.copy(alpha = 1f - topAlpha), Color.Black),
+                    startY = 0f,
+                    endY = length,
+                ),
+                size = Size(size.width, length),
+                blendMode = BlendMode.DstIn,
+            )
         }
+        val bottomAlpha = bottom()
+        if (bottomAlpha > 0f) {
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color.Black, Color.Black.copy(alpha = 1f - bottomAlpha)),
+                    startY = size.height - length,
+                    endY = size.height,
+                ),
+                topLeft = Offset(0f, size.height - length),
+                size = Size(size.width, length),
+                blendMode = BlendMode.DstIn,
+            )
+        }
+    }
 
 @Composable
 private fun ConversationItem(
@@ -338,7 +340,9 @@ private fun ConversationItem(
                     IconButton(onClick = onShowActions, shapes = IconButtonDefaults.shapes()) {
                         Icon(
                             Icons.Filled.MoreVert,
-                            contentDescription = stringResource(R.string.drawer_conversation_actions),
+                            contentDescription = stringResource(
+                                R.string.drawer_conversation_actions,
+                            ),
                         )
                     }
                 }
@@ -403,10 +407,7 @@ private fun ConversationActionsMenu(
 }
 
 @Composable
-private fun DrawerFooter(
-    onModelsClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-) {
+private fun DrawerFooter(onModelsClick: () -> Unit, onSettingsClick: () -> Unit) {
     NavigationDrawerItem(
         label = { Text(stringResource(R.string.models_title)) },
         icon = { Icon(Icons.Filled.Storefront, contentDescription = null) },
@@ -456,19 +457,17 @@ private fun RenameDialog(
         confirmButton = {
             TextButton(
                 onClick = onConfirm,
-                enabled = state.canConfirm
+                enabled = state.canConfirm,
             ) { Text(stringResource(R.string.drawer_rename)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+        },
     )
 }
 
 @Composable
-private fun DeleteDialog(
-    session: ChatSession,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-) {
+private fun DeleteDialog(session: ChatSession, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
@@ -480,11 +479,13 @@ private fun DeleteDialog(
             TextButton(onClick = onConfirm) {
                 Text(
                     stringResource(R.string.action_delete),
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
                 )
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+        },
     )
 }
 

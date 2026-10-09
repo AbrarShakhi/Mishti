@@ -141,7 +141,14 @@ private fun DocumentScreenPreview() {
     MishtiTheme {
         DocumentScreen(
             document = AppDocument.About,
-            markdown = "**Mishti** means *sweet* in Bengali.\n\n## What it does\n\n- Private chat\n- [Credits](credits.md)",
+            markdown = """
+                **Mishti** means *sweet* in Bengali.
+                
+                ## What it does
+                
+                - Private chat
+                - [Credits](credits.md)
+            """.trimMargin(),
             onBack = {},
             onOpenDocument = {},
         )

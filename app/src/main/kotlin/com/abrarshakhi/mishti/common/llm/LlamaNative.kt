@@ -13,11 +13,7 @@ internal object LlamaNative {
 
     external fun nativeFree()
 
-    external fun nativeLoadModel(
-        path: String,
-        contextTokens: Int,
-        threads: Int,
-    ): Long
+    external fun nativeLoadModel(path: String, contextTokens: Int, threads: Int): Long
 
     external fun nativeFreeModel(handle: Long)
 

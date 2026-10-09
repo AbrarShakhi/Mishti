@@ -18,10 +18,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abrarshakhi.mishti.common.mvi.CollectEffects
+import com.abrarshakhi.mishti.common.navigation.Navigator
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun ModelsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun ModelsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
     val viewModel: ModelsViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -76,7 +77,7 @@ fun ModelsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
             askForNotifications()
             pickFile.launch(arrayOf("application/octet-stream", "*/*"))
         },
-        onBack = onBack,
+        onBack = { navigator.goBack() },
         modifier = modifier,
     )
 }

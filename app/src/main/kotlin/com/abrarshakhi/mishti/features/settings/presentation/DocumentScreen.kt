@@ -25,6 +25,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
+import com.abrarshakhi.mishti.common.navigation.AppRouteKey
+import com.abrarshakhi.mishti.common.navigation.Navigator
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.features.chat.presentation.MarkdownReply
@@ -51,12 +53,7 @@ val AppDocument.subtitleRes: Int
     }
 
 @Composable
-fun DocumentRoute(
-    document: AppDocument,
-    onBack: () -> Unit,
-    onOpenDocument: (AppDocument) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun DocumentRoute(document: AppDocument, navigator: Navigator) {
     val context = LocalContext.current
     val markdown by produceState<String?>(initialValue = null, document) {
         value = withContext(Dispatchers.IO) {
@@ -69,9 +66,9 @@ fun DocumentRoute(
     DocumentScreen(
         document = document,
         markdown = markdown,
-        onBack = onBack,
-        onOpenDocument = onOpenDocument,
-        modifier = modifier,
+        onBack = { navigator.goBack() },
+        onOpenDocument = { navigator.navigate(AppRouteKey.Document(it)) },
+        modifier = Modifier,
     )
 }
 

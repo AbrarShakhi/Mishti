@@ -15,47 +15,33 @@ fun appEntryProvider(navigator: Navigator, onOpenDrawer: () -> Unit, onNewChat: 
     entry<AppRouteKey.Chat> { key ->
         ChatRoute(
             sessionId = key.sessionId,
+            navigator = navigator,
             onOpenDrawer = onOpenDrawer,
             onNewChat = onNewChat,
-            onOpenModels = { navigator.navigate(AppRouteKey.Models) },
         )
     }
     entry<AppRouteKey.Settings> {
-        SettingsRoute(
-            onBack = { navigator.goBack() },
-            onOpenModels = { navigator.navigate(AppRouteKey.Models) },
-            onOpenAppearance = { navigator.navigate(AppRouteKey.AppearanceSettings) },
-            onOpenChat = { navigator.navigate(AppRouteKey.ChatSettings) },
-            onOpenGeneration = { navigator.navigate(AppRouteKey.GenerationSettings) },
-            onOpenPerformance = { navigator.navigate(AppRouteKey.PerformanceSettings) },
-            onOpenDocument = { navigator.navigate(AppRouteKey.Document(it)) },
-        )
+        SettingsRoute(navigator = navigator)
     }
     entry<AppRouteKey.Document> { key ->
-        DocumentRoute(
-            document = key.document,
-            onBack = { navigator.goBack() },
-            onOpenDocument = { navigator.navigate(AppRouteKey.Document(it)) },
-        )
+        DocumentRoute(document = key.document, navigator = navigator)
     }
     entry<AppRouteKey.AppearanceSettings> {
-        AppearanceSettingsRoute(onBack = { navigator.goBack() })
+        AppearanceSettingsRoute(navigator = navigator)
     }
     entry<AppRouteKey.ChatSettings> {
-        ChatSettingsRoute(onBack = { navigator.goBack() })
+        ChatSettingsRoute(navigator = navigator)
     }
     entry<AppRouteKey.GenerationSettings> {
-        GenerationSettingsRoute(onBack = { navigator.goBack() })
+        GenerationSettingsRoute(navigator = navigator)
     }
     entry<AppRouteKey.PerformanceSettings> {
-        PerformanceSettingsRoute(onBack = { navigator.goBack() })
+        PerformanceSettingsRoute(navigator = navigator)
     }
     entry<AppRouteKey.Models> {
-        ModelsRoute(onBack = { navigator.goBack() })
+        ModelsRoute(navigator = navigator)
     }
     entry<AppRouteKey.Onboarding> {
-        OnboardingRoute(
-            onFinished = { navigator.resetTo(AppRouteKey.Chat()) },
-        )
+        OnboardingRoute(onFinished = { navigator.resetTo(AppRouteKey.Chat()) })
     }
 }

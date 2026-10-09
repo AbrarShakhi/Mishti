@@ -22,14 +22,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation3.runtime.NavKey
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.abrarshakhi.mishti.common.mvi.CollectEffects
 import com.abrarshakhi.mishti.common.navigation.AppRouteKey
 import com.abrarshakhi.mishti.common.navigation.Navigator
-import com.abrarshakhi.mishti.common.navigation.TOP_LEVEL_ROUTES
-import com.abrarshakhi.mishti.common.navigation.appEntryProvider
-import com.abrarshakhi.mishti.common.navigation.rememberNavigationState
+import com.abrarshakhi.mishti.common.navigation.navEntryProvider
 import com.abrarshakhi.mishti.common.navigation.rememberSharedAxisTransition
 import com.abrarshakhi.mishti.common.ui.snackbar.SnackBarDispatcher
 import com.abrarshakhi.mishti.features.chat.presentation.SessionsEffect
@@ -40,21 +39,19 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 @Composable
-fun AppShell(startRoute: NavKey) {
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val coroutineScope = rememberCoroutineScope()
+fun AppShell(startRoute: AppRouteKey) {
+    val navigator: Navigator = remember {
+        Navigator(startRoute)
+    }
 
-    val navigationState = rememberNavigationState(
-        startRoute = startRoute,
-        topLevelRoutes = TOP_LEVEL_ROUTES,
-    )
-    val navigator = remember { Navigator(navigationState) }
+    val coroutineScope = rememberCoroutineScope()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
 
     val sessionsViewModel: SessionsViewModel = koinViewModel()
     val sessionsState by sessionsViewModel.state.collectAsStateWithLifecycle()
 
     val entryProvider = remember(navigator) {
-        appEntryProvider(
+        navEntryProvider(
             navigator = navigator,
             onOpenDrawer = { coroutineScope.launch { drawerState.open() } },
             onNewChat = { sessionsViewModel.onIntent(SessionsIntent.NewChatClicked) },
@@ -74,9 +71,8 @@ fun AppShell(startRoute: NavKey) {
         }
     }
 
-    val visibleSessionId =
-        (navigationState.currentRoute as? AppRouteKey.Chat)?.sessionId
-            ?: sessionsState.sessions.firstOrNull()?.id
+    val visibleSessionId = (navigator.currentRoute as? AppRouteKey.Chat)?.sessionId
+        ?: sessionsState.sessions.firstOrNull()?.id
 
     CollectEffects(sessionsViewModel.effects) { effect ->
         when (effect) {
@@ -93,7 +89,7 @@ fun AppShell(startRoute: NavKey) {
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = navigationState.currentRoute is AppRouteKey.Chat || drawerState.isOpen,
+        gesturesEnabled = navigator.currentRoute is AppRouteKey.Chat || drawerState.isOpen,
         drawerContent = {
             AppDrawer(
                 sessions = sessionsState.sessions,
@@ -141,14 +137,19 @@ fun AppShell(startRoute: NavKey) {
             val backward = rememberSharedAxisTransition(forward = false)
 
             NavDisplay(
-                entries = navigationState.toDecoratedEntries(entryProvider),
-                onBack = { navigator.goBack() },
+                backStack = navigator.backStack,
                 modifier = Modifier
                     .padding(innerPadding)
                     .consumeWindowInsets(innerPadding),
+                onBack = { navigator.goBack() },
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator(),
+                ),
                 transitionSpec = { forward },
                 popTransitionSpec = { backward },
                 predictivePopTransitionSpec = { backward },
+                entryProvider = entryProvider,
             )
         }
     }

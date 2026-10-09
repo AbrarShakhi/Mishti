@@ -4,13 +4,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.EntryProviderScope
 import com.abrarshakhi.mishti.BuildConfig
 import com.abrarshakhi.mishti.common.navigation.AppRouteKey
 import com.abrarshakhi.mishti.common.navigation.Navigator
 import org.koin.androidx.compose.koinViewModel
 
+fun EntryProviderScope<AppRouteKey>.settingsEntry(navigator: Navigator) {
+    entry<AppRouteKey.Settings> {
+        SettingsRoute(navigator = navigator)
+    }
+    entry<AppRouteKey.Document> { key ->
+        DocumentRoute(document = key.document, navigator = navigator)
+    }
+    entry<AppRouteKey.AppearanceSettings> {
+        AppearanceSettingsRoute(navigator = navigator)
+    }
+    entry<AppRouteKey.ChatSettings> {
+        ChatSettingsRoute(navigator = navigator)
+    }
+    entry<AppRouteKey.GenerationSettings> {
+        GenerationSettingsRoute(navigator = navigator)
+    }
+    entry<AppRouteKey.PerformanceSettings> {
+        PerformanceSettingsRoute(navigator = navigator)
+    }
+}
+
 @Composable
-fun SettingsRoute(navigator: Navigator) {
+private fun SettingsRoute(navigator: Navigator) {
     val viewModel: SettingsViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -29,7 +51,7 @@ fun SettingsRoute(navigator: Navigator) {
 }
 
 @Composable
-fun AppearanceSettingsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
+private fun AppearanceSettingsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
     val viewModel: SettingsViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -42,7 +64,7 @@ fun AppearanceSettingsRoute(navigator: Navigator, modifier: Modifier = Modifier)
 }
 
 @Composable
-fun ChatSettingsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
+private fun ChatSettingsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
     val viewModel: SettingsViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -55,7 +77,7 @@ fun ChatSettingsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun GenerationSettingsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
+private fun GenerationSettingsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
     val viewModel: SettingsViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -68,7 +90,7 @@ fun GenerationSettingsRoute(navigator: Navigator, modifier: Modifier = Modifier)
 }
 
 @Composable
-fun PerformanceSettingsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
+private fun PerformanceSettingsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
     val viewModel: SettingsViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 

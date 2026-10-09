@@ -17,12 +17,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.EntryProviderScope
 import com.abrarshakhi.mishti.common.mvi.CollectEffects
+import com.abrarshakhi.mishti.common.navigation.AppRouteKey
 import com.abrarshakhi.mishti.common.navigation.Navigator
 import org.koin.androidx.compose.koinViewModel
 
+fun EntryProviderScope<AppRouteKey>.modelsEntry(navigator: Navigator) {
+    entry<AppRouteKey.Models> {
+        ModelsRoute(navigator = navigator)
+    }
+}
+
 @Composable
-fun ModelsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
+private fun ModelsRoute(navigator: Navigator, modifier: Modifier = Modifier) {
     val viewModel: ModelsViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current

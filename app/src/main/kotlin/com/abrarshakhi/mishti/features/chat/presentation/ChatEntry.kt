@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.EntryProviderScope
 import com.abrarshakhi.mishti.common.mvi.CollectEffects
 import com.abrarshakhi.mishti.common.navigation.AppRouteKey
 import com.abrarshakhi.mishti.common.navigation.Navigator
@@ -12,8 +13,19 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
+fun EntryProviderScope<AppRouteKey>.chatEntry(navigator: Navigator, onOpenDrawer: () -> Unit, onNewChat: () -> Unit) {
+    entry<AppRouteKey.Chat> { key ->
+        ChatRoute(
+            sessionId = key.sessionId,
+            navigator = navigator,
+            onOpenDrawer = onOpenDrawer,
+            onNewChat = onNewChat,
+        )
+    }
+}
+
 @Composable
-fun ChatRoute(
+private fun ChatRoute(
     sessionId: String?,
     navigator: Navigator,
     onOpenDrawer: () -> Unit,

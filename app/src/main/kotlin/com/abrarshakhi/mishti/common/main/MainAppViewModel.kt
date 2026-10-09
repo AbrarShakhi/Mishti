@@ -2,7 +2,6 @@ package com.abrarshakhi.mishti.common.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation3.runtime.NavKey
 import com.abrarshakhi.mishti.common.data.preferences.AppPreferences
 import com.abrarshakhi.mishti.common.llm.LlmEngine
 import com.abrarshakhi.mishti.common.llm.SelectedModelSource
@@ -31,7 +30,7 @@ class MainAppViewModel(
             initialValue = ThemeSettings(),
         )
 
-    val startRoute: StateFlow<NavKey?> =
+    val startRoute: StateFlow<AppRouteKey?> =
         flow {
             val completed = preferences.hasCompletedOnboarding.first()
             emit(if (completed) AppRouteKey.Chat() else AppRouteKey.Onboarding)

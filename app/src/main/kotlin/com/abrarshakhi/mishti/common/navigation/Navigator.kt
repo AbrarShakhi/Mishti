@@ -1,28 +1,24 @@
 package com.abrarshakhi.mishti.common.navigation
 
-import androidx.navigation3.runtime.NavKey
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 
-class Navigator(private val state: NavigationState) {
-    fun navigate(route: NavKey) {
-        if (route in state.backStacks.keys) {
-            state.topLevelRoute = route
-        } else {
-            state.backStacks.getValue(state.topLevelRoute).add(route)
-        }
+class Navigator(startRoute: AppRouteKey) {
+    val backStack: List<AppRouteKey>
+        field: SnapshotStateList<AppRouteKey> = mutableStateListOf(startRoute)
+
+    val currentRoute get() = backStack.lastOrNull()
+
+    fun navigate(route: AppRouteKey) {
+        backStack.add(route)
     }
 
-    fun resetTo(route: NavKey) {
-        val currentStack = state.backStacks.getValue(state.topLevelRoute)
-        currentStack.clear()
-        currentStack.add(route)
+    fun resetTo(route: AppRouteKey) {
+        backStack.clear()
+        navigate(route)
     }
 
     fun goBack() {
-        val currentStack = state.backStacks.getValue(state.topLevelRoute)
-        if (currentStack.last() == state.topLevelRoute) {
-            state.topLevelRoute = state.startRoute
-        } else {
-            currentStack.removeLastOrNull()
-        }
+        backStack.removeLastOrNull()
     }
 }

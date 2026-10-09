@@ -9,13 +9,13 @@ Mishti stands on the work of many people. Thank you.
 
 ## Model catalogs
 
-- **Mistir Bhandar**: Mishti's own catalog, in [`hub/catalog.v1.json`](../hub/catalog.v1.json).
+- **Mishtir Bhandar**: Mishti's own catalog, in [`hub/catalog.v1.json`](../hub/catalog.v1.json).
 - **PocketPal catalog**: the model list from
   [pocketpal-device-rules](https://github.com/a-ghorbani/pocketpal-device-rules) by Asghar Ghorbani
   and the [PocketPal AI](https://github.com/a-ghorbani/pocketpal-ai) project. Mishti fetches it
   unmodified when you open the PocketPal tab; it is not bundled with the app.
 
-## Models in the Mistir Bhandar catalog
+## Models in the Mishtir Bhandar catalog
 
 Model files are downloaded from Hugging Face and remain under their creators' licenses. Mishti does
 not ship any model inside the app.

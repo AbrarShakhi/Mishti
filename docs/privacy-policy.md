@@ -18,7 +18,7 @@ app stores, what it sends over the network, and why.
 - The language model runs **on your phone**. Your messages and the model's replies are never sent
   anywhere by Mishti.
 - Mishti uses the network only to **download models and model catalogs**, and only when you open
-  Mistir Bhandar or start a download.
+  Mishtir Bhandar or start a download.
 
 ## What Mishti stores on your phone
 
@@ -38,7 +38,7 @@ changes or deletes the original.
 
 Mishti makes network requests only in these cases:
 
-1. **Opening Mistir Bhandar.** The app checks for an updated version of its own model catalog, at
+1. **Opening Mishtir Bhandar.** The app checks for an updated version of its own model catalog, at
    most every six hours unless you pull to refresh. The file is requested from
    [jsDelivr](https://www.jsdelivr.com/) (which serves it from Mishti's GitHub repository).
 2. **Choosing the PocketPal catalog.** The app requests PocketPal AI's public model list from
@@ -75,7 +75,7 @@ so uninstalling Mishti or losing the phone removes it permanently.
 ## Deleting your data
 
 - Delete a single conversation from the conversation drawer (long-press, then Delete).
-- Delete a model from Mistir Bhandar → My shelf.
+- Delete a model from Mishtir Bhandar → My shelf.
 - Remove everything by clearing Mishti's storage in Android Settings, or by uninstalling the app.
 
 Because Mishti has no servers, the developer holds no copy of your data and cannot access, export or

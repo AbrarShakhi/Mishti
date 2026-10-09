@@ -28,9 +28,9 @@ License gives you over the code.
 
 - Models are made by third parties and downloaded from Hugging Face. **Each model has its own
   license and usage terms** (for example the Llama 3.2 Community License or the Gemma Terms of
-  Use), shown on the model's details in Mistir Bhandar and on its Hugging Face page. By
+  Use), shown on the model's details in Mishtir Bhandar and on its Hugging Face page. By
   downloading a model you agree to follow its terms.
-- The Mistir Bhandar catalog is curated by Mishti's developer. The PocketPal catalog is curated
+- The Mishtir Bhandar catalog is curated by Mishti's developer. The PocketPal catalog is curated
   and published by the PocketPal AI project and is shown as published. Listing a model is not an
   endorsement of its output.
 - Models you import from your own files are your responsibility, including having the right to

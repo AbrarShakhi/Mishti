@@ -14,7 +14,7 @@ and no telemetry.
 
 - **Private chat.** Conversations are stored only on your phone, with a drawer to rename, revisit
   and delete them. Replies stream in as they are written, and you can stop a reply mid-way.
-- **Mistir Bhandar, the sweet shop.** *Mistir Bhandar* (মিষ্টির ভাণ্ডার) means a store of sweets. It
+- **Mishtir Bhandar, the sweet shop.** *Mishtir Bhandar* (মিষ্টির ভাণ্ডার) means a store of sweets. It
   is where models live:
     - **My shelf** holds the models you have downloaded or imported, and the one you are chatting
       with.

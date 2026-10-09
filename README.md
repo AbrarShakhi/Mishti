@@ -19,7 +19,7 @@ never leave the phone. After the model is downloaded, no network connection is n
 
 There is no account, no server and no telemetry.
 
-*Mishti* (মিষ্টি) means *sweet* in Bengali, and its model shop is *Mistir Bhandar*, a store of
+*Mishti* (মিষ্টি) means *sweet* in Bengali, and its model shop is *Mishtir Bhandar*, a store of
 sweets. [More about Mishti →](docs/about.md)
 
 ## Download
@@ -56,7 +56,7 @@ Uncomment once the images are in place.
 - **Toggleable thinking process.** Enables or disables model-supported reasoning or "thinking"
   outputs, allowing users to view or hide the model's step-by-step cognitive process depending on
   capability.
-- **Mistir Bhandar, the model shop.** Browse two distinct catalogs: Mishti’s native catalog, which
+- **Mishtir Bhandar, the model shop.** Browse two distinct catalogs: Mishti’s native catalog, which
   ships with the app and updates online upon opening the shop, and PocketPal AI's community-tested
   list. Models are evaluated against device memory constraints with personalized recommendations,
   supporting resumable background downloads and SHA-256 integrity verification prior to acceptance.
@@ -169,7 +169,7 @@ Mishti is usable but young. Known limitations, in the interest of not surprising
 
 Mishti has no accounts, analytics, ads or crash reporting, and the model runs on your phone, so your
 conversations are never sent anywhere. The app goes online only to fetch model catalogs (when you
-open Mistir Bhandar) and to download models from Hugging Face. Its data is left out of Android
+open Mishtir Bhandar) and to download models from Hugging Face. Its data is left out of Android
 backups and device transfers. The draft
 [Privacy Policy](docs/privacy-policy.md) lists every request and everything stored on the phone.
 

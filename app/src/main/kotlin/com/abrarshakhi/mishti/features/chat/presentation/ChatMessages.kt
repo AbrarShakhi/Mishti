@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.components.AppMark
 import com.abrarshakhi.mishti.common.ui.components.CookieShape
+import com.abrarshakhi.mishti.common.ui.modifiers.verticalScrollbar
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.features.chat.domain.model.ChatMessage
 import com.abrarshakhi.mishti.features.chat.domain.model.MessageAuthor
@@ -77,12 +78,19 @@ internal fun MessageList(
     val listState = rememberLazyListState()
     val newestMessageId = messages.lastOrNull()?.id
 
-    LaunchedEffect(newestMessageId, isGenerating) {
-        if (listState.firstVisibleItemIndex <= 1) listState.animateScrollToItem(0)
+    LaunchedEffect(isGenerating) {
+        if (listState.firstVisibleItemIndex <= 1) {
+            listState.animateScrollToItem(0)
+        }
+    }
+    LaunchedEffect(newestMessageId) {
+        listState.animateScrollToItem(0)
     }
 
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScrollbar(listState, color = MaterialTheme.colorScheme.outlineVariant),
         state = listState,
         reverseLayout = true,
         contentPadding = PaddingValues(horizontal = Spacing.ScreenMargin, vertical = Spacing.Large),

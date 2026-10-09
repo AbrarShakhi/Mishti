@@ -7,12 +7,11 @@ import com.abrarshakhi.mishti.features.chat.presentation.SessionsViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-
 val chatModule = module {
 
     single<ChatRepository> { RoomChatRepository(dao = get()) }
 
-    viewModel { SessionsViewModel(repository = get(), snackbar = get()) }
+    viewModel { SessionsViewModel(repository = get(), snackBar = get()) }
 
     viewModel { parameters ->
         ChatViewModel(

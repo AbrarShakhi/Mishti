@@ -2,13 +2,13 @@ package com.abrarshakhi.mishti.features.settings.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.llm.InferenceSettings
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import kotlin.math.roundToInt
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.pluralStringResource
 
 @Composable
 fun PerformanceSettingsScreen(
@@ -35,7 +35,13 @@ fun PerformanceSettingsScreen(
                         description = R.string.settings_context_window_hint,
                         value = inference.contextTokens.toFloat(),
                         range = InferenceSettings.ContextRange.toFloatRange(),
-                        display = { pluralStringResource(R.plurals.settings_tokens, it.roundToInt(), it.roundToInt()) },
+                        display = {
+                            pluralStringResource(
+                                R.plurals.settings_tokens,
+                                it.roundToInt(),
+                                it.roundToInt()
+                            )
+                        },
                         intent = { SettingsIntent.ContextTokensChanged(it.roundToInt()) },
                     ),
                     onIntent = onIntent,

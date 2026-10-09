@@ -15,17 +15,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.llm.InferenceSettings
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.pluralStringResource
 
 private const val PersistDebounceMillis = 350L
 
@@ -64,7 +64,13 @@ fun ChatSettingsScreen(
                         description = R.string.settings_response_limit_hint,
                         value = inference.maxTokens.toFloat(),
                         range = InferenceSettings.MaxTokensRange.toFloatRange(),
-                        display = { pluralStringResource(R.plurals.settings_tokens, it.roundToInt(), it.roundToInt()) },
+                        display = {
+                            pluralStringResource(
+                                R.plurals.settings_tokens,
+                                it.roundToInt(),
+                                it.roundToInt()
+                            )
+                        },
                         intent = { SettingsIntent.MaxTokensChanged(it.roundToInt()) },
                     ),
                     onIntent = onIntent,

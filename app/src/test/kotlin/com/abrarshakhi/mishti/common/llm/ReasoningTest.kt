@@ -6,7 +6,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ReasoningTest {
-
     @Test
     fun `text without tags is all answer`() {
         assertEquals(ReasoningSplit(null, "Hello there", false), splitReasoning("Hello there"))

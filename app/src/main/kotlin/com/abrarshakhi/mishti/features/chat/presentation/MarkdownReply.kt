@@ -23,6 +23,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.theme.CodeFontFamily
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.mikepenz.markdown.compose.LocalBulletListHandler
@@ -76,15 +78,14 @@ import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.parser.CancellationToken
 import org.intellij.markdown.parser.MarkdownParser
 import kotlin.time.Duration.Companion.milliseconds
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
 
 private val StreamingRenderInterval = 50.milliseconds
 
 private val HeadingTopSpace = Spacing.Small
 
 private val ReplyFlavour = GFMFlavourDescriptor()
-private val ReplyParser = MarkdownParser(ReplyFlavour, cancellationToken = CancellationToken.NonCancellable)
+private val ReplyParser =
+    MarkdownParser(ReplyFlavour, cancellationToken = CancellationToken.NonCancellable)
 
 private val NoImages: ImageTransformer = NoOpImageTransformerImpl()
 
@@ -198,7 +199,10 @@ private fun replyStyle(): ReplyStyle {
             code = type.bodyMedium.copy(fontFamily = CodeFontFamily),
             quote = body.copy(color = colorScheme.onSurfaceVariant),
             textLink = TextLinkStyles(
-                style = SpanStyle(color = colorScheme.primary, textDecoration = TextDecoration.Underline),
+                style = SpanStyle(
+                    color = colorScheme.primary,
+                    textDecoration = TextDecoration.Underline
+                ),
             ),
             table = type.bodyMedium,
         ),
@@ -240,12 +244,20 @@ internal fun ASTNode.codeSpanText(content: CharSequence): String {
 
 private val ReplyComponents = markdownComponents(
     codeFence = { model ->
-        MarkdownCodeFence(model.content, model.node, model.typography.code) { code, language, style ->
+        MarkdownCodeFence(
+            model.content,
+            model.node,
+            model.typography.code
+        ) { code, language, style ->
             CodeBlock(code = code, language = language, style = style)
         }
     },
     codeBlock = { model ->
-        MarkdownCodeBlock(model.content, model.node, model.typography.code) { code, language, style ->
+        MarkdownCodeBlock(
+            model.content,
+            model.node,
+            model.typography.code
+        ) { code, language, style ->
             CodeBlock(code = code, language = language, style = style)
         }
     },
@@ -308,7 +320,10 @@ private fun CodeBlock(code: String, language: String?, style: TextStyle) {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    CopyButton(text = code, contentDescription = stringResource(R.string.chat_copy_code))
+                    CopyButton(
+                        text = code,
+                        contentDescription = stringResource(R.string.chat_copy_code)
+                    )
                 }
             }
             Text(

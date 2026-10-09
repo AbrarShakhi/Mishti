@@ -10,10 +10,16 @@ data class UiText(
     val args: List<Any> = emptyList(),
 ) {
     fun resolve(resources: Resources): String =
-        if (args.isEmpty()) resources.getString(id) else resources.getString(id, *args.toTypedArray())
+        if (args.isEmpty()) resources.getString(id) else resources.getString(
+            id,
+            *args.toTypedArray()
+        )
 }
 
-fun uiText(@StringRes id: Int, vararg args: Any) = UiText(id, args.toList())
+fun uiText(
+    @StringRes id: Int,
+    vararg args: Any,
+) = UiText(id, args.toList())
 
 @Composable
 fun UiText.asString(): String =

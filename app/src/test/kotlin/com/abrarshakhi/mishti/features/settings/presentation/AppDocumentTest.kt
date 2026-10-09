@@ -4,12 +4,20 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class AppDocumentTest {
-
     @Test
     fun `links between bundled documents stay in the app`() {
-        assertEquals(DocumentLink.Internal(AppDocument.Privacy), resolveDocumentLink("privacy-policy.md"))
-        assertEquals(DocumentLink.Internal(AppDocument.Credits), resolveDocumentLink("credits.md#typefaces"))
-        assertEquals(DocumentLink.Internal(AppDocument.Contributing), resolveDocumentLink("../CONTRIBUTING.md"))
+        assertEquals(
+            DocumentLink.Internal(AppDocument.Privacy),
+            resolveDocumentLink("privacy-policy.md"),
+        )
+        assertEquals(
+            DocumentLink.Internal(AppDocument.Credits),
+            resolveDocumentLink("credits.md#typefaces"),
+        )
+        assertEquals(
+            DocumentLink.Internal(AppDocument.Contributing),
+            resolveDocumentLink("../CONTRIBUTING.md"),
+        )
     }
 
     @Test
@@ -26,13 +34,20 @@ class AppDocumentTest {
 
     @Test
     fun `web and mail links are opened as they are`() {
-        assertEquals(DocumentLink.External("https://huggingface.co/privacy"), resolveDocumentLink("https://huggingface.co/privacy"))
-        assertEquals(DocumentLink.External("mailto:someone@example.com"), resolveDocumentLink("mailto:someone@example.com"))
+        assertEquals(
+            DocumentLink.External("https://huggingface.co/privacy"),
+            resolveDocumentLink("https://huggingface.co/privacy"),
+        )
+        assertEquals(
+            DocumentLink.External("mailto:someone@example.com"),
+            resolveDocumentLink("mailto:someone@example.com"),
+        )
     }
 
     @Test
     fun `wrapped list lines lose their indent so no double spaces appear`() {
-        val source = "- **Private chat.** Stored on your phone,\n  with a drawer.\n  - Nested item\n    wraps here."
+        val source =
+            "- **Private chat.** Stored on your phone,\n  with a drawer.\n  - Nested item\n    wraps here."
 
         assertEquals(
             "- **Private chat.** Stored on your phone,\nwith a drawer.\n  - Nested item\nwraps here.",

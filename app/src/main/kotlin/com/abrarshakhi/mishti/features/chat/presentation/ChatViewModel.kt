@@ -1,8 +1,7 @@
 package com.abrarshakhi.mishti.features.chat.presentation
 
-import com.abrarshakhi.mishti.R
-import com.abrarshakhi.mishti.common.ui.text.uiText
 import androidx.lifecycle.viewModelScope
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.data.preferences.AppPreferences
 import com.abrarshakhi.mishti.common.llm.EngineState
 import com.abrarshakhi.mishti.common.llm.GenerationEvent
@@ -14,6 +13,7 @@ import com.abrarshakhi.mishti.common.llm.LlmRole
 import com.abrarshakhi.mishti.common.llm.ReasoningSplit
 import com.abrarshakhi.mishti.common.llm.splitReasoning
 import com.abrarshakhi.mishti.common.mvi.MviViewModel
+import com.abrarshakhi.mishti.common.ui.text.uiText
 import com.abrarshakhi.mishti.features.chat.domain.model.ChatMessage
 import com.abrarshakhi.mishti.features.chat.domain.model.MessageAuthor
 import com.abrarshakhi.mishti.features.chat.domain.model.UNTITLED_SESSION
@@ -48,7 +48,11 @@ class ChatViewModel(
             preferences.inferenceSettings.collect { settings = it }
         }
         viewModelScope.launch {
-            combine(engine.state, preferences.thinkingModelIds, ::Pair).collect { (engineState, thinkingIds) ->
+            combine(
+                engine.state,
+                preferences.thinkingModelIds,
+                ::Pair
+            ).collect { (engineState, thinkingIds) ->
                 val ready = engineState as? EngineState.Ready
                 updateState {
                     copy(
@@ -178,25 +182,26 @@ class ChatViewModel(
                     addAll(history.filter { it.content.isNotBlank() }.map { it.toLlmMessage() })
                 }
 
-                engine.generate(prompt, settings.generation.withThinking(thinking)).collect { event ->
-                    when (event) {
-                        is GenerationEvent.Token -> {
-                            val split = reply.append(event.text)
-                            updateState {
-                                copy(
-                                    streamingResponse = split.answer,
-                                    streamingReasoning = split.reasoning,
-                                    isReasoning = split.isReasoning,
-                                    reasoningMillis = reply.reasoningMillis,
-                                )
+                engine.generate(prompt, settings.generation.withThinking(thinking))
+                    .collect { event ->
+                        when (event) {
+                            is GenerationEvent.Token -> {
+                                val split = reply.append(event.text)
+                                updateState {
+                                    copy(
+                                        streamingResponse = split.answer,
+                                        streamingReasoning = split.reasoning,
+                                        isReasoning = split.isReasoning,
+                                        reasoningMillis = reply.reasoningMillis,
+                                    )
+                                }
+                            }
+
+                            is GenerationEvent.Completed -> {
+                                throughput = event.tokensPerSecond()
                             }
                         }
-
-                        is GenerationEvent.Completed -> {
-                            throughput = event.tokensPerSecond()
-                        }
                     }
-                }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {

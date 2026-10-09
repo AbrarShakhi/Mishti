@@ -232,7 +232,7 @@ fun ModelsScreen(
 private val previewModels = listOf(
     CatalogModel(
         id = "qwen3-0.6b-q4km",
-        source = CatalogSource.MistirBhandar,
+        source = CatalogSource.MishtirBhandar,
         name = "Qwen3 0.6B",
         description = "Newer and sharper at the same tiny size.",
         publisher = "Qwen",
@@ -249,7 +249,7 @@ private val previewModels = listOf(
         groupId = null,
     ),
     CatalogModel(
-        id = "gemma-3-4b-it-q4km", source = CatalogSource.MistirBhandar, name = "Gemma 3 4B",
+        id = "gemma-3-4b-it-q4km", source = CatalogSource.MishtirBhandar, name = "Gemma 3 4B",
         description = null, publisher = "Google", parametersLabel = "3.9B", quantization = "Q4_K_M",
         hfRepo = "ggml-org/gemma-3-4b-it-GGUF", hfFile = "gemma-3-4b-it-Q4_K_M.gguf",
         sizeBytes = 2_489_757_856L, sha256 = "", requiredRamBytes = 6_534_636_784L,
@@ -266,7 +266,7 @@ private fun ModelsScreenPreview() {
                 isLoading = false,
                 shelf = listOf(
                     ShelfModel(
-                        "smollm2", "SmolLM2 360M", ModelOrigin.MistirBhandar, "Q4_K_M", "362M",
+                        "smollm2", "SmolLM2 360M", ModelOrigin.MishtirBhandar, "Q4_K_M", "362M",
                         270_590_880L, null, null, "llama", 8192, null, 0L,
                     ),
                 ),
@@ -274,9 +274,9 @@ private fun ModelsScreenPreview() {
                 storage = StorageUsage(270_590_880L, 19_000_000_000L),
                 capability = DeviceCapability.Supported(5_800_000_000L),
                 catalogs = mapOf(
-                    CatalogSource.MistirBhandar to CatalogState.Ready(
+                    CatalogSource.MishtirBhandar to CatalogState.Ready(
                         Catalog(
-                            CatalogSource.MistirBhandar,
+                            CatalogSource.MishtirBhandar,
                             "1",
                             previewModels,
                             recommendedIds = listOf("qwen3-0.6b-q4km")

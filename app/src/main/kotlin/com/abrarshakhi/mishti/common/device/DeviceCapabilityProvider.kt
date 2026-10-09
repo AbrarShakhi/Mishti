@@ -11,10 +11,10 @@ fun interface DeviceCapabilityProvider {
 class AndroidDeviceCapabilityProvider(
     private val context: Context,
 ) : DeviceCapabilityProvider {
-
     override fun capability(): DeviceCapability {
-        val activityManager = ContextCompat.getSystemService(context, ActivityManager::class.java)
-            ?: return DeviceCapability.Unknown
+        val activityManager =
+            ContextCompat.getSystemService(context, ActivityManager::class.java)
+                ?: return DeviceCapability.Unknown
 
         val info = ActivityManager.MemoryInfo()
         runCatching { activityManager.getMemoryInfo(info) }.getOrElse { return DeviceCapability.Unknown }

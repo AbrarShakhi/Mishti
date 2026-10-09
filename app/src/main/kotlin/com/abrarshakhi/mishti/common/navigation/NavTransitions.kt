@@ -29,6 +29,6 @@ fun rememberSharedAxisTransition(forward: Boolean): ContentTransform {
         val enterOffset = if (forward) towardEnd else -towardEnd
 
         (slideInHorizontally(spatialSpec) { enterOffset } + fadeIn(effectsSpec)) togetherWith
-            (slideOutHorizontally(spatialSpec) { -enterOffset } + fadeOut(effectsSpec))
+                (slideOutHorizontally(spatialSpec) { -enterOffset } + fadeOut(effectsSpec))
     }
 }

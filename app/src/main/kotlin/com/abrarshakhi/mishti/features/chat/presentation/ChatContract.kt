@@ -1,10 +1,10 @@
 package com.abrarshakhi.mishti.features.chat.presentation
 
-import com.abrarshakhi.mishti.common.ui.text.UiText
 import com.abrarshakhi.mishti.common.llm.EngineState
 import com.abrarshakhi.mishti.common.mvi.UiEffect
 import com.abrarshakhi.mishti.common.mvi.UiIntent
 import com.abrarshakhi.mishti.common.mvi.UiState
+import com.abrarshakhi.mishti.common.ui.text.UiText
 import com.abrarshakhi.mishti.features.chat.domain.model.ChatMessage
 
 data class ChatUiState(
@@ -26,7 +26,9 @@ data class ChatUiState(
 ) : UiState
 
 sealed interface ChatIntent : UiIntent {
-    data class DraftChanged(val text: String) : ChatIntent
+    data class DraftChanged(
+        val text: String,
+    ) : ChatIntent
 
     data object SendClicked : ChatIntent
 
@@ -36,5 +38,7 @@ sealed interface ChatIntent : UiIntent {
 }
 
 sealed interface ChatEffect : UiEffect {
-    data class ShowError(val text: UiText) : ChatEffect
+    data class ShowError(
+        val text: UiText,
+    ) : ChatEffect
 }

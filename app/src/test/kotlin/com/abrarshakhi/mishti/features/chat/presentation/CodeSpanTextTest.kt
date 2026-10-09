@@ -9,11 +9,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class CodeSpanTextTest {
-
-    private val parser = MarkdownParser(
-        GFMFlavourDescriptor(),
-        cancellationToken = CancellationToken.NonCancellable,
-    )
+    private val parser =
+        MarkdownParser(
+            GFMFlavourDescriptor(),
+            cancellationToken = CancellationToken.NonCancellable,
+        )
 
     private fun codeIn(markdown: CharSequence): String {
         val span = checkNotNull(parser.buildMarkdownTreeFromString(markdown).findCodeSpan())
@@ -21,8 +21,11 @@ class CodeSpanTextTest {
     }
 
     private fun ASTNode.findCodeSpan(): ASTNode? =
-        if (type == MarkdownElementTypes.CODE_SPAN) this
-        else children.firstNotNullOfOrNull { it.findCodeSpan() }
+        if (type == MarkdownElementTypes.CODE_SPAN) {
+            this
+        } else {
+            children.firstNotNullOfOrNull { it.findCodeSpan() }
+        }
 
     @Test
     fun `the backticks are left out`() {

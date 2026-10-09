@@ -11,7 +11,10 @@ data class ReasoningSplit(
     val isReasoning: Boolean,
 )
 
-fun splitReasoning(raw: String, complete: Boolean = false): ReasoningSplit {
+fun splitReasoning(
+    raw: String,
+    complete: Boolean = false,
+): ReasoningSplit {
     val leading = raw.trimStart()
     if (leading.startsWith(THINK_OPEN)) {
         val bodyStart = raw.indexOf(THINK_OPEN) + THINK_OPEN.length
@@ -43,7 +46,11 @@ fun splitReasoning(raw: String, complete: Boolean = false): ReasoningSplit {
     if (leading.isNotEmpty() && THINK_OPEN.startsWith(leading)) {
         return ReasoningSplit(reasoning = null, answer = "", isReasoning = false)
     }
-    return ReasoningSplit(reasoning = null, answer = raw.withoutPartialTag(THINK_CLOSE), isReasoning = false)
+    return ReasoningSplit(
+        reasoning = null,
+        answer = raw.withoutPartialTag(THINK_CLOSE),
+        isReasoning = false
+    )
 }
 
 private fun String.withoutPartialTag(tag: String): String {

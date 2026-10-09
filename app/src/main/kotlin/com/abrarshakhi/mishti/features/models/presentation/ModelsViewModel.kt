@@ -5,7 +5,7 @@ import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.device.DeviceCapability
 import com.abrarshakhi.mishti.common.device.DeviceCapabilityProvider
 import com.abrarshakhi.mishti.common.mvi.MviViewModel
-import com.abrarshakhi.mishti.common.ui.snackbar.SnackbarDispatcher
+import com.abrarshakhi.mishti.common.ui.snackbar.SnackBarDispatcher
 import com.abrarshakhi.mishti.features.models.domain.model.CatalogModel
 import com.abrarshakhi.mishti.features.models.domain.model.CatalogSource
 import com.abrarshakhi.mishti.features.models.domain.model.MemoryFit
@@ -23,10 +23,9 @@ import java.util.Locale
 class ModelsViewModel(
     private val repository: ModelRepository,
     private val catalogs: CatalogRepository,
-    private val snackbar: SnackbarDispatcher,
+    private val snackBar: SnackBarDispatcher,
     capabilityProvider: DeviceCapabilityProvider,
 ) : MviViewModel<ModelsUiState, ModelsIntent, ModelsEffect>(ModelsUiState()) {
-
     private val deviceCapability = capabilityProvider.capability()
 
     init {
@@ -58,7 +57,7 @@ class ModelsViewModel(
                 }
             }
         }
-        refresh(CatalogSource.MistirBhandar, force = false)
+        refresh(CatalogSource.MishtirBhandar, force = false)
     }
 
     override fun handleIntent(intent: ModelsIntent) {
@@ -68,21 +67,56 @@ class ModelsViewModel(
                 refresh(intent.source, force = false)
             }
 
-            is ModelsIntent.FilterSelected -> updateState { copy(filter = intent.filter) }
-            is ModelsIntent.QueryChanged -> updateState { copy(query = intent.query) }
-            ModelsIntent.RefreshRequested -> refresh(currentState.catalogSource, force = true)
-            is ModelsIntent.DownloadClicked -> onDownload(intent.model)
-            is ModelsIntent.CancelClicked -> repository.cancel(intent.transferId)
-            is ModelsIntent.TransferDismissed -> repository.dismissTransfer(intent.transferId)
-            is ModelsIntent.UseClicked -> onUse(intent.modelId)
-            is ModelsIntent.DeleteRequested -> updateState {
-                copy(deleting = shelf.find { it.id == intent.modelId })
+            is ModelsIntent.FilterSelected -> {
+                updateState { copy(filter = intent.filter) }
             }
 
-            ModelsIntent.DeleteConfirmed -> onDeleteConfirmed()
-            ModelsIntent.DeleteCancelled -> updateState { copy(deleting = null) }
-            is ModelsIntent.DetailsOpened -> updateState { copy(details = intent.model) }
-            ModelsIntent.DetailsDismissed -> updateState { copy(details = null) }
+            is ModelsIntent.QueryChanged -> {
+                updateState { copy(query = intent.query) }
+            }
+
+            ModelsIntent.RefreshRequested -> {
+                refresh(currentState.catalogSource, force = true)
+            }
+
+            is ModelsIntent.DownloadClicked -> {
+                onDownload(intent.model)
+            }
+
+            is ModelsIntent.CancelClicked -> {
+                repository.cancel(intent.transferId)
+            }
+
+            is ModelsIntent.TransferDismissed -> {
+                repository.dismissTransfer(intent.transferId)
+            }
+
+            is ModelsIntent.UseClicked -> {
+                onUse(intent.modelId)
+            }
+
+            is ModelsIntent.DeleteRequested -> {
+                updateState {
+                    copy(deleting = shelf.find { it.id == intent.modelId })
+                }
+            }
+
+            ModelsIntent.DeleteConfirmed -> {
+                onDeleteConfirmed()
+            }
+
+            ModelsIntent.DeleteCancelled -> {
+                updateState { copy(deleting = null) }
+            }
+
+            is ModelsIntent.DetailsOpened -> {
+                updateState { copy(details = intent.model) }
+            }
+
+            ModelsIntent.DetailsDismissed -> {
+                updateState { copy(details = null) }
+            }
+
             is ModelsIntent.ImportPicked -> {
                 repository.import(intent.uri)
                 emitEffect(ModelsEffect.ShowShelf)
@@ -90,24 +124,27 @@ class ModelsViewModel(
         }
     }
 
-    private fun refresh(source: CatalogSource, force: Boolean) {
+    private fun refresh(
+        source: CatalogSource,
+        force: Boolean,
+    ) {
         viewModelScope.launch { catalogs.refresh(source, force) }
     }
 
     private fun onDownload(model: CatalogModel) {
         if (deviceCapability is DeviceCapability.UnsupportedLowMemory) {
-            snackbar.showError(R.string.models_phone_unsupported)
+            snackBar.showError(R.string.models_phone_unsupported)
             return
         }
         if (memoryFit(
                 model.requiredRamBytes,
-                deviceCapability.totalMemoryBytes
+                deviceCapability.totalMemoryBytes,
             ) == MemoryFit.TooBig
         ) {
-            snackbar.showError(
+            snackBar.showError(
                 R.string.models_needs_memory,
                 model.name,
-                gigabytes(model.requiredRamBytes)
+                gigabytes(model.requiredRamBytes),
             )
             return
         }
@@ -120,12 +157,12 @@ class ModelsViewModel(
             try {
                 repository.select(modelId)
                 currentState.shelf.find { it.id == modelId }?.let {
-                    snackbar.show(R.string.models_now_chatting, it.name)
+                    snackBar.show(R.string.models_now_chatting, it.name)
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                snackbar.showError(R.string.models_switch_failed)
+                snackBar.showError(R.string.models_switch_failed)
             }
         }
     }
@@ -136,11 +173,11 @@ class ModelsViewModel(
         viewModelScope.launch {
             try {
                 repository.delete(target.id)
-                snackbar.show(R.string.models_deleted, target.name)
+                snackBar.show(R.string.models_deleted, target.name)
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                snackbar.showError(R.string.models_delete_failed, target.name)
+                snackBar.showError(R.string.models_delete_failed, target.name)
             }
         }
     }

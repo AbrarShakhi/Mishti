@@ -21,13 +21,13 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
-
 private val Context.preferencesDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "mishti_preferences",
 )
 
-class DataStoreAppPreferences(context: Context) : AppPreferences {
-
+class DataStoreAppPreferences(
+    context: Context,
+) : AppPreferences {
     private val dataStore = context.preferencesDataStore
 
     private val preferences: Flow<Preferences> =
@@ -36,29 +36,31 @@ class DataStoreAppPreferences(context: Context) : AppPreferences {
     override val hasCompletedOnboarding: Flow<Boolean> =
         preferences.map { it[Keys.ONBOARDING_COMPLETED] == true }
 
-    override val themeSettings: Flow<ThemeSettings> = preferences.map { prefs ->
-        ThemeSettings(
-            mode = prefs[Keys.THEME_MODE].toEnum(ThemeMode.System),
-            colorScheme = prefs[Keys.COLOR_SCHEME].toEnum(AppColorScheme.Dynamic),
-            font = prefs[Keys.FONT].toEnum(AppFont.System),
-        )
-    }
+    override val themeSettings: Flow<ThemeSettings> =
+        preferences.map { prefs ->
+            ThemeSettings(
+                mode = prefs[Keys.THEME_MODE].toEnum(ThemeMode.System),
+                colorScheme = prefs[Keys.COLOR_SCHEME].toEnum(AppColorScheme.Dynamic),
+                font = prefs[Keys.FONT].toEnum(AppFont.System),
+            )
+        }
 
     override val selectedModelId: Flow<String?> = preferences.map { it[Keys.SELECTED_MODEL_ID] }
 
     override suspend fun setSelectedModelId(modelId: String?) {
         dataStore.edit { prefs ->
-            if (modelId == null) prefs.remove(Keys.SELECTED_MODEL_ID)
-            else prefs[Keys.SELECTED_MODEL_ID] = modelId
+            if (modelId == null) {
+                prefs.remove(Keys.SELECTED_MODEL_ID)
+            } else {
+                prefs[Keys.SELECTED_MODEL_ID] = modelId
+            }
         }
     }
 
     override val inferenceSettings: Flow<InferenceSettings> =
         preferences.map { it.toInferenceSettings() }
 
-    override suspend fun updateInferenceSettings(
-        transform: (InferenceSettings) -> InferenceSettings,
-    ) {
+    override suspend fun updateInferenceSettings(transform: (InferenceSettings) -> InferenceSettings) {
         dataStore.edit { prefs ->
             val settings = transform(prefs.toInferenceSettings())
             prefs[Keys.SYSTEM_PROMPT] = settings.systemPrompt
@@ -74,7 +76,10 @@ class DataStoreAppPreferences(context: Context) : AppPreferences {
     override val thinkingModelIds: Flow<Set<String>> =
         preferences.map { it[Keys.THINKING_MODELS].orEmpty() }
 
-    override suspend fun setThinking(modelId: String, enabled: Boolean) {
+    override suspend fun setThinking(
+        modelId: String,
+        enabled: Boolean,
+    ) {
         dataStore.edit { prefs ->
             val current = prefs[Keys.THINKING_MODELS].orEmpty()
             prefs[Keys.THINKING_MODELS] = if (enabled) current + modelId else current - modelId

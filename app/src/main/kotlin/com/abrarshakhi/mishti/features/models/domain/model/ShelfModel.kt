@@ -1,6 +1,6 @@
 package com.abrarshakhi.mishti.features.models.domain.model
 
-enum class ModelOrigin { MistirBhandar, PocketPal, Imported }
+enum class ModelOrigin { MishtirBhandar, PocketPal, Imported }
 
 enum class TransferError {
     NotEnoughSpace,
@@ -13,10 +13,11 @@ enum class TransferError {
     Unknown,
 }
 
-fun CatalogSource.toOrigin(): ModelOrigin = when (this) {
-    CatalogSource.MistirBhandar -> ModelOrigin.MistirBhandar
-    CatalogSource.PocketPal -> ModelOrigin.PocketPal
-}
+fun CatalogSource.toOrigin(): ModelOrigin =
+    when (this) {
+        CatalogSource.MishtirBhandar -> ModelOrigin.MishtirBhandar
+        CatalogSource.PocketPal -> ModelOrigin.PocketPal
+    }
 
 data class ShelfModel(
     val id: String,
@@ -34,19 +35,33 @@ data class ShelfModel(
 )
 
 sealed interface TransferStatus {
-    data class Downloading(val doneBytes: Long, val totalBytes: Long) : TransferStatus {
+    data class Downloading(
+        val doneBytes: Long,
+        val totalBytes: Long,
+    ) : TransferStatus {
         val fraction: Float
-            get() = if (totalBytes <= 0L) 0f else (doneBytes.toFloat() / totalBytes).coerceIn(0f, 1f)
+            get() = if (totalBytes <= 0L) 0f else (doneBytes.toFloat() / totalBytes).coerceIn(
+                0f,
+                1f
+            )
     }
 
     data object Verifying : TransferStatus
 
-    data class Importing(val doneBytes: Long, val totalBytes: Long) : TransferStatus {
+    data class Importing(
+        val doneBytes: Long,
+        val totalBytes: Long,
+    ) : TransferStatus {
         val fraction: Float
-            get() = if (totalBytes <= 0L) 0f else (doneBytes.toFloat() / totalBytes).coerceIn(0f, 1f)
+            get() = if (totalBytes <= 0L) 0f else (doneBytes.toFloat() / totalBytes).coerceIn(
+                0f,
+                1f
+            )
     }
 
-    data class Failed(val error: TransferError) : TransferStatus
+    data class Failed(
+        val error: TransferError,
+    ) : TransferStatus
 }
 
 data class Transfer(

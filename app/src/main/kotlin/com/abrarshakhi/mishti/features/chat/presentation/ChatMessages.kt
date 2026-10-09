@@ -37,7 +37,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.components.AppMark
 import com.abrarshakhi.mishti.common.ui.components.CookieShape
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
@@ -48,8 +50,6 @@ import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
 
 private const val StreamingItemKey = "streaming"
 private const val MaxBubbleWidthFraction = 0.85f
@@ -132,7 +132,10 @@ private fun UserMessage(text: String, modifier: Modifier = Modifier) {
                 Text(
                     text = text,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(horizontal = Spacing.Large, vertical = Spacing.Medium),
+                    modifier = Modifier.padding(
+                        horizontal = Spacing.Large,
+                        vertical = Spacing.Medium
+                    ),
                 )
             }
         }
@@ -226,7 +229,10 @@ private fun MessageActions(text: String, tokensPerSecond: Double?) {
 
         if (tokensPerSecond != null) {
             Text(
-                text = stringResource(R.string.chat_tokens_per_second, "%.1f".format(tokensPerSecond)),
+                text = stringResource(
+                    R.string.chat_tokens_per_second,
+                    "%.1f".format(tokensPerSecond)
+                ),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -283,7 +289,9 @@ private fun PlaceholderReply(lineFractions: List<Float>) {
                 .background(MaterialTheme.colorScheme.surfaceContainerHighest, CookieShape),
         )
         Column(
-            modifier = Modifier.weight(1f).padding(top = Spacing.ExtraSmall),
+            modifier = Modifier
+                .weight(1f)
+                .padding(top = Spacing.ExtraSmall),
             verticalArrangement = Arrangement.spacedBy(Spacing.Small),
         ) {
             lineFractions.forEach { fraction ->

@@ -2,12 +2,12 @@ package com.abrarshakhi.mishti.features.settings.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.llm.InferenceSettings
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import kotlin.math.roundToInt
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
 
 @Composable
 fun GenerationSettingsScreen(

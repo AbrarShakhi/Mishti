@@ -1,7 +1,7 @@
 # Contributing to Mishti
 
-Thank you for wanting to make Mishti sweeter. Every kind of help counts: reporting a bug,
-suggesting a model, translating the app, or sending code.
+Thank you for wanting to make Mishti sweeter. Every kind of help counts: reporting a bug, suggesting
+a model, translating the app, or sending code.
 
 ## Ways to help
 
@@ -13,10 +13,11 @@ model you were using, and the steps that lead to the problem. Screenshots help a
 
 ### Suggest a model
 
-Open a [model suggestion](https://github.com/AbrarShakhi/Mishti/issues/new?template=model-suggestion.yml)
-with the Hugging Face repository and the GGUF file you have in mind. Small, chat-tuned models
-(under about 4 GB) that you have tried on a phone are the most useful. If you are comfortable
-with a pull request, you can add it yourself:
+Open
+a [model suggestion](https://github.com/AbrarShakhi/Mishti/issues/new?template=model-suggestion.yml)
+with the Hugging Face repository and the GGUF file you have in mind. Small, chat-tuned models (under
+about 4 GB) that you have tried on a phone are the most useful. If you are comfortable with a pull
+request, you can add it yourself:
 
 ```bash
 python3 tools/hub.py add --id <id> --name "<Name>" --repo <owner/repo-GGUF> \
@@ -52,10 +53,10 @@ text, and leave the names and placeholders (`%1$s`, `%1$d`) as they are.
 - Kotlin with Jetpack Compose and Material 3 Expressive. Follow the structure described in
   [CLAUDE.md](https://github.com/AbrarShakhi/Mishti/blob/main/CLAUDE.md): MVI per screen, one
   feature per folder.
-- **No comments in source files.** Let names and structure explain the code, and put any
-  non-obvious reasoning in the pull request or commit message.
+- **No comments in source files.** Let names and structure explain the code, and put any non-obvious
+  reasoning in the pull request or commit message.
 - User-visible text goes in `strings.xml`, never inline in Kotlin.
-- Add or update unit tests for behaviour you change. Test names are sentences in backticks.
+- Add or update unit tests for behavior you change. Test names are sentences in backticks.
 
 ## Be kind
 

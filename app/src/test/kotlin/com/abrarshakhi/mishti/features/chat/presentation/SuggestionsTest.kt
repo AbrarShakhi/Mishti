@@ -6,7 +6,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SuggestionsTest {
-
     private val pool = (1..16).map { "Idea $it" }
 
     @Test

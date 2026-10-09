@@ -33,73 +33,75 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-val modelsModule = module {
+val modelsModule =
+    module {
 
-    single {
-        HttpClient(OkHttp) {
-            install(HttpTimeout) {
-                requestTimeoutMillis = null
-                connectTimeoutMillis = 30_000
-                socketTimeoutMillis = 60_000
+        single {
+            HttpClient(OkHttp) {
+                install(HttpTimeout) {
+                    requestTimeoutMillis = null
+                    connectTimeoutMillis = 30_000
+                    socketTimeoutMillis = 60_000
+                }
             }
         }
+
+        single<DeviceCapabilityProvider> { AndroidDeviceCapabilityProvider(androidContext()) }
+
+        single { ModelStorage(androidContext()) }
+        single<DownloadNotifier> { ServiceDownloadNotifier(androidContext()) }
+        single { ModelDownloader(client = get(), storage = get()) }
+        single { ModelImporter(context = androidContext(), storage = get()) }
+
+        single<CatalogStore> { FileCatalogStore(androidContext()) }
+        single<CatalogFetcher> { KtorCatalogFetcher(client = get()) }
+
+        single<CatalogRepository> {
+            val capability = get<DeviceCapabilityProvider>()
+            DefaultCatalogRepository(
+                store = get(),
+                fetcher = get(),
+                device = {
+                    DeviceProfile(
+                        totalRamBytes = capability.capability().totalMemoryBytes,
+                        socModel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Build.SOC_MODEL else null,
+                        hardware = Build.HARDWARE,
+                        board = Build.BOARD,
+                    )
+                },
+            )
+        }
+
+        single<SelectedModelSource> {
+            PreferencesSelectedModelSource(preferences = get(), dao = get(), storage = get())
+        }
+
+        single<ModelRepository> {
+            val store = get<CatalogStore>()
+            DefaultModelRepository(
+                dao = get(),
+                storageManager = get(),
+                downloader = get(),
+                importer = get(),
+                preferences = get(),
+                scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
+                knownModels = {
+                    store
+                        .bundled(CatalogSource.MishtirBhandar)
+                        ?.let { runCatching { MishtiCatalogParser.parse(it).models }.getOrNull() }
+                        .orEmpty()
+                },
+                notifier = get(),
+                defaultImportName = androidContext().getString(R.string.models_import_default_name),
+            )
+        }
+
+        viewModel {
+            ModelsViewModel(
+                repository = get(),
+                catalogs = get(),
+                snackBar = get(),
+                capabilityProvider = get(),
+            )
+        }
     }
-
-    single<DeviceCapabilityProvider> { AndroidDeviceCapabilityProvider(androidContext()) }
-
-    single { ModelStorage(androidContext()) }
-    single<DownloadNotifier> { ServiceDownloadNotifier(androidContext()) }
-    single { ModelDownloader(client = get(), storage = get()) }
-    single { ModelImporter(context = androidContext(), storage = get()) }
-
-    single<CatalogStore> { FileCatalogStore(androidContext()) }
-    single<CatalogFetcher> { KtorCatalogFetcher(client = get()) }
-
-    single<CatalogRepository> {
-        val capability = get<DeviceCapabilityProvider>()
-        DefaultCatalogRepository(
-            store = get(),
-            fetcher = get(),
-            device = {
-                DeviceProfile(
-                    totalRamBytes = capability.capability().totalMemoryBytes,
-                    socModel = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Build.SOC_MODEL else null,
-                    hardware = Build.HARDWARE,
-                    board = Build.BOARD,
-                )
-            },
-        )
-    }
-
-    single<SelectedModelSource> {
-        PreferencesSelectedModelSource(preferences = get(), dao = get(), storage = get())
-    }
-
-    single<ModelRepository> {
-        val store = get<CatalogStore>()
-        DefaultModelRepository(
-            dao = get(),
-            storageManager = get(),
-            downloader = get(),
-            importer = get(),
-            preferences = get(),
-            scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
-            knownModels = {
-                store.bundled(CatalogSource.MistirBhandar)
-                    ?.let { runCatching { MishtiCatalogParser.parse(it).models }.getOrNull() }
-                    .orEmpty()
-            },
-            notifier = get(),
-            defaultImportName = androidContext().getString(R.string.models_import_default_name),
-        )
-    }
-
-    viewModel {
-        ModelsViewModel(
-            repository = get(),
-            catalogs = get(),
-            snackbar = get(),
-            capabilityProvider = get(),
-        )
-    }
-}

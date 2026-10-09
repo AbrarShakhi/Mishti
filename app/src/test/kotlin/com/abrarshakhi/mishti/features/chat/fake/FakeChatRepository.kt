@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.map
 class FakeChatRepository(
     private val existingSessionId: String? = null,
 ) : ChatRepository {
-
     private val sessions = MutableStateFlow<List<ChatSession>>(emptyList())
     private val messages = MutableStateFlow<Map<String, List<ChatMessage>>>(emptyMap())
 
@@ -30,24 +29,32 @@ class FakeChatRepository(
     override suspend fun createSession(title: String): String {
         createdSessionCount++
         val id = "created-session-$createdSessionCount"
-        sessions.value = sessions.value + ChatSession(id, title, 0L, createdSessionCount.toLong())
+        sessions.value += ChatSession(id, title, 0L, createdSessionCount.toLong())
         return id
     }
 
     override suspend fun isSessionEmpty(sessionId: String): Boolean =
         messages.value[sessionId].isNullOrEmpty()
 
-    override suspend fun appendMessage(sessionId: String, message: ChatMessage) {
+    override suspend fun appendMessage(
+        sessionId: String,
+        message: ChatMessage,
+    ) {
         if (failOnAppend) error("write failed")
-        messages.value = messages.value.toMutableMap().apply {
-            this[sessionId] = this[sessionId].orEmpty() + message
-        }
+        messages.value =
+            messages.value.toMutableMap().apply {
+                this[sessionId] = this[sessionId].orEmpty() + message
+            }
     }
 
-    override suspend fun renameSession(sessionId: String, title: String) {
-        sessions.value = sessions.value.map {
-            if (it.id == sessionId) it.copy(title = title) else it
-        }
+    override suspend fun renameSession(
+        sessionId: String,
+        title: String,
+    ) {
+        sessions.value =
+            sessions.value.map {
+                if (it.id == sessionId) it.copy(title = title) else it
+            }
     }
 
     override suspend fun deleteSession(sessionId: String) {

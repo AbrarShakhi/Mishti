@@ -21,6 +21,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
@@ -33,7 +35,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -58,18 +59,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.components.SectionHeader
 import com.abrarshakhi.mishti.common.ui.components.ShapedIcon
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
@@ -79,12 +82,8 @@ import com.abrarshakhi.mishti.features.models.domain.model.MemoryFit
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun BrowseTab(
     state: ModelsUiState,
@@ -147,6 +146,7 @@ internal fun BrowseTab(
                         onRetry = { onIntent(ModelsIntent.RefreshRequested) },
                     )
                 }
+
                 is CatalogState.Ready -> readyContent(state, content, seen, onIntent)
             }
         }
@@ -173,7 +173,11 @@ private fun LazyListScope.readyContent(
 
     if (content.recommended.isNotEmpty()) {
         item(key = "recommended-header") {
-            Column(Modifier.padding(top = Spacing.Large).animateItem()) {
+            Column(
+                Modifier
+                    .padding(top = Spacing.Large)
+                    .animateItem()
+            ) {
                 SectionHeader(
                     title = stringResource(R.string.models_recommended),
                     modifier = Modifier.padding(horizontal = Spacing.ScreenMargin),
@@ -212,7 +216,9 @@ private fun LazyListScope.readyContent(
                 },
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(Spacing.ExtraLarge).animateItem(),
+                modifier = Modifier
+                    .padding(Spacing.ExtraLarge)
+                    .animateItem(),
             )
         }
     }
@@ -222,7 +228,11 @@ private fun LazyListScope.readyContent(
             Row(
                 modifier = Modifier
                     .animateItem()
-                    .padding(start = Spacing.ScreenMargin, end = Spacing.ScreenMargin, top = Spacing.Large),
+                    .padding(
+                        start = Spacing.ScreenMargin,
+                        end = Spacing.ScreenMargin,
+                        top = Spacing.Large
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 SectionHeader(stringResource(sectionTitleRes(section.id)))
@@ -234,7 +244,9 @@ private fun LazyListScope.readyContent(
                 }
             }
         }
-        itemsIndexed(section.items, key = { _, it -> "${section.id}-${it.model.id}" }) { index, item ->
+        itemsIndexed(
+            section.items,
+            key = { _, it -> "${section.id}-${it.model.id}" }) { index, item ->
             CatalogRow(
                 item = item,
                 shapes = ListItemDefaults.segmentedShapes(index, section.items.size),
@@ -243,7 +255,10 @@ private fun LazyListScope.readyContent(
                 onCancel = { onIntent(ModelsIntent.CancelClicked(item.model.id)) },
                 modifier = Modifier
                     .animateItem()
-                    .padding(horizontal = Spacing.ScreenMargin, vertical = ListItemDefaults.SegmentedGap / 2)
+                    .padding(
+                        horizontal = Spacing.ScreenMargin,
+                        vertical = ListItemDefaults.SegmentedGap / 2
+                    )
                     .enterOnce(index, seen.add("${section.id}-${item.model.id}")),
             )
         }
@@ -255,13 +270,15 @@ private fun LazyListScope.readyContent(
                 text = stringResource(R.string.models_pocketpal_credit),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = Spacing.ExtraLarge, vertical = Spacing.Large),
+                modifier = Modifier.padding(
+                    horizontal = Spacing.ExtraLarge,
+                    vertical = Spacing.Large
+                ),
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CatalogSourceSelector(
     selected: CatalogSource,
@@ -296,7 +313,7 @@ private fun CatalogSourceSelector(
                 colors = colors,
             ) {
                 Icon(
-                    imageVector = if (source == CatalogSource.MistirBhandar) Icons.Filled.Storefront else Icons.Filled.Public,
+                    imageVector = if (source == CatalogSource.MishtirBhandar) Icons.Filled.Storefront else Icons.Filled.Public,
                     contentDescription = null,
                     modifier = Modifier.size(ToggleButtonDefaults.IconSize),
                 )
@@ -314,12 +331,14 @@ private fun CatalogStatusLine(state: CatalogState, modifier: Modifier = Modifier
         is CatalogState.Unavailable -> stringResource(
             if (state.isRefreshing) R.string.models_status_retrying else R.string.models_status_unavailable,
         )
+
         is CatalogState.Ready -> when {
             state.isRefreshing -> stringResource(R.string.models_status_checking)
             state.isOffline -> stringResource(R.string.models_status_offline)
             state.updatedAtMillis == null -> stringResource(R.string.models_status_built_in)
             System.currentTimeMillis() - state.updatedAtMillis < DateUtils.MINUTE_IN_MILLIS ->
                 stringResource(R.string.models_status_just_now)
+
             else -> stringResource(
                 R.string.models_status_updated,
                 DateUtils.getRelativeTimeSpanString(
@@ -354,7 +373,10 @@ private fun SearchField(
         trailingIcon = if (query.isNotEmpty()) {
             {
                 IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Filled.Clear, contentDescription = stringResource(R.string.models_clear_search))
+                    Icon(
+                        Icons.Filled.Clear,
+                        contentDescription = stringResource(R.string.models_clear_search)
+                    )
                 }
             }
         } else {
@@ -372,7 +394,6 @@ private fun SearchField(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RecommendedCarousel(
     items: List<CatalogItem>,
@@ -402,7 +423,6 @@ private fun RecommendedCarousel(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun RecommendedCard(
     item: CatalogItem,
@@ -458,7 +478,13 @@ private fun FilterRow(
                 onClick = { onSelect(filter) },
                 label = { Text(stringResource(filter.labelRes)) },
                 leadingIcon = if (isSelected) {
-                    { Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                    {
+                        Icon(
+                            Icons.Filled.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
                 } else {
                     null
                 },
@@ -467,7 +493,6 @@ private fun FilterRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CatalogRow(
     item: CatalogItem,
@@ -485,7 +510,14 @@ private fun CatalogRow(
         leadingContent = { ModelGlyph(name = model.name, seed = model.id) },
         supportingContent = {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.ExtraSmall)) {
-                MetaLine(listOf(formatSize(model.sizeBytes), model.parametersLabel, model.quantization, model.publisher))
+                MetaLine(
+                    listOf(
+                        formatSize(model.sizeBytes),
+                        model.parametersLabel,
+                        model.quantization,
+                        model.publisher
+                    )
+                )
                 if (item.fit != MemoryFit.Fits && item.fit != MemoryFit.Unknown) FitBadge(item.fit)
             }
         },
@@ -497,7 +529,6 @@ private fun CatalogRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CatalogUnavailable(reason: String, onRetry: () -> Unit) {
     Card(
@@ -521,7 +552,10 @@ private fun CatalogUnavailable(reason: String, onRetry: () -> Unit) {
             Spacer(Modifier.height(Spacing.Large))
             Text(reason, style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.height(Spacing.Large))
-            Button(onClick = onRetry, shapes = ButtonDefaults.shapes()) { Text(stringResource(R.string.action_try_again)) }
+            Button(
+                onClick = onRetry,
+                shapes = ButtonDefaults.shapes()
+            ) { Text(stringResource(R.string.action_try_again)) }
         }
     }
 }
@@ -543,12 +577,29 @@ private fun CatalogPlaceholder() {
                     .fillMaxWidth()
                     .height(72.dp),
             ) {
-                Row(modifier = Modifier.padding(Spacing.Large), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(40.dp).background(bone, CircleShape))
+                Row(
+                    modifier = Modifier.padding(Spacing.Large),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        Modifier
+                            .size(40.dp)
+                            .background(bone, CircleShape)
+                    )
                     Spacer(Modifier.width(Spacing.Large))
                     Column(verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-                        Box(Modifier.fillMaxWidth(0.6f).height(14.dp).background(bone, CircleShape))
-                        Box(Modifier.fillMaxWidth(0.4f).height(12.dp).background(bone, CircleShape))
+                        Box(
+                            Modifier
+                                .fillMaxWidth(0.6f)
+                                .height(14.dp)
+                                .background(bone, CircleShape)
+                        )
+                        Box(
+                            Modifier
+                                .fillMaxWidth(0.4f)
+                                .height(12.dp)
+                                .background(bone, CircleShape)
+                        )
                     }
                 }
             }

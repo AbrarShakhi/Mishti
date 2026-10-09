@@ -81,9 +81,9 @@ internal fun ReasoningSection(
         AnimatedVisibility(
             visible = expanded && reasoning.isNotBlank(),
             enter = expandVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) +
-                fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
+                    fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
             exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()) +
-                fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                    fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
         ) {
             val body = Modifier
                 .padding(top = Spacing.Small)
@@ -165,6 +165,7 @@ private fun reasoningLabel(isReasoning: Boolean, durationMillis: Long?): String 
         val seconds = ((durationMillis + 500) / 1000).coerceAtLeast(1).toInt()
         pluralStringResource(R.plurals.chat_reasoning_duration, seconds, seconds)
     }
+
     else -> stringResource(R.string.chat_reasoning_done)
 }
 

@@ -17,12 +17,18 @@ import java.io.File
 import java.io.RandomAccessFile
 
 sealed interface DownloadProgress {
-    data class Downloading(val downloadedBytes: Long, val totalBytes: Long) : DownloadProgress
+    data class Downloading(
+        val downloadedBytes: Long,
+        val totalBytes: Long,
+    ) : DownloadProgress
+
     data object Verifying : DownloadProgress
 }
 
-class DownloadFailure(val error: TransferError, cause: Throwable? = null) :
-    Exception(error.name, cause)
+class DownloadFailure(
+    val error: TransferError,
+    cause: Throwable? = null,
+) : Exception(error.name, cause)
 
 data class DownloadRequest(
     val id: String,
@@ -37,87 +43,87 @@ class ModelDownloader(
     private val storage: ModelStorage,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-
     suspend fun download(
         request: DownloadRequest,
         onProgress: suspend (DownloadProgress) -> Unit,
-    ): File = withContext(ioDispatcher) {
-        if (!storage.hasRoomFor(request.id, request.sizeBytes)) {
-            throw DownloadFailure(TransferError.NotEnoughSpace)
-        }
-
-        val partial = storage.partialFile(request.id)
-        val alreadyHave = if (partial.isFile) partial.length() else 0L
-        client.prepareGet(request.url) {
-            if (alreadyHave > 0) {
-                header(HttpHeaders.Range, "bytes=$alreadyHave-")
-            }
-        }.execute { response ->
-            val resuming = response.status == HttpStatusCode.PartialContent
-            if (alreadyHave > 0 && !resuming) {
-                partial.delete()
-            }
-            if (!response.status.isSuccessOrPartial()) {
-                throw DownloadFailure(TransferError.ServerError)
+    ): File =
+        withContext(ioDispatcher) {
+            if (!storage.hasRoomFor(request.id, request.sizeBytes)) {
+                throw DownloadFailure(TransferError.NotEnoughSpace)
             }
 
-            val startAt = if (resuming) alreadyHave else 0L
-            var written = startAt
-            var lastProgressUpdate = 0L
-
-            RandomAccessFile(partial, "rw").use { out ->
-                out.seek(startAt)
-                val channel = response.bodyAsChannel()
-                while (true) {
-                    this@withContext.coroutineContext.ensureActive()
-                    val packet = channel.readBuffer(DOWNLOAD_CHUNK_BYTES)
-                    if (packet.exhausted()) {
-                        break
+            val partial = storage.partialFile(request.id)
+            val alreadyHave = if (partial.isFile) partial.length() else 0L
+            client
+                .prepareGet(request.url) {
+                    if (alreadyHave > 0) {
+                        header(HttpHeaders.Range, "bytes=$alreadyHave-")
                     }
-                    while (!packet.exhausted()) {
-                        val bytes = packet.readByteArray()
-                        out.write(bytes)
-                        written += bytes.size
-                        val now = System.currentTimeMillis()
-                        if (now - lastProgressUpdate >= PROGRESS_UPDATE_INTERVAL_MS) {
-                            lastProgressUpdate = now
+                }.execute { response ->
+                    val resuming = response.status == HttpStatusCode.PartialContent
+                    if (alreadyHave > 0 && !resuming) {
+                        partial.delete()
+                    }
+                    if (!response.status.isSuccessOrPartial()) {
+                        throw DownloadFailure(TransferError.ServerError)
+                    }
 
-                            onProgress(
-                                DownloadProgress.Downloading(
-                                    downloadedBytes = written,
-                                    totalBytes = request.sizeBytes,
-                                )
-                            )
+                    val startAt = if (resuming) alreadyHave else 0L
+                    var written = startAt
+                    var lastProgressUpdate = 0L
+
+                    RandomAccessFile(partial, "rw").use { out ->
+                        out.seek(startAt)
+                        val channel = response.bodyAsChannel()
+                        while (true) {
+                            this@withContext.coroutineContext.ensureActive()
+                            val packet = channel.readBuffer(DOWNLOAD_CHUNK_BYTES)
+                            if (packet.exhausted()) {
+                                break
+                            }
+                            while (!packet.exhausted()) {
+                                val bytes = packet.readByteArray()
+                                out.write(bytes)
+                                written += bytes.size
+                                val now = System.currentTimeMillis()
+                                if (now - lastProgressUpdate >= PROGRESS_UPDATE_INTERVAL_MS) {
+                                    lastProgressUpdate = now
+
+                                    onProgress(
+                                        DownloadProgress.Downloading(
+                                            downloadedBytes = written,
+                                            totalBytes = request.sizeBytes,
+                                        ),
+                                    )
+                                }
+                            }
                         }
                     }
+
+                    onProgress(
+                        DownloadProgress.Downloading(
+                            downloadedBytes = written,
+                            totalBytes = request.sizeBytes,
+                        ),
+                    )
                 }
+
+            onProgress(DownloadProgress.Verifying)
+
+            val actual = storage.sha256(partial)
+            if (!actual.equals(request.sha256, ignoreCase = true)) {
+                partial.delete()
+                throw DownloadFailure(TransferError.VerificationFailed)
             }
-
-            onProgress(
-                DownloadProgress.Downloading(
-                    downloadedBytes = written,
-                    totalBytes = request.sizeBytes,
-                )
-            )
+            val target = storage.modelFile(request.id)
+            target.delete()
+            if (!partial.renameTo(target)) {
+                throw DownloadFailure(TransferError.CannotSave)
+            }
+            target
         }
 
-        onProgress(DownloadProgress.Verifying)
-
-        val actual = storage.sha256(partial)
-        if (!actual.equals(request.sha256, ignoreCase = true)) {
-            partial.delete()
-            throw DownloadFailure(TransferError.VerificationFailed)
-        }
-        val target = storage.modelFile(request.id)
-        target.delete()
-        if (!partial.renameTo(target)) {
-            throw DownloadFailure(TransferError.CannotSave)
-        }
-        target
-    }
-
-    private fun HttpStatusCode.isSuccessOrPartial(): Boolean =
-        value in 200..299
+    private fun HttpStatusCode.isSuccessOrPartial(): Boolean = value in 200..299
 
     private companion object {
         const val DOWNLOAD_CHUNK_BYTES = (64L * 1024) * 2

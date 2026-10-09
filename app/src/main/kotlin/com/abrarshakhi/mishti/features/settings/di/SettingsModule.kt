@@ -5,13 +5,14 @@ import com.abrarshakhi.mishti.features.settings.presentation.SettingsViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-val settingsModule = module {
-    viewModel {
-        SettingsViewModel(
-            preferences = get(),
-            snackbar = get(),
-            engine = get(),
-            isDynamicColorAvailable = isDynamicColorAvailable,
-        )
+val settingsModule =
+    module {
+        viewModel {
+            SettingsViewModel(
+                preferences = get(),
+                snackBar = get(),
+                engine = get(),
+                isDynamicColorAvailable = isDynamicColorAvailable,
+            )
+        }
     }
-}

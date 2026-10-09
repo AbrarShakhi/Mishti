@@ -1,5 +1,6 @@
 package com.abrarshakhi.mishti.features.settings.presentation
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +17,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.RestartAlt
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -38,14 +38,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.components.SectionHeader
 import com.abrarshakhi.mishti.common.ui.components.ShapedIcon
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
-import androidx.annotation.StringRes
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun SettingsScaffold(
     title: String,
@@ -67,7 +65,10 @@ internal fun SettingsScaffold(
                 subtitle = { Text(subtitle) },
                 navigationIcon = {
                     IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.action_back)
+                        )
                     }
                 },
                 scrollBehavior = scrollBehavior,

@@ -1,6 +1,8 @@
 package com.abrarshakhi.mishti.features.settings.presentation
 
-enum class AppDocument(val fileName: String) {
+enum class AppDocument(
+    val fileName: String,
+) {
     About("about.md"),
     Credits("credits.md"),
     Privacy("privacy-policy.md"),
@@ -24,8 +26,13 @@ object ProjectLinks {
 }
 
 sealed interface DocumentLink {
-    data class Internal(val document: AppDocument) : DocumentLink
-    data class External(val url: String) : DocumentLink
+    data class Internal(
+        val document: AppDocument,
+    ) : DocumentLink
+
+    data class External(
+        val url: String,
+    ) : DocumentLink
 }
 
 fun resolveDocumentLink(link: String): DocumentLink {
@@ -42,7 +49,12 @@ fun resolveDocumentLink(link: String): DocumentLink {
             else -> segments.addLast(part)
         }
     }
-    val anchor = link.substringAfter('#', "").takeIf { it.isNotEmpty() }?.let { "#$it" }.orEmpty()
+    val anchor =
+        link
+            .substringAfter('#', "")
+            .takeIf { it.isNotEmpty() }
+            ?.let { "#$it" }
+            .orEmpty()
     return DocumentLink.External(ProjectLinks.SOURCE_FILES + segments.joinToString("/") + anchor)
 }
 
@@ -60,14 +72,21 @@ fun unindentWrappedLines(markdown: String): String {
     var previousBlank = true
     return markdown.lines().joinToString("\n") { line ->
         val trimmed = line.trimStart()
-        val result = when {
-            trimmed.startsWith("```") -> {
-                inFence = !inFence
-                line
+        val result =
+            when {
+                trimmed.startsWith("```") -> {
+                    inFence = !inFence
+                    line
+                }
+
+                inFence || previousBlank || trimmed == line || BlockStart.containsMatchIn(trimmed) -> {
+                    line
+                }
+
+                else -> {
+                    trimmed
+                }
             }
-            inFence || previousBlank || trimmed == line || BlockStart.containsMatchIn(trimmed) -> line
-            else -> trimmed
-        }
         previousBlank = line.isBlank()
         result
     }

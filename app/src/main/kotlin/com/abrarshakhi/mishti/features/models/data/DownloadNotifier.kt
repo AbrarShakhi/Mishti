@@ -12,8 +12,9 @@ fun interface DownloadNotifier {
     }
 }
 
-class ServiceDownloadNotifier(private val context: Context) : DownloadNotifier {
-
+class ServiceDownloadNotifier(
+    private val context: Context,
+) : DownloadNotifier {
     override fun onDownloadsActive() {
         val intent = Intent(context, ModelDownloadService::class.java)
         runCatching { ContextCompat.startForegroundService(context, intent) }

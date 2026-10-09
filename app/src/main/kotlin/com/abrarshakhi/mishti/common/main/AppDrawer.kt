@@ -20,15 +20,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -49,9 +48,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
@@ -77,15 +76,13 @@ import com.abrarshakhi.mishti.features.chat.domain.model.ChatSession
 import com.abrarshakhi.mishti.features.chat.presentation.RenameState
 import com.abrarshakhi.mishti.features.chat.presentation.SessionGroup
 import com.abrarshakhi.mishti.features.chat.presentation.groupSessionsByRecency
-import java.time.ZoneId
-import kotlin.math.min
 import com.abrarshakhi.mishti.features.chat.presentation.labelRes
 import com.abrarshakhi.mishti.features.chat.presentation.sessionDisplayTitle
+import java.time.ZoneId
+import kotlin.math.min
 
 private val MinimumVisibleScrim = 56.dp
-
 private val FadeLength = 32.dp
-
 private const val TopAnchorKey = "top"
 
 @Composable
@@ -238,7 +235,10 @@ private fun ConversationHistory(
                     text = stringResource(R.string.drawer_empty),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = Spacing.Large, vertical = Spacing.Large),
+                    modifier = Modifier.padding(
+                        horizontal = Spacing.Large,
+                        vertical = Spacing.Large
+                    ),
                 )
             }
         }
@@ -308,7 +308,6 @@ private fun Modifier.fadingEdges(top: () -> Float, bottom: () -> Float): Modifie
             }
         }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ConversationItem(
     session: ChatSession,
@@ -455,7 +454,10 @@ private fun RenameDialog(
             )
         },
         confirmButton = {
-            TextButton(onClick = onConfirm, enabled = state.canConfirm) { Text(stringResource(R.string.drawer_rename)) }
+            TextButton(
+                onClick = onConfirm,
+                enabled = state.canConfirm
+            ) { Text(stringResource(R.string.drawer_rename)) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
     )
@@ -476,7 +478,10 @@ private fun DeleteDialog(
         },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(stringResource(R.string.action_delete), color = MaterialTheme.colorScheme.error)
+                Text(
+                    stringResource(R.string.action_delete),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },

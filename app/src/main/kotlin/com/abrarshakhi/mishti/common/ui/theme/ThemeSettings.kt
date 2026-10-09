@@ -4,7 +4,9 @@ import androidx.compose.ui.graphics.Color
 
 enum class ThemeMode { System, Light, Dark }
 
-enum class AppColorScheme(val seed: Color) {
+enum class AppColorScheme(
+    val seed: Color,
+) {
     Dynamic(HoneySeed),
     Honey(HoneySeed),
     Indigo(Color(0xFF4656B5)),

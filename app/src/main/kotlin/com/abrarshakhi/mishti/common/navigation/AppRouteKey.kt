@@ -10,7 +10,9 @@ sealed interface AppRouteKey : NavKey {
     data object Onboarding : NavKey
 
     @Serializable
-    data class Chat(val sessionId: String? = null) : NavKey
+    data class Chat(
+        val sessionId: String? = null,
+    ) : NavKey
 
     @Serializable
     data object Settings : NavKey
@@ -28,7 +30,9 @@ sealed interface AppRouteKey : NavKey {
     data object PerformanceSettings : NavKey
 
     @Serializable
-    data class Document(val document: AppDocument) : NavKey
+    data class Document(
+        val document: AppDocument,
+    ) : NavKey
 
     @Serializable
     data object Models : NavKey

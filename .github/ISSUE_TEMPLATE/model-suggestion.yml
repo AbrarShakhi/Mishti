@@ -1,6 +1,6 @@
 name: Model suggestion
 description: Suggest a model for the Mistir Bhandar catalog.
-labels: ["model suggestion"]
+labels: [ "model suggestion" ]
 body:
   - type: input
     id: repo

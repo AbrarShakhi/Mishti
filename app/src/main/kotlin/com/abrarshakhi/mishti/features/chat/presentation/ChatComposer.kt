@@ -3,11 +3,11 @@ package com.abrarshakhi.mishti.features.chat.presentation
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,10 +36,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import com.abrarshakhi.mishti.common.ui.theme.Spacing
-import com.abrarshakhi.mishti.R
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import com.abrarshakhi.mishti.R
+import com.abrarshakhi.mishti.common.ui.theme.Spacing
 
 private const val ComposerMaxLines = 6
 
@@ -98,9 +98,9 @@ internal fun ChatComposer(
             AnimatedVisibility(
                 visible = thinkingSupported,
                 enter = expandVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) +
-                    fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
+                        fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
                 exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()) +
-                    fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                        fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
             ) {
                 ThinkingChip(
                     selected = thinkingEnabled,
@@ -134,7 +134,6 @@ private fun ThinkingChip(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SendButton(
     canSend: Boolean,

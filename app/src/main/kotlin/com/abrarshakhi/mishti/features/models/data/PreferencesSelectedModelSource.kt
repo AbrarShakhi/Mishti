@@ -15,7 +15,6 @@ class PreferencesSelectedModelSource(
     private val dao: InstalledModelDao,
     private val storage: ModelStorage,
 ) : SelectedModelSource {
-
     override fun selected(): Flow<ModelHandle?> =
         combine(preferences.selectedModelId, dao.observeAll()) { id, rows ->
             val model = id?.let { wanted -> rows.find { it.id == wanted } } ?: return@combine null

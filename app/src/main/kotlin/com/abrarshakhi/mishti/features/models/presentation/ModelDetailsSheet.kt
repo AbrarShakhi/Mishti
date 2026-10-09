@@ -3,7 +3,6 @@ package com.abrarshakhi.mishti.features.models.presentation
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,13 +14,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,15 +27,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.features.models.domain.model.MemoryFit
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
 import kotlin.math.roundToInt
-import androidx.compose.ui.res.pluralStringResource
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ModelDetailsSheet(
     item: CatalogItem,
@@ -64,7 +62,11 @@ internal fun ModelDetailsSheet(
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .padding(start = Spacing.ExtraLarge, end = Spacing.ExtraLarge, bottom = Spacing.ExtraLarge),
+                .padding(
+                    start = Spacing.ExtraLarge,
+                    end = Spacing.ExtraLarge,
+                    bottom = Spacing.ExtraLarge
+                ),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ModelGlyph(name = model.name, seed = model.id, size = 72.dp, rotation = spin.value)
@@ -72,7 +74,10 @@ internal fun ModelDetailsSheet(
                 Column {
                     Text(model.name, style = MaterialTheme.typography.headlineSmallEmphasized)
                     Text(
-                        text = listOfNotNull(model.publisher, stringResource(model.source.labelRes)).joinToString(" · "),
+                        text = listOfNotNull(
+                            model.publisher,
+                            stringResource(model.source.labelRes)
+                        ).joinToString(" · "),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -84,15 +89,33 @@ internal fun ModelDetailsSheet(
                 horizontalArrangement = Arrangement.spacedBy(Spacing.ExtraSmall),
                 verticalArrangement = Arrangement.spacedBy(Spacing.ExtraSmall),
             ) {
-                model.parametersLabel?.let { InfoPill(stringResource(R.string.models_parameters, it)) }
+                model.parametersLabel?.let {
+                    InfoPill(
+                        stringResource(
+                            R.string.models_parameters,
+                            it
+                        )
+                    )
+                }
                 if (model.quantization.isNotBlank()) InfoPill(model.quantization)
                 InfoPill(formatSize(model.sizeBytes))
-                model.contextLength?.let { InfoPill(stringResource(R.string.models_context, it / 1024)) }
+                model.contextLength?.let {
+                    InfoPill(
+                        stringResource(
+                            R.string.models_context,
+                            it / 1024
+                        )
+                    )
+                }
                 FitBadge(item.fit)
             }
 
             val description = model.description ?: model.typicalTokensPerSecond?.let {
-                pluralStringResource(R.plurals.models_typical_speed, it.roundToInt(), it.roundToInt())
+                pluralStringResource(
+                    R.plurals.models_typical_speed,
+                    it.roundToInt(),
+                    it.roundToInt()
+                )
             }
             description?.let {
                 Spacer(Modifier.height(Spacing.Large))

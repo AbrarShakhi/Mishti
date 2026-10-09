@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abrarshakhi.mishti.common.mvi.CollectEffects
-import com.abrarshakhi.mishti.common.ui.snackbar.SnackbarDispatcher
+import com.abrarshakhi.mishti.common.ui.snackbar.SnackBarDispatcher
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
@@ -21,11 +21,11 @@ fun ChatRoute(
 ) {
     val viewModel: ChatViewModel = koinViewModel { parametersOf(sessionId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val snackbarDispatcher: SnackbarDispatcher = koinInject()
+    val snackBarDispatcher: SnackBarDispatcher = koinInject()
 
     CollectEffects(viewModel.effects) { effect ->
         when (effect) {
-            is ChatEffect.ShowError -> snackbarDispatcher.showError(effect.text)
+            is ChatEffect.ShowError -> snackBarDispatcher.showError(effect.text)
         }
     }
 

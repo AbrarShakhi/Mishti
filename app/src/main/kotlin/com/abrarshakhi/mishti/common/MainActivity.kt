@@ -17,7 +17,6 @@ import com.abrarshakhi.mishti.common.ui.theme.isDark
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
-
     private val mainAppViewModel: MainAppViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +30,10 @@ class MainActivity : ComponentActivity() {
 
             DisposableEffect(dark) {
                 enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { dark },
+                    statusBarStyle = SystemBarStyle.auto(
+                        Color.TRANSPARENT,
+                        Color.TRANSPARENT
+                    ) { dark },
                     navigationBarStyle = SystemBarStyle.auto(LightScrim, DarkScrim) { dark },
                 )
                 onDispose {}

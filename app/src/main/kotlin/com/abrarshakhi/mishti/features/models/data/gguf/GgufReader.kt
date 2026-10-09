@@ -15,7 +15,6 @@ data class GgufInfo(
 class NotGgufException : Exception("This file is not a GGUF model.")
 
 object GgufReader {
-
     private const val MAGIC = 0x46554747
     private const val MAX_STRING_BYTES = 64L * 1024 * 1024
 
@@ -31,7 +30,8 @@ object GgufReader {
         for (i in 0 until kvCount) {
             val key = stream.string()
             val type = stream.u32().toInt()
-            val value = stream.value(type, keep = key in WantedKeys || key.endsWith(".context_length"))
+            val value =
+                stream.value(type, keep = key in WantedKeys || key.endsWith(".context_length"))
             if (value != null) values[key] = value
         }
 
@@ -46,31 +46,63 @@ object GgufReader {
         )
     }
 
-    private val WantedKeys = setOf(
-        "general.name",
-        "general.architecture",
-        "general.size_label",
-        "general.file_type",
-        "general.license",
-    )
+    private val WantedKeys =
+        setOf(
+            "general.name",
+            "general.architecture",
+            "general.size_label",
+            "general.file_type",
+            "general.license",
+        )
 
-    private fun LittleEndianStream.value(type: Int, keep: Boolean): Any? = when (type) {
-        0, 1, 7 -> u8().takeIf { keep }
-        2, 3 -> skip(2).let { null }
-        4 -> u32().takeIf { keep }
-        5 -> u32().toInt().takeIf { keep }
-        6 -> skip(4).let { null }
-        8 -> if (keep) string() else skipString().let { null }
-        9 -> {
-            val itemType = u32().toInt()
-            val count = u64()
-            for (i in 0 until count) value(itemType, keep = false)
-            null
+    private fun LittleEndianStream.value(
+        type: Int,
+        keep: Boolean,
+    ): Any? =
+        when (type) {
+            0, 1, 7 -> {
+                u8().takeIf { keep }
+            }
+
+            2, 3 -> {
+                skip(2).let { null }
+            }
+
+            4 -> {
+                u32().takeIf { keep }
+            }
+
+            5 -> {
+                u32().toInt().takeIf { keep }
+            }
+
+            6 -> {
+                skip(4).let { null }
+            }
+
+            8 -> {
+                if (keep) string() else skipString().let { null }
+            }
+
+            9 -> {
+                val itemType = u32().toInt()
+                val count = u64()
+                for (i in 0 until count) value(itemType, keep = false)
+                null
+            }
+
+            10, 11 -> {
+                u64().takeIf { keep }
+            }
+
+            12 -> {
+                skip(8).let { null }
+            }
+
+            else -> {
+                throw NotGgufException()
+            }
         }
-        10, 11 -> u64().takeIf { keep }
-        12 -> skip(8).let { null }
-        else -> throw NotGgufException()
-    }
 
     private fun LittleEndianStream.string(): String {
         val length = u64()
@@ -84,45 +116,47 @@ object GgufReader {
         skip(length)
     }
 
-    fun fileTypeName(fileType: Int): String? = when (fileType) {
-        0 -> "F32"
-        1 -> "F16"
-        2 -> "Q4_0"
-        3 -> "Q4_1"
-        7 -> "Q8_0"
-        8 -> "Q5_0"
-        9 -> "Q5_1"
-        10 -> "Q2_K"
-        11 -> "Q3_K_S"
-        12 -> "Q3_K_M"
-        13 -> "Q3_K_L"
-        14 -> "Q4_K_S"
-        15 -> "Q4_K_M"
-        16 -> "Q5_K_S"
-        17 -> "Q5_K_M"
-        18 -> "Q6_K"
-        19 -> "IQ2_XXS"
-        20 -> "IQ2_XS"
-        21 -> "Q2_K_S"
-        22 -> "IQ3_XS"
-        23 -> "IQ3_XXS"
-        24 -> "IQ1_S"
-        25 -> "IQ4_NL"
-        26 -> "IQ3_S"
-        27 -> "IQ3_M"
-        28 -> "IQ2_S"
-        29 -> "IQ2_M"
-        30 -> "IQ4_XS"
-        31 -> "IQ1_M"
-        32 -> "BF16"
-        36 -> "TQ1_0"
-        37 -> "TQ2_0"
-        else -> null
-    }
+    fun fileTypeName(fileType: Int): String? =
+        when (fileType) {
+            0 -> "F32"
+            1 -> "F16"
+            2 -> "Q4_0"
+            3 -> "Q4_1"
+            7 -> "Q8_0"
+            8 -> "Q5_0"
+            9 -> "Q5_1"
+            10 -> "Q2_K"
+            11 -> "Q3_K_S"
+            12 -> "Q3_K_M"
+            13 -> "Q3_K_L"
+            14 -> "Q4_K_S"
+            15 -> "Q4_K_M"
+            16 -> "Q5_K_S"
+            17 -> "Q5_K_M"
+            18 -> "Q6_K"
+            19 -> "IQ2_XXS"
+            20 -> "IQ2_XS"
+            21 -> "Q2_K_S"
+            22 -> "IQ3_XS"
+            23 -> "IQ3_XXS"
+            24 -> "IQ1_S"
+            25 -> "IQ4_NL"
+            26 -> "IQ3_S"
+            27 -> "IQ3_M"
+            28 -> "IQ2_S"
+            29 -> "IQ2_M"
+            30 -> "IQ4_XS"
+            31 -> "IQ1_M"
+            32 -> "BF16"
+            36 -> "TQ1_0"
+            37 -> "TQ2_0"
+            else -> null
+        }
 }
 
-private class LittleEndianStream(private val input: InputStream) {
-
+private class LittleEndianStream(
+    private val input: InputStream,
+) {
     fun u8(): Long {
         val b = input.read()
         if (b < 0) throw EOFException()
@@ -132,9 +166,9 @@ private class LittleEndianStream(private val input: InputStream) {
     fun u32(): Long {
         val b = bytes(4)
         return (b[0].toLong() and 0xFF) or
-            ((b[1].toLong() and 0xFF) shl 8) or
-            ((b[2].toLong() and 0xFF) shl 16) or
-            ((b[3].toLong() and 0xFF) shl 24)
+                ((b[1].toLong() and 0xFF) shl 8) or
+                ((b[2].toLong() and 0xFF) shl 16) or
+                ((b[3].toLong() and 0xFF) shl 24)
     }
 
     fun u64(): Long {

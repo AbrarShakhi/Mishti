@@ -10,31 +10,52 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 
 sealed interface FetchResult {
-    data class Fresh(val text: String, val etag: String?) : FetchResult
+    data class Fresh(
+        val text: String,
+        val etag: String?,
+    ) : FetchResult
+
     data object NotModified : FetchResult
 }
 
-class CatalogFetchException(message: String) : Exception(message)
+class CatalogFetchException(
+    message: String,
+) : Exception(message)
 
 fun interface CatalogFetcher {
-    suspend fun fetch(url: String, etag: String?): FetchResult
+    suspend fun fetch(
+        url: String,
+        etag: String?,
+    ): FetchResult
 }
 
-class KtorCatalogFetcher(private val client: HttpClient) : CatalogFetcher {
-
-    override suspend fun fetch(url: String, etag: String?): FetchResult {
-        val response = client.get(url) {
-            timeout { requestTimeoutMillis = REQUEST_TIMEOUT_MILLIS }
-            etag?.let { header(HttpHeaders.IfNoneMatch, it) }
-        }
+class KtorCatalogFetcher(
+    private val client: HttpClient,
+) : CatalogFetcher {
+    override suspend fun fetch(
+        url: String,
+        etag: String?,
+    ): FetchResult {
+        val response =
+            client.get(url) {
+                timeout { requestTimeoutMillis = REQUEST_TIMEOUT_MILLIS }
+                etag?.let { header(HttpHeaders.IfNoneMatch, it) }
+            }
         return when {
-            response.status == HttpStatusCode.NotModified -> FetchResult.NotModified
-            response.status.isSuccess() -> FetchResult.Fresh(
-                text = response.bodyAsText(),
-                etag = response.headers[HttpHeaders.ETag],
-            )
+            response.status == HttpStatusCode.NotModified -> {
+                FetchResult.NotModified
+            }
 
-            else -> throw CatalogFetchException("The server answered ${response.status.value}.")
+            response.status.isSuccess() -> {
+                FetchResult.Fresh(
+                    text = response.bodyAsText(),
+                    etag = response.headers[HttpHeaders.ETag],
+                )
+            }
+
+            else -> {
+                throw CatalogFetchException("The server answered ${response.status.value}.")
+            }
         }
     }
 

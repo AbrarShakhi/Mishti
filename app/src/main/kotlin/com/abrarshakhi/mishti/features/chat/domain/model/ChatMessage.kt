@@ -1,6 +1,5 @@
 package com.abrarshakhi.mishti.features.chat.domain.model
 
-
 enum class MessageAuthor {
     User,
     Assistant,

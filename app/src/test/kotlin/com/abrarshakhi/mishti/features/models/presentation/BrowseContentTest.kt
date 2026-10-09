@@ -16,23 +16,25 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BrowseContentTest {
-
     private val small = catalogModel("small", sizeBytes = 300_000_000L, tags = setOf("recommended"))
-    private val coder = catalogModel("coder", sizeBytes = 1_000_000_000L, tags = setOf("coding", "recommended"))
-    private val huge = catalogModel(
-        "huge",
-        sizeBytes = 2_500_000_000L,
-        requiredRamBytes = 9_000_000_000L,
-        tags = setOf("recommended"),
-    )
+    private val coder =
+        catalogModel("coder", sizeBytes = 1_000_000_000L, tags = setOf("coding", "recommended"))
+    private val huge =
+        catalogModel(
+            "huge",
+            sizeBytes = 2_500_000_000L,
+            requiredRamBytes = 9_000_000_000L,
+            tags = setOf("recommended"),
+        )
 
     private fun state(
-        catalog: Catalog = Catalog(
-            source = CatalogSource.MistirBhandar,
-            version = "1",
-            models = listOf(huge, coder, small),
-            recommendedIds = listOf(huge.id, small.id, coder.id),
-        ),
+        catalog: Catalog =
+            Catalog(
+                source = CatalogSource.MishtirBhandar,
+                version = "1",
+                models = listOf(huge, coder, small),
+                recommendedIds = listOf(huge.id, small.id, coder.id),
+            ),
         ram: Long = 6_000_000_000L,
         shelf: List<ShelfModel> = emptyList(),
         transfers: List<Transfer> = emptyList(),
@@ -41,7 +43,10 @@ class BrowseContentTest {
     ) = ModelsUiState(
         capability = DeviceCapability.Supported(ram),
         catalogSource = catalog.source,
-        catalogs = mapOf(catalog.source to CatalogState.Ready(catalog, null, false, false)),
+        catalogs = mapOf(catalog.source to CatalogState.Ready(catalog, null,
+            isOffline = false,
+            isRefreshing = false
+        )),
         shelf = shelf,
         transfers = transfers,
         filter = filter,
@@ -65,23 +70,58 @@ class BrowseContentTest {
 
     @Test
     fun `filters and search narrow the list and hide recommendations while searching`() {
-        assertEquals(listOf(coder.id), browseContent(state(filter = CatalogFilter.Coding)).sections.single().items.map { it.model.id })
-        assertEquals(listOf(huge.id), browseContent(state(filter = CatalogFilter.Smart)).sections.single().items.map { it.model.id })
+        assertEquals(
+            listOf(coder.id),
+            browseContent(state(filter = CatalogFilter.Coding))
+                .sections
+                .single()
+                .items
+                .map { it.model.id },
+        )
+        assertEquals(
+            listOf(huge.id),
+            browseContent(state(filter = CatalogFilter.Smart))
+                .sections
+                .single()
+                .items
+                .map { it.model.id },
+        )
 
         val searched = browseContent(state(query = "cod"))
-        assertEquals(listOf(coder.id), searched.sections.single().items.map { it.model.id })
+        assertEquals(
+            listOf(coder.id),
+            searched.sections
+                .single()
+                .items
+                .map { it.model.id },
+        )
         assertTrue(searched.recommended.isEmpty())
     }
 
     @Test
     fun `a model already downloaded from the other catalog counts as on the shelf`() {
-        val shelf = ShelfModel(
-            id = "pocketpal-small", name = "small", origin = ModelOrigin.PocketPal, quantization = null,
-            parametersLabel = null, sizeBytes = 1, hfRepo = small.hfRepo, hfFile = small.hfFile,
-            architecture = null, contextLength = null, license = null, installedAtMillis = 0,
-        )
+        val shelf =
+            ShelfModel(
+                id = "pocketpal-small",
+                name = "small",
+                origin = ModelOrigin.PocketPal,
+                quantization = null,
+                parametersLabel = null,
+                sizeBytes = 1,
+                hfRepo = small.hfRepo,
+                hfFile = small.hfFile,
+                architecture = null,
+                contextLength = null,
+                license = null,
+                installedAtMillis = 0,
+            )
 
-        val item = browseContent(state(shelf = listOf(shelf))).sections.single().items.first { it.model.id == small.id }
+        val item =
+            browseContent(state(shelf = listOf(shelf)))
+                .sections
+                .single()
+                .items
+                .first { it.model.id == small.id }
 
         assertTrue(item.isOnShelf)
     }
@@ -90,20 +130,26 @@ class BrowseContentTest {
     fun `download progress is attached to its row`() {
         val transfer = Transfer(coder.id, coder.name, TransferStatus.Downloading(5, 10))
 
-        val item = browseContent(state(transfers = listOf(transfer))).sections.single().items.first { it.model.id == coder.id }
+        val item =
+            browseContent(state(transfers = listOf(transfer)))
+                .sections
+                .single()
+                .items
+                .first { it.model.id == coder.id }
 
         assertEquals(transfer.status, item.transfer)
     }
 
     @Test
     fun `PocketPal tiers become sections and the phone's own tier is marked`() {
-        val catalog = Catalog(
-            source = CatalogSource.PocketPal,
-            version = "1",
-            models = listOf(small.copy(groupId = "low"), coder.copy(groupId = "mid")),
-            groups = listOf(CatalogGroup("low"), CatalogGroup("mid")),
-            deviceGroupId = "mid",
-        )
+        val catalog =
+            Catalog(
+                source = CatalogSource.PocketPal,
+                version = "1",
+                models = listOf(small.copy(groupId = "low"), coder.copy(groupId = "mid")),
+                groups = listOf(CatalogGroup("low"), CatalogGroup("mid")),
+                deviceGroupId = "mid",
+            )
 
         val sections = browseContent(state(catalog = catalog)).sections
 

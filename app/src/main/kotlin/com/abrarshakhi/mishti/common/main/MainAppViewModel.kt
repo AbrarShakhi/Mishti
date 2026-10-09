@@ -24,21 +24,22 @@ class MainAppViewModel(
     private val engine: LlmEngine,
     private val selectedModel: SelectedModelSource,
 ) : ViewModel() {
+    val themeSettings: StateFlow<ThemeSettings> =
+        preferences.themeSettings.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = ThemeSettings(),
+        )
 
-    val themeSettings: StateFlow<ThemeSettings> = preferences.themeSettings.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = ThemeSettings(),
-    )
-
-    val startRoute: StateFlow<NavKey?> = flow {
-        val completed = preferences.hasCompletedOnboarding.first()
-        emit(if (completed) AppRouteKey.Chat() else AppRouteKey.Onboarding)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = null,
-    )
+    val startRoute: StateFlow<NavKey?> =
+        flow {
+            val completed = preferences.hasCompletedOnboarding.first()
+            emit(if (completed) AppRouteKey.Chat() else AppRouteKey.Onboarding)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null,
+        )
 
     init {
         viewModelScope.launch {

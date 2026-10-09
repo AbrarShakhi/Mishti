@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class FakeAppPreferences(
     initialInference: InferenceSettings = InferenceSettings(),
 ) : AppPreferences {
-
     private val onboarding = MutableStateFlow(false)
     private val theme = MutableStateFlow(ThemeSettings())
     private val selected = MutableStateFlow<String?>(null)
@@ -25,19 +24,34 @@ class FakeAppPreferences(
     override val inferenceSettings: Flow<InferenceSettings> = inference
     override val thinkingModelIds: Flow<Set<String>> = thinking
 
-    override suspend fun setOnboardingCompleted(completed: Boolean) { onboarding.value = completed }
-    override suspend fun setThemeMode(mode: ThemeMode) { theme.value = theme.value.copy(mode = mode) }
+    override suspend fun setOnboardingCompleted(completed: Boolean) {
+        onboarding.value = completed
+    }
+
+    override suspend fun setThemeMode(mode: ThemeMode) {
+        theme.value = theme.value.copy(mode = mode)
+    }
+
     override suspend fun setColorScheme(scheme: AppColorScheme) {
         theme.value = theme.value.copy(colorScheme = scheme)
     }
-    override suspend fun setFont(font: AppFont) { theme.value = theme.value.copy(font = font) }
-    override suspend fun setSelectedModelId(modelId: String?) { selected.value = modelId }
-    override suspend fun updateInferenceSettings(
-        transform: (InferenceSettings) -> InferenceSettings,
-    ) {
+
+    override suspend fun setFont(font: AppFont) {
+        theme.value = theme.value.copy(font = font)
+    }
+
+    override suspend fun setSelectedModelId(modelId: String?) {
+        selected.value = modelId
+    }
+
+    override suspend fun updateInferenceSettings(transform: (InferenceSettings) -> InferenceSettings) {
         inference.value = transform(inference.value)
     }
-    override suspend fun setThinking(modelId: String, enabled: Boolean) {
+
+    override suspend fun setThinking(
+        modelId: String,
+        enabled: Boolean,
+    ) {
         thinking.value = if (enabled) thinking.value + modelId else thinking.value - modelId
     }
 }

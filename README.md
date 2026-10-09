@@ -13,10 +13,9 @@
 
 ---
 
-Mishti is an offline chat app for Android. It downloads a small open-weights model to your
-device and runs it locally through [llama.cpp](https://github.com/ggml-org/llama.cpp), so
-conversations never leave the phone. After the model is downloaded, no network connection is
-needed to use it.
+Mishti is an offline chat app for Android. It downloads a small open-weights model to your device
+and runs it locally through [llama.cpp](https://github.com/ggml-org/llama.cpp), so conversations
+never leave the phone. After the model is downloaded, no network connection is needed to use it.
 
 There is no account, no server and no telemetry.
 
@@ -48,21 +47,37 @@ Uncomment once the images are in place.
 
 ## Features
 
-- **Fully offline inference.** llama.cpp runs the model on the device's CPU through a JNI bridge. Nothing is sent anywhere.
-- **Conversations that persist.** Sessions and messages are stored in a local database, featuring rename, delete, and a conversation drawer functionality.
-- **Streaming replies.** Tokens appear dynamically as they are produced, and generation can be interrupted mid-reply, preserving the partial answer.
-- **Toggleable thinking process.** Enables or disables model-supported reasoning or "thinking" outputs, allowing users to view or hide the model's step-by-step cognitive process depending on capability.
-- **Mistir Bhandar, the model shop.** Browse two distinct catalogs: Mishti’s native catalog, which ships with the app and updates online upon opening the shop, and PocketPal AI's community-tested list. Models are evaluated against device memory constraints with personalized recommendations, supporting resumable background downloads and SHA-256 integrity verification prior to acceptance.
-- **Bring your own model.** Import any GGUF file directly from device storage. Mishti inspects the file header, identifying its name, architecture, and quantization parameters before securely importing it.
-- **Device-aware.** Available RAM is cross-referenced against each model's requirements prior to downloading, preventing out-of-memory errors and optimizing bandwidth usage.
-- **Tunable.** Configurable parameters including temperature, top-p, top-k, response limits, context windows, thread counts, and custom pre-instructions (system prompts), each managed via dedicated settings pages.
-- **Throughput readout.** Each generated reply provides a real-time performance readout of the tokens per second achieved during generation.
-- **Material 3 throughout.** Comprehensive support for system, light, and dark themes, dynamic color extraction from device wallpapers on Android 12+, four hand-tuned color palettes, and a choice of four distinct typefaces.
+- **Fully offline inference.** llama.cpp runs the model on the device's CPU through a JNI bridge.
+  Nothing is sent anywhere.
+- **Conversations that persist.** Sessions and messages are stored in a local database, featuring
+  rename, delete, and a conversation drawer functionality.
+- **Streaming replies.** Tokens appear dynamically as they are produced, and generation can be
+  interrupted mid-reply, preserving the partial answer.
+- **Toggleable thinking process.** Enables or disables model-supported reasoning or "thinking"
+  outputs, allowing users to view or hide the model's step-by-step cognitive process depending on
+  capability.
+- **Mistir Bhandar, the model shop.** Browse two distinct catalogs: Mishti’s native catalog, which
+  ships with the app and updates online upon opening the shop, and PocketPal AI's community-tested
+  list. Models are evaluated against device memory constraints with personalized recommendations,
+  supporting resumable background downloads and SHA-256 integrity verification prior to acceptance.
+- **Bring your own model.** Import any GGUF file directly from device storage. Mishti inspects the
+  file header, identifying its name, architecture, and quantization parameters before securely
+  importing it.
+- **Device-aware.** Available RAM is cross-referenced against each model's requirements prior to
+  downloading, preventing out-of-memory errors and optimizing bandwidth usage.
+- **Tunable.** Configurable parameters including temperature, top-p, top-k, response limits, context
+  windows, thread counts, and custom pre-instructions (system prompts), each managed via dedicated
+  settings pages.
+- **Throughput readout.** Each generated reply provides a real-time performance readout of the
+  tokens per second achieved during generation.
+- **Material 3 throughout.** Comprehensive support for system, light, and dark themes, dynamic color
+  extraction from device wallpapers on Android 12+, four hand-tuned color palettes, and a choice of
+  four distinct typefaces.
 
 ## Models
 
-Mishti's catalog lives in [`hub/catalog.v1.json`](hub/catalog.v1.json). It is bundled in the
-APK, so the list renders without a connection, and the app picks up changes to the copy on
+Mishti's catalog lives in [`hub/catalog.v1.json`](hub/catalog.v1.json). It is bundled in the APK, so
+the list renders without a connection, and the app picks up changes to the copy on
 `main` when you open the shop. To add a model:
 
 ```bash
@@ -74,8 +89,8 @@ python3 tools/hub.py validate
 
 The script fills in the size, SHA-256, parameter count and context length from Hugging Face.
 
-Weights are fetched from Hugging Face. Each model carries its own upstream licence, shown in
-the app: Llama 3.2 and Gemma, for example, have their own terms rather than an OSI licence.
+Weights are fetched from Hugging Face. Each model carries its own upstream license, shown in the
+app: Llama 3.2 and Gemma, for example, have their own terms rather than an OSI license.
 
 ## Requirements
 
@@ -120,30 +135,25 @@ restricted to `arm64-v8a` to keep that cost down; release builds add `x86_64`.
 
 ## Architecture
 
-Kotlin and Jetpack Compose throughout, with MVI for every stateful screen and Koin for
-dependency injection. Code is split by ownership — `common/` for the app shell, navigation,
-theme and the engine interface, and `features/<feature>/` for each screen and the layers it
-actually needs.
+Kotlin and Jetpack Compose throughout, with MVI for every stateful screen and Koin for dependency
+injection. Code is split by ownership — `common/` for the app shell, navigation, theme and the
+engine interface, and `features/<feature>/` for each screen and the layers it actually needs.
 
 The inference engine sits behind a single `LlmEngine` interface, so the UI, streaming and
 persistence are written against a seam rather than against llama.cpp directly.
 
-[`CLAUDE.md`](CLAUDE.md) documents the architecture in full — the MVI contract, the
-Navigation 3 back stack, the chrome pattern, the persistence rules, the download subsystem and
-the native binding.
-
 ## Tech stack
 
-| | |
-|---|---|
-| Language | Kotlin 2.4.20 |
-| UI | Jetpack Compose (BOM 2026.09.00), Material 3 |
-| Navigation | Navigation 3 |
-| DI | Koin 4.2 |
-| Storage | Room 2.8, DataStore Preferences |
-| Networking | Ktor 3.6 |
-| Inference | llama.cpp (`b11030`) via JNI, NDK 28.2 |
-| Build | AGP 9.4, Gradle 9.7, JVM 17 target |
+|            |                                              |
+|------------|----------------------------------------------|
+| Language   | Kotlin 2.4.20                                |
+| UI         | Jetpack Compose (BOM 2026.09.00), Material 3 |
+| Navigation | Navigation 3                                 |
+| DI         | Koin 4.2                                     |
+| Storage    | Room 2.8, DataStore Preferences              |
+| Networking | Ktor 3.6                                     |
+| Inference  | llama.cpp (`b11030`) via JNI, NDK 28.2       |
+| Build      | AGP 9.4, Gradle 9.7, JVM 17 target           |
 
 ## Status
 
@@ -157,10 +167,10 @@ Mishti is usable but young. Known limitations, in the interest of not surprising
 
 ## Privacy
 
-Mishti has no accounts, analytics, ads or crash reporting, and the model runs on your phone, so
-your conversations are never sent anywhere. The app goes online only to fetch model catalogs
-(when you open Mistir Bhandar) and to download models from Hugging Face. Its data is left out of
-Android backups and device transfers. The draft
+Mishti has no accounts, analytics, ads or crash reporting, and the model runs on your phone, so your
+conversations are never sent anywhere. The app goes online only to fetch model catalogs (when you
+open Mistir Bhandar) and to download models from Hugging Face. Its data is left out of Android
+backups and device transfers. The draft
 [Privacy Policy](docs/privacy-policy.md) lists every request and everything stored on the phone.
 
 ## Documentation
@@ -172,22 +182,23 @@ documents and have not been reviewed by a lawyer.
 - [Privacy Policy](docs/privacy-policy.md) (draft)
 - [Terms of Service](docs/terms-of-service.md) (draft)
 - [Credits](docs/credits.md): llama.cpp, the model catalogs, every library, typeface and model
-  licence
+  license
 - [Contributing](CONTRIBUTING.md): report bugs, suggest models, translate, or send code
 
 These pages are also built into the app (Settings → About), copied from this repository at build
 time.
 
-## Licence
+## License
 
-Mishti is released under the [MIT License](LICENSE). Models you download keep their own
-licences; see [Credits](docs/credits.md).
+Mishti is released under the [MIT License](LICENSE). Models you download keep their own licenses;
+see [Credits](docs/credits.md).
 
 ## Credits
 
 Mishti is built on [llama.cpp](https://github.com/ggml-org/llama.cpp) by Georgi Gerganov and
-contributors. Its second catalog comes from [PocketPal AI](https://github.com/a-ghorbani/pocketpal-ai)'s
+contributors. Its second catalog comes
+from [PocketPal AI](https://github.com/a-ghorbani/pocketpal-ai)'s
 [pocketpal-device-rules](https://github.com/a-ghorbani/pocketpal-device-rules), fetched unmodified
-and never bundled. The typefaces (Inter, Lora, JetBrains Mono) are under the SIL Open Font
-License, and the app icon is <a href="https://www.flaticon.com/free-icons/sweet" title="sweet icons">Sweet
+and never bundled. The typefaces (Inter, Lora, JetBrains Mono) are under the SIL Open Font License,
+and the app icon is <a href="https://www.flaticon.com/free-icons/sweet" title="sweet icons">Sweet
 icons created by Magnific — Flaticon</a>. The full list is in [docs/credits.md](docs/credits.md).

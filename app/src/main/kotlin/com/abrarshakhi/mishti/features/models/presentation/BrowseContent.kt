@@ -31,21 +31,28 @@ private const val RECOMMENDED_LIMIT = 6
 
 const val ALL_SECTION_ID = "all"
 
-fun CatalogModel.matches(filter: CatalogFilter): Boolean = when (filter) {
-    CatalogFilter.All -> true
-    CatalogFilter.Fast -> sizeBytes < FAST_MAX_BYTES
-    CatalogFilter.Balanced -> sizeBytes in FAST_MAX_BYTES until BALANCED_MAX_BYTES
-    CatalogFilter.Smart -> sizeBytes >= BALANCED_MAX_BYTES
-    CatalogFilter.Coding -> "coding" in tags
-}
+fun CatalogModel.matches(filter: CatalogFilter): Boolean =
+    when (filter) {
+        CatalogFilter.All -> true
+        CatalogFilter.Fast -> sizeBytes < FAST_MAX_BYTES
+        CatalogFilter.Balanced -> sizeBytes in FAST_MAX_BYTES until BALANCED_MAX_BYTES
+        CatalogFilter.Smart -> sizeBytes >= BALANCED_MAX_BYTES
+        CatalogFilter.Coding -> "coding" in tags
+    }
 
 fun CatalogModel.matches(query: String): Boolean {
-    val words = query.trim().lowercase().split(Regex("\\s+")).filter { it.isNotEmpty() }
+    val words =
+        query
+            .trim()
+            .lowercase()
+            .split(Regex("\\s+"))
+            .filter { it.isNotEmpty() }
     if (words.isEmpty()) return true
-    val haystack = listOfNotNull(name, publisher, description, quantization, hfRepo, parametersLabel)
-        .plus(tags)
-        .joinToString(" ")
-        .lowercase()
+    val haystack =
+        listOfNotNull(name, publisher, description, quantization, hfRepo, parametersLabel)
+            .plus(tags)
+            .joinToString(" ")
+            .lowercase()
     return words.all { it in haystack }
 }
 
@@ -54,45 +61,56 @@ fun browseContent(state: ModelsUiState): BrowseContent {
     val deviceRam = state.capability.totalMemoryBytes
     val transfers = state.transfers.associateBy { it.id }
 
-    fun item(model: CatalogModel) = CatalogItem(
-        model = model,
-        fit = memoryFit(model.requiredRamBytes, deviceRam),
-        isOnShelf = state.shelf.any { it.id == model.id || model.isSameFileAs(it.hfRepo, it.hfFile) },
-        transfer = transfers[model.id]?.status,
-    )
+    fun item(model: CatalogModel) =
+        CatalogItem(
+            model = model,
+            fit = memoryFit(model.requiredRamBytes, deviceRam),
+            isOnShelf = state.shelf.any {
+                it.id == model.id || model.isSameFileAs(
+                    it.hfRepo,
+                    it.hfFile
+                )
+            },
+            transfer = transfers[model.id]?.status,
+        )
 
     val byId = catalog.models.associateBy { it.id }
-    val recommended = if (state.query.isBlank()) {
-        catalog.recommendedIds.mapNotNull { byId[it] }
-            .map(::item)
-            .filter { it.fit != MemoryFit.TooBig }
-            .take(RECOMMENDED_LIMIT)
-    } else {
-        emptyList()
-    }
+    val recommended =
+        if (state.query.isBlank()) {
+            catalog.recommendedIds
+                .mapNotNull { byId[it] }
+                .map(::item)
+                .filter { it.fit != MemoryFit.TooBig }
+                .take(RECOMMENDED_LIMIT)
+        } else {
+            emptyList()
+        }
 
     val visible = catalog.models.filter { it.matches(state.filter) && it.matches(state.query) }
-    val sections = if (catalog.groups.isEmpty()) {
-        listOf(
-            CatalogSection(
-                id = ALL_SECTION_ID,
-                isDeviceGroup = false,
-                items = visible.sortedBy { it.sizeBytes }.map(::item),
-            ),
-        )
-    } else {
-        catalog.groups.map { group ->
-            CatalogSection(
-                id = group.id,
-                isDeviceGroup = group.id == catalog.deviceGroupId,
-                items = visible.filter { it.groupId == group.id }.sortedBy { it.sizeBytes }.map(::item),
+    val sections =
+        if (catalog.groups.isEmpty()) {
+            listOf(
+                CatalogSection(
+                    id = ALL_SECTION_ID,
+                    isDeviceGroup = false,
+                    items = visible.sortedBy { it.sizeBytes }.map(::item),
+                ),
             )
-        }
-    }.filter { it.items.isNotEmpty() }
+        } else {
+            catalog.groups.map { group ->
+                CatalogSection(
+                    id = group.id,
+                    isDeviceGroup = group.id == catalog.deviceGroupId,
+                    items = visible.filter { it.groupId == group.id }.sortedBy { it.sizeBytes }
+                        .map(::item),
+                )
+            }
+        }.filter { it.items.isNotEmpty() }
 
-    val filters = CatalogFilter.entries.filter { filter ->
-        filter == CatalogFilter.All || catalog.models.any { it.matches(filter) }
-    }
+    val filters =
+        CatalogFilter.entries.filter { filter ->
+            filter == CatalogFilter.All || catalog.models.any { it.matches(filter) }
+        }
 
     return BrowseContent(recommended = recommended, sections = sections, filters = filters)
 }

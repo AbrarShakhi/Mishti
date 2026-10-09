@@ -1,5 +1,11 @@
 package com.abrarshakhi.mishti.features.models.presentation
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +31,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,23 +49,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.components.SectionHeader
 import com.abrarshakhi.mishti.common.ui.components.ShapedIcon
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.features.models.domain.model.ShelfModel
 import com.abrarshakhi.mishti.features.models.domain.model.Transfer
 import com.abrarshakhi.mishti.features.models.domain.model.TransferStatus
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
 
 @Composable
 internal fun ShelfTab(
@@ -93,7 +92,9 @@ internal fun ShelfTab(
             item(key = "oven-header") {
                 SectionHeader(stringResource(R.string.models_in_the_oven), Modifier.animateItem())
             }
-            itemsIndexed(state.transfers, key = { _, it -> "transfer-${it.id}" }) { index, transfer ->
+            itemsIndexed(
+                state.transfers,
+                key = { _, it -> "transfer-${it.id}" }) { index, transfer ->
                 TransferRow(
                     transfer = transfer,
                     shapes = ListItemDefaults.segmentedShapes(index, state.transfers.size),
@@ -106,7 +107,12 @@ internal fun ShelfTab(
         }
 
         if (inUse != null) {
-            item(key = "in-use-header") { SectionHeader(stringResource(R.string.models_in_use), Modifier.animateItem()) }
+            item(key = "in-use-header") {
+                SectionHeader(
+                    stringResource(R.string.models_in_use),
+                    Modifier.animateItem()
+                )
+            }
             item(key = "in-use-${inUse.id}") {
                 InUseCard(
                     model = inUse,
@@ -141,7 +147,6 @@ internal fun ShelfTab(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun InUseCard(
     model: ShelfModel,
@@ -173,7 +178,11 @@ private fun InUseCard(
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        text = listOfNotNull(model.parametersLabel, model.quantization, formatSize(model.sizeBytes))
+                        text = listOfNotNull(
+                            model.parametersLabel,
+                            model.quantization,
+                            formatSize(model.sizeBytes)
+                        )
                             .joinToString(" · "),
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -181,19 +190,30 @@ private fun InUseCard(
             }
             Spacer(Modifier.height(Spacing.Medium))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                InfoPill(label = stringResource(R.string.models_chatting_now), containerColor = MaterialTheme.colorScheme.primary)
+                InfoPill(
+                    label = stringResource(R.string.models_chatting_now),
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
                 Spacer(Modifier.width(Spacing.ExtraSmall))
-                InfoPill(label = stringResource(model.origin.labelRes), containerColor = MaterialTheme.colorScheme.surface)
+                InfoPill(
+                    label = stringResource(model.origin.labelRes),
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = onDelete, shapes = IconButtonDefaults.shapes()) {
-                    Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.models_delete_named, model.name))
+                    Icon(
+                        Icons.Filled.Delete,
+                        contentDescription = stringResource(
+                            R.string.models_delete_named,
+                            model.name
+                        )
+                    )
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ShelfRow(
     model: ShelfModel,
@@ -224,14 +244,17 @@ private fun ShelfRow(
             )
         },
         trailingContent = {
-            FilledTonalButton(onClick = onUse, shapes = ButtonDefaults.shapes()) { Text(stringResource(R.string.models_use)) }
+            FilledTonalButton(onClick = onUse, shapes = ButtonDefaults.shapes()) {
+                Text(
+                    stringResource(R.string.models_use)
+                )
+            }
         },
     ) {
         Text(model.name, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun TransferRow(
     transfer: Transfer,
@@ -259,12 +282,22 @@ private fun TransferRow(
                 Text(
                     text = when (status) {
                         is TransferStatus.Downloading ->
-                            stringResource(R.string.models_downloading, formatSize(status.doneBytes), formatSize(status.totalBytes))
+                            stringResource(
+                                R.string.models_downloading,
+                                formatSize(status.doneBytes),
+                                formatSize(status.totalBytes)
+                            )
+
                         is TransferStatus.Importing -> if (status.totalBytes > 0) {
-                            stringResource(R.string.models_importing, formatSize(status.doneBytes), formatSize(status.totalBytes))
+                            stringResource(
+                                R.string.models_importing,
+                                formatSize(status.doneBytes),
+                                formatSize(status.totalBytes)
+                            )
                         } else {
                             stringResource(R.string.models_reading_file)
                         }
+
                         TransferStatus.Verifying -> stringResource(R.string.models_checking_file)
                         is TransferStatus.Failed -> stringResource(status.error.messageRes)
                     },
@@ -286,7 +319,10 @@ private fun TransferRow(
                             MaterialTheme.motionScheme.defaultEffectsSpec(),
                             label = "TransferProgress",
                         )
-                        LinearWavyProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
+                        LinearWavyProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     } else {
                         LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth())
                     }
@@ -308,7 +344,6 @@ private fun TransferRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun EmptyShelf(
     onBrowse: () -> Unit,
@@ -329,7 +364,13 @@ private fun EmptyShelf(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            ModelGlyph(name = "M", seed = "mishti", size = 96.dp, rotation = rotation, modifier = Modifier.enterOnce(0, true))
+            ModelGlyph(
+                name = "M",
+                seed = "mishti",
+                size = 96.dp,
+                rotation = rotation,
+                modifier = Modifier.enterOnce(0, true)
+            )
             Spacer(Modifier.height(Spacing.ExtraLarge))
             Text(
                 text = stringResource(R.string.models_empty_title),

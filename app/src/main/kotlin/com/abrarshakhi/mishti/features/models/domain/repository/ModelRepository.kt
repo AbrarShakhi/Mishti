@@ -6,7 +6,6 @@ import com.abrarshakhi.mishti.features.models.domain.model.Transfer
 import kotlinx.coroutines.flow.Flow
 
 interface ModelRepository {
-
     val shelf: Flow<List<ShelfModel>>
 
     val transfers: Flow<List<Transfer>>

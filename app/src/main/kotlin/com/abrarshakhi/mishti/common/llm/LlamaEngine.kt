@@ -16,7 +16,6 @@ import java.util.concurrent.Executors
 class LlamaEngine(
     private val inferenceDispatcher: CoroutineDispatcher = singleInferenceThread(),
 ) : LlmEngine {
-
     private val _state = MutableStateFlow<EngineState>(EngineState.Idle)
     override val state: StateFlow<EngineState> = _state.asStateFlow()
 
@@ -26,7 +25,10 @@ class LlamaEngine(
 
     private var supportsThinking: Boolean = false
 
-    override suspend fun load(model: ModelHandle, options: EngineOptions) {
+    override suspend fun load(
+        model: ModelHandle,
+        options: EngineOptions,
+    ) {
         val current = _state.value
         if (current is EngineState.Ready && current.model.id == model.id && loadedOptions == options) {
             return
@@ -42,12 +44,13 @@ class LlamaEngine(
             releaseLocked()
             LlamaNative.nativeInit()
 
-            val loaded = runCatching {
-                LlamaNative.nativeLoadModel(model.path, options.contextTokens, options.threads)
-            }.getOrElse { error ->
-                Log.e(TAG, "load threw", error)
-                0L
-            }
+            val loaded =
+                runCatching {
+                    LlamaNative.nativeLoadModel(model.path, options.contextTokens, options.threads)
+                }.getOrElse { error ->
+                    Log.e(TAG, "load threw", error)
+                    0L
+                }
 
             if (loaded == 0L) {
                 loadedOptions = null
@@ -55,7 +58,8 @@ class LlamaEngine(
             } else {
                 handle = loaded
                 loadedOptions = options
-                supportsThinking = LlamaNative.nativeChatTemplate(loaded)
+                supportsThinking = LlamaNative
+                    .nativeChatTemplate(loaded)
                     ?.let(::templateSupportsThinking) == true
                 _state.value = EngineState.Ready(model, supportsThinking)
             }
@@ -70,41 +74,43 @@ class LlamaEngine(
     override fun generate(
         messages: List<LlmMessage>,
         params: GenerationParams,
-    ): Flow<GenerationEvent> = callbackFlow {
-        val session = handle
-        check(session != 0L) { "No model is loaded" }
+    ): Flow<GenerationEvent> =
+        callbackFlow {
+            val session = handle
+            check(session != 0L) { "No model is loaded" }
 
-        val startedAt = System.currentTimeMillis()
-        val roles = messages.map { it.role.wireName() }.toTypedArray()
-        val contents = messages.map { it.content }.toTypedArray()
+            val startedAt = System.currentTimeMillis()
+            val roles = messages.map { it.role.wireName() }.toTypedArray()
+            val contents = messages.map { it.content }.toTypedArray()
 
-        val produced = LlamaNative.nativeGenerate(
-            session,
-            roles,
-            contents,
-            params.temperature,
-            params.topK,
-            params.topP,
-            params.maxTokens,
-            if (supportsThinking && !params.thinking) SKIP_THINKING_PREFIX else "",
-        ) { piece ->
-            trySend(GenerationEvent.Token(piece)).isSuccess
-        }
+            val produced =
+                LlamaNative.nativeGenerate(
+                    session,
+                    roles,
+                    contents,
+                    params.temperature,
+                    params.topK,
+                    params.topP,
+                    params.maxTokens,
+                    if (supportsThinking && !params.thinking) SKIP_THINKING_PREFIX else "",
+                ) { piece ->
+                    trySend(GenerationEvent.Token(piece)).isSuccess
+                }
 
-        if (produced < 0) {
-            close(IllegalStateException("Generation failed."))
-            return@callbackFlow
-        }
+            if (produced < 0) {
+                close(IllegalStateException("Generation failed."))
+                return@callbackFlow
+            }
 
-        send(
-            GenerationEvent.Completed(
-                tokenCount = produced,
-                durationMillis = System.currentTimeMillis() - startedAt,
+            send(
+                GenerationEvent.Completed(
+                    tokenCount = produced,
+                    durationMillis = System.currentTimeMillis() - startedAt,
+                ),
             )
-        )
-        close()
-        awaitClose { }
-    }.flowOn(inferenceDispatcher)
+            close()
+            awaitClose { }
+        }.flowOn(inferenceDispatcher)
 
     private fun releaseLocked() {
         if (handle != 0L) {
@@ -115,11 +121,12 @@ class LlamaEngine(
         supportsThinking = false
     }
 
-    private fun LlmRole.wireName(): String = when (this) {
-        LlmRole.System -> "system"
-        LlmRole.User -> "user"
-        LlmRole.Assistant -> "assistant"
-    }
+    private fun LlmRole.wireName(): String =
+        when (this) {
+            LlmRole.System -> "system"
+            LlmRole.User -> "user"
+            LlmRole.Assistant -> "assistant"
+        }
 
     companion object {
         private const val TAG = "MishtiLlama"
@@ -129,8 +136,9 @@ class LlamaEngine(
         fun defaultThreads(): Int = (Runtime.getRuntime().availableProcessors() / 2).coerceIn(2, 6)
 
         private fun singleInferenceThread(): CoroutineDispatcher =
-            Executors.newSingleThreadExecutor { runnable ->
-                Thread(runnable, "mishti-inference").apply { isDaemon = true }
-            }.asCoroutineDispatcher()
+            Executors
+                .newSingleThreadExecutor { runnable ->
+                    Thread(runnable, "mishti-inference").apply { isDaemon = true }
+                }.asCoroutineDispatcher()
     }
 }

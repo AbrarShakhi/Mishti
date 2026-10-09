@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ChatDao {
-
     @Query("SELECT * FROM chat_sessions ORDER BY updatedAtMillis DESC")
     fun observeSessions(): Flow<List<ChatSessionEntity>>
 
@@ -32,10 +31,16 @@ interface ChatDao {
     suspend fun insertMessage(message: ChatMessageEntity)
 
     @Query("UPDATE chat_sessions SET updatedAtMillis = :updatedAt WHERE id = :sessionId")
-    suspend fun touchSession(sessionId: String, updatedAt: Long)
+    suspend fun touchSession(
+        sessionId: String,
+        updatedAt: Long,
+    )
 
     @Query("UPDATE chat_sessions SET title = :title WHERE id = :sessionId")
-    suspend fun renameSession(sessionId: String, title: String)
+    suspend fun renameSession(
+        sessionId: String,
+        title: String,
+    )
 
     @Query("DELETE FROM chat_sessions WHERE id = :sessionId")
     suspend fun deleteSession(sessionId: String)

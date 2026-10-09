@@ -3,7 +3,6 @@ package com.abrarshakhi.mishti.common.navigation
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
 
-
 private data class TabSpec(
     val route: NavKey,
     val label: String,

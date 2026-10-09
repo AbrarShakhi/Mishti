@@ -12,7 +12,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -33,7 +32,6 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -50,12 +48,14 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.theme.AppColorScheme
 import com.abrarshakhi.mishti.common.ui.theme.AppFont
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
@@ -64,11 +64,9 @@ import com.abrarshakhi.mishti.common.ui.theme.ThemeMode
 import com.abrarshakhi.mishti.common.ui.theme.appColorScheme
 import com.abrarshakhi.mishti.common.ui.theme.fontFamily
 import com.abrarshakhi.mishti.common.ui.theme.isDark
+import com.abrarshakhi.mishti.common.ui.theme.labelRes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
-import com.abrarshakhi.mishti.common.ui.theme.labelRes
 
 private val SwatchSize = 56.dp
 private val SwatchRingGap = 4.dp
@@ -92,7 +90,10 @@ fun AppearanceSettingsScreen(
         item {
             SettingsGroup {
                 row { shapes ->
-                    SettingsPanel(shapes = shapes, title = stringResource(R.string.settings_theme)) {
+                    SettingsPanel(
+                        shapes = shapes,
+                        title = stringResource(R.string.settings_theme)
+                    ) {
                         ThemeModeSelector(
                             selected = theme.mode,
                             onSelect = { onIntent(SettingsIntent.ThemeModeSelected(it)) },
@@ -135,7 +136,6 @@ fun AppearanceSettingsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ThemeModeSelector(
     selected: ThemeMode,
@@ -239,8 +239,16 @@ private fun PaletteSwatch(
     val placeholder = MaterialTheme.colorScheme.surfaceContainerHighest
     val effects = MaterialTheme.motionScheme.defaultEffectsSpec<Color>()
     val primary by animateColorAsState(colors?.primary ?: placeholder, effects, label = "Primary")
-    val secondary by animateColorAsState(colors?.secondary ?: placeholder, effects, label = "Secondary")
-    val tertiary by animateColorAsState(colors?.tertiary ?: placeholder, effects, label = "Tertiary")
+    val secondary by animateColorAsState(
+        colors?.secondary ?: placeholder,
+        effects,
+        label = "Secondary"
+    )
+    val tertiary by animateColorAsState(
+        colors?.tertiary ?: placeholder,
+        effects,
+        label = "Tertiary"
+    )
 
     val ringColor by animateColorAsState(
         targetValue = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
@@ -271,8 +279,10 @@ private fun PaletteSwatch(
         ) {
             SelectedBadge(
                 visible = selected,
-                containerColor = colors?.primaryContainer ?: MaterialTheme.colorScheme.primaryContainer,
-                contentColor = colors?.onPrimaryContainer ?: MaterialTheme.colorScheme.onPrimaryContainer,
+                containerColor = colors?.primaryContainer
+                    ?: MaterialTheme.colorScheme.primaryContainer,
+                contentColor = colors?.onPrimaryContainer
+                    ?: MaterialTheme.colorScheme.onPrimaryContainer,
             )
         }
         Text(
@@ -309,7 +319,6 @@ private fun SelectedBadge(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FontSelector(
     selected: AppFont,

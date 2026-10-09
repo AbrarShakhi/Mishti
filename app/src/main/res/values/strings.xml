@@ -13,7 +13,7 @@
     <string name="onboarding_private_title">Private and offline</string>
     <string name="onboarding_private_body">Conversations never leave this device, and once a model is downloaded no network is needed.</string>
     <string name="onboarding_personalize_title">Make it yours</string>
-    <string name="onboarding_personalize_body">Choose the model, the colours and the typeface, and tune how it answers.</string>
+    <string name="onboarding_personalize_body">Choose the model, the colors and the typeface, and tune how it answers.</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_get_started">Get started</string>
     <string name="onboarding_skip">Skip</string>
@@ -63,11 +63,11 @@
     <string name="chat_loading_fallback_name">the model</string>
     <string name="chat_loading_body">Loading it into memory takes a few seconds.</string>
     <string name="chat_no_model_title">Choose a model to start</string>
-    <string name="chat_no_model_body">Mishti runs a small language model entirely on this phone. Pick one from Mistir Bhandar to begin.</string>
-    <string name="chat_no_model_action">Visit Mistir Bhandar</string>
+    <string name="chat_no_model_body">Mishti runs a small language model entirely on this phone. Pick one from Mishtir Bhandar to begin.</string>
+    <string name="chat_no_model_action">Visit Mishtir Bhandar</string>
     <string name="chat_failed_title">The model couldn\'t be loaded</string>
     <string name="chat_failed_body">It may need more memory than is free right now. Try a smaller model.</string>
-    <string name="chat_failed_action">Open Mistir Bhandar</string>
+    <string name="chat_failed_action">Open Misthir Bhandar</string>
     <string name="chat_error_open">Could not open this conversation.</string>
     <string name="chat_error_send">Could not send that message.</string>
     <string name="chat_error_generation">Generation failed.</string>
@@ -107,7 +107,7 @@
     <string name="settings_model_failed">The selected model failed to load</string>
     <string name="settings_model_idle">Pick a sweet to start chatting</string>
     <string name="settings_appearance">Appearance</string>
-    <string name="settings_appearance_subtitle">Theme, colour and typeface</string>
+    <string name="settings_appearance_subtitle">Theme, color and typeface</string>
     <string name="settings_chat">Chat</string>
     <string name="settings_chat_subtitle">Pre-instruction and reply length</string>
     <string name="settings_generation">Generation</string>
@@ -132,7 +132,7 @@
 
     <string name="settings_theme">Theme</string>
     <string name="settings_colour">Colour</string>
-    <string name="settings_colour_dynamic_hint">Dynamic takes its colours from your wallpaper</string>
+    <string name="settings_colour_dynamic_hint">Dynamic takes its colors from your wallpaper</string>
     <string name="settings_typeface">Typeface</string>
     <string name="settings_typeface_hint">Code always uses JetBrains Mono</string>
     <string name="settings_typeface_sample">Aa</string>
@@ -184,12 +184,12 @@
     <string name="document_contributing_subtitle">Help make Mishti sweeter</string>
     <string name="document_missing">This page could not be opened.</string>
 
-    <string name="models_title">Mistir Bhandar</string>
+    <string name="models_title">Mishtir Bhandar</string>
     <string name="models_storage">%1$s on your shelf · %2$s free</string>
     <string name="models_import">Import a model file</string>
     <string name="models_tab_shelf">My shelf</string>
     <string name="models_tab_browse">Browse</string>
-    <string name="models_source_mistir_bhandar">Mistir Bhandar</string>
+    <string name="models_source_mistir_bhandar">Mishtir Bhandar</string>
     <string name="models_source_pocketpal">PocketPal</string>
     <string name="models_origin_imported">Imported</string>
     <string name="models_in_the_oven">In the oven</string>

@@ -1,8 +1,6 @@
 package com.abrarshakhi.mishti.common.llm
 
-
 internal object LlamaNative {
-
     fun interface TokenCallback {
         fun onToken(piece: String): Boolean
     }
@@ -15,7 +13,11 @@ internal object LlamaNative {
 
     external fun nativeFree()
 
-    external fun nativeLoadModel(path: String, contextTokens: Int, threads: Int): Long
+    external fun nativeLoadModel(
+        path: String,
+        contextTokens: Int,
+        threads: Int,
+    ): Long
 
     external fun nativeFreeModel(handle: Long)
 

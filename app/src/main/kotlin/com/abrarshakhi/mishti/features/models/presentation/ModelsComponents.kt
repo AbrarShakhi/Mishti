@@ -55,17 +55,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.features.models.domain.model.MemoryFit
 import com.abrarshakhi.mishti.features.models.domain.model.TransferStatus
 import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 import kotlin.math.min
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 internal fun formatSize(bytes: Long): String =
@@ -182,7 +183,7 @@ internal fun CompactTransferAction(
         modifier = modifier,
         transitionSpec = {
             (scaleIn(spatial, initialScale = 0.6f) + fadeIn(effects)) togetherWith
-                (scaleOut(spatial, targetScale = 0.6f) + fadeOut(effects))
+                    (scaleOut(spatial, targetScale = 0.6f) + fadeOut(effects))
         },
         contentAlignment = Alignment.Center,
         label = "TransferAction",
@@ -193,8 +194,15 @@ internal fun CompactTransferAction(
                     onClick = onDownload,
                     shapes = IconButtonDefaults.shapes(),
                 ) {
-                    Icon(Icons.Filled.Download, contentDescription = stringResource(R.string.models_download_named, item.model.name))
+                    Icon(
+                        Icons.Filled.Download,
+                        contentDescription = stringResource(
+                            R.string.models_download_named,
+                            item.model.name
+                        )
+                    )
                 }
+
                 ActionKind.Downloading -> {
                     val fraction = (item.transfer as? TransferStatus.Downloading)?.fraction ?: 0f
                     val progress by animateFloatAsState(
@@ -214,6 +222,7 @@ internal fun CompactTransferAction(
                         )
                     }
                 }
+
                 ActionKind.Verifying -> LoadingIndicator(modifier = Modifier.size(40.dp))
                 ActionKind.Failed -> FilledTonalIconButton(
                     onClick = onDownload,
@@ -221,10 +230,14 @@ internal fun CompactTransferAction(
                 ) {
                     Icon(
                         Icons.Filled.Refresh,
-                        contentDescription = stringResource(R.string.models_retry_named, item.model.name),
+                        contentDescription = stringResource(
+                            R.string.models_retry_named,
+                            item.model.name
+                        ),
                         tint = MaterialTheme.colorScheme.error,
                     )
                 }
+
                 ActionKind.OnShelf -> Icon(
                     Icons.Filled.CheckCircle,
                     contentDescription = stringResource(R.string.models_on_shelf),
@@ -235,7 +248,6 @@ internal fun CompactTransferAction(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun WideTransferAction(
     item: CatalogItem,
@@ -269,11 +281,15 @@ internal fun WideTransferAction(
                     text = if (kind == ActionKind.Failed) {
                         stringResource(R.string.action_try_again)
                     } else {
-                        stringResource(R.string.models_download_size, formatSize(item.model.sizeBytes))
+                        stringResource(
+                            R.string.models_download_size,
+                            formatSize(item.model.sizeBytes)
+                        )
                     },
                     style = MaterialTheme.typography.titleMedium,
                 )
             }
+
             ActionKind.Downloading, ActionKind.Verifying -> {
                 val status = item.transfer
                 val fraction = (status as? TransferStatus.Downloading)?.fraction ?: 1f
@@ -292,6 +308,7 @@ internal fun WideTransferAction(
                                         formatSize(status.doneBytes),
                                         formatSize(status.totalBytes),
                                     )
+
                                 else -> stringResource(R.string.models_checking_file)
                             },
                             style = MaterialTheme.typography.bodyMedium,
@@ -299,7 +316,10 @@ internal fun WideTransferAction(
                         )
                         if (status is TransferStatus.Downloading) {
                             IconButton(onClick = onCancel) {
-                                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.models_cancel_download))
+                                Icon(
+                                    Icons.Filled.Close,
+                                    contentDescription = stringResource(R.string.models_cancel_download)
+                                )
                             }
                         }
                     }
@@ -313,6 +333,7 @@ internal fun WideTransferAction(
                     }
                 }
             }
+
             ActionKind.OnShelf -> FilledTonalButton(
                 onClick = {},
                 enabled = false,
@@ -322,7 +343,10 @@ internal fun WideTransferAction(
             ) {
                 Icon(Icons.Filled.Check, contentDescription = null)
                 Spacer(Modifier.width(Spacing.Small))
-                Text(stringResource(R.string.models_on_shelf), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.models_on_shelf),
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
         }
     }
@@ -334,7 +358,7 @@ internal fun Modifier.enterOnce(index: Int, animate: Boolean): Modifier = compos
     val spec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
     val lift = with(LocalDensity.current) { 24.dp.toPx() }
     LaunchedEffect(Unit) {
-        delay(min(index, 8) * 40L)
+        delay((min(index, 8) * 40L).milliseconds)
         progress.animateTo(1f, spec)
     }
     graphicsLayer {

@@ -23,12 +23,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.abrarshakhi.mishti.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
-import com.abrarshakhi.mishti.R
-import androidx.compose.ui.res.stringResource
 
 private const val CopiedFeedbackMillis = 1_500L
 

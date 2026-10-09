@@ -26,12 +26,12 @@ class DefaultCatalogRepository(
     private val clock: () -> Long = System::currentTimeMillis,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : CatalogRepository {
-
-    private val states = EnumMap<CatalogSource, MutableStateFlow<CatalogState>>(
-        CatalogSource::class.java,
-    ).apply {
-        CatalogSource.entries.forEach { put(it, MutableStateFlow(CatalogState.Loading(false))) }
-    }
+    private val states =
+        EnumMap<CatalogSource, MutableStateFlow<CatalogState>>(
+            CatalogSource::class.java,
+        ).apply {
+            CatalogSource.entries.forEach { put(it, MutableStateFlow(CatalogState.Loading(false))) }
+        }
 
     private val locks = CatalogSource.entries.associateWith { Mutex() }
     private val loaded = ConcurrentHashMap.newKeySet<CatalogSource>()
@@ -39,7 +39,10 @@ class DefaultCatalogRepository(
     override fun state(source: CatalogSource): Flow<CatalogState> =
         states.getValue(source).asStateFlow()
 
-    override suspend fun refresh(source: CatalogSource, force: Boolean) {
+    override suspend fun refresh(
+        source: CatalogSource,
+        force: Boolean,
+    ) {
         val flow = states.getValue(source)
         locks.getValue(source).withLock {
             withContext(ioDispatcher) { loadSaved(source) }
@@ -51,9 +54,11 @@ class DefaultCatalogRepository(
             flow.update { it.refreshing(true) }
             try {
                 val cached = withContext(ioDispatcher) { store.read(source) }
-                val result = fetcher.fetch(
-                    url(source),
-                    cached?.etag.takeIf { current is CatalogState.Ready })
+                val result =
+                    fetcher.fetch(
+                        url(source),
+                        cached?.etag.takeIf { current is CatalogState.Ready },
+                    )
                 val now = clock()
                 when (result) {
                     FetchResult.NotModified -> {
@@ -63,7 +68,7 @@ class DefaultCatalogRepository(
                                 state.copy(
                                     updatedAtMillis = now,
                                     isOffline = false,
-                                    isRefreshing = false
+                                    isRefreshing = false,
                                 )
                             } else {
                                 state.refreshing(false)
@@ -76,12 +81,13 @@ class DefaultCatalogRepository(
                         withContext(ioDispatcher) {
                             store.write(source, CachedCatalog(result.text, result.etag, now))
                         }
-                        flow.value = CatalogState.Ready(
-                            catalog,
-                            now,
-                            isOffline = false,
-                            isRefreshing = false
-                        )
+                        flow.value =
+                            CatalogState.Ready(
+                                catalog,
+                                now,
+                                isOffline = false,
+                                isRefreshing = false,
+                            )
                     }
                 }
             } catch (e: CancellationException) {
@@ -90,12 +96,16 @@ class DefaultCatalogRepository(
             } catch (e: Exception) {
                 flow.update { state ->
                     when (state) {
-                        is CatalogState.Ready -> state.copy(
-                            isOffline = e is IOException,
-                            isRefreshing = false
-                        )
+                        is CatalogState.Ready -> {
+                            state.copy(
+                                isOffline = e is IOException,
+                                isRefreshing = false,
+                            )
+                        }
 
-                        else -> CatalogState.Unavailable(problemFor(e), isRefreshing = false)
+                        else -> {
+                            CatalogState.Unavailable(problemFor(e), isRefreshing = false)
+                        }
                     }
                 }
             }
@@ -104,55 +114,68 @@ class DefaultCatalogRepository(
 
     private fun loadSaved(source: CatalogSource) {
         if (!loaded.add(source)) return
-        val bundled = store.bundled(source)?.let { text ->
-            runCatching { parse(source, text) }.getOrNull()
-        }
+        val bundled =
+            store.bundled(source)?.let { text ->
+                runCatching { parse(source, text) }.getOrNull()
+            }
         val cached = store.read(source)
         val saved = cached?.let { runCatching { parse(source, it.text) }.getOrNull() }
 
-        val state = when {
-            saved != null && (bundled == null || saved.version >= bundled.version) ->
-                CatalogState.Ready(
-                    saved,
-                    cached.fetchedAtMillis,
-                    isOffline = false,
-                    isRefreshing = false
-                )
+        val state =
+            when {
+                saved != null && (bundled == null || saved.version >= bundled.version) -> {
+                    CatalogState.Ready(
+                        saved,
+                        cached.fetchedAtMillis,
+                        isOffline = false,
+                        isRefreshing = false,
+                    )
+                }
 
-            bundled != null ->
-                CatalogState.Ready(
-                    bundled,
-                    updatedAtMillis = null,
-                    isOffline = false,
-                    isRefreshing = false
-                )
+                bundled != null -> {
+                    CatalogState.Ready(
+                        bundled,
+                        updatedAtMillis = null,
+                        isOffline = false,
+                        isRefreshing = false,
+                    )
+                }
 
-            else -> null
-        }
+                else -> {
+                    null
+                }
+            }
         if (state != null) states.getValue(source).value = state
     }
 
-    private fun parse(source: CatalogSource, text: String): Catalog = when (source) {
-        CatalogSource.MistirBhandar -> MishtiCatalogParser.parse(text)
-        CatalogSource.PocketPal -> PocketPalCatalogParser.parse(text, device())
-    }
+    private fun parse(
+        source: CatalogSource,
+        text: String,
+    ): Catalog =
+        when (source) {
+            CatalogSource.MishtirBhandar -> MishtiCatalogParser.parse(text)
+            CatalogSource.PocketPal -> PocketPalCatalogParser.parse(text, device())
+        }
 
-    private fun url(source: CatalogSource) = when (source) {
-        CatalogSource.MistirBhandar -> CatalogUrls.MISTIR_BHANDAR
-        CatalogSource.PocketPal -> CatalogUrls.POCKETPAL
-    }
+    private fun url(source: CatalogSource) =
+        when (source) {
+            CatalogSource.MishtirBhandar -> CatalogUrls.MISTIR_BHANDAR
+            CatalogSource.PocketPal -> CatalogUrls.POCKETPAL
+        }
 
-    private fun problemFor(error: Exception): CatalogProblem = when (error) {
-        is CatalogFormatException -> CatalogProblem.Unreadable
-        is IOException -> CatalogProblem.Offline
-        else -> CatalogProblem.Unavailable
-    }
+    private fun problemFor(error: Exception): CatalogProblem =
+        when (error) {
+            is CatalogFormatException -> CatalogProblem.Unreadable
+            is IOException -> CatalogProblem.Offline
+            else -> CatalogProblem.Unavailable
+        }
 
-    private fun CatalogState.refreshing(value: Boolean): CatalogState = when (this) {
-        is CatalogState.Loading -> copy(isRefreshing = value)
-        is CatalogState.Ready -> copy(isRefreshing = value)
-        is CatalogState.Unavailable -> copy(isRefreshing = value)
-    }
+    private fun CatalogState.refreshing(value: Boolean): CatalogState =
+        when (this) {
+            is CatalogState.Loading -> copy(isRefreshing = value)
+            is CatalogState.Ready -> copy(isRefreshing = value)
+            is CatalogState.Unavailable -> copy(isRefreshing = value)
+        }
 
     companion object {
         const val FRESH_FOR_MILLIS = 6 * 60 * 60 * 1000L

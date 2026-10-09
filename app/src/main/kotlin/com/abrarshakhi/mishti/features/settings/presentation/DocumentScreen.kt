@@ -118,10 +118,12 @@ fun DocumentScreen(
                                 .padding(vertical = Spacing.ExtraLarge)
                                 .size(48.dp),
                         )
+
                         markdown.isEmpty() -> Text(
                             text = stringResource(R.string.document_missing),
                             style = MaterialTheme.typography.bodyLarge,
                         )
+
                         else -> CompositionLocalProvider(LocalUriHandler provides linkHandler) {
                             MarkdownReply(markdown = markdown, modifier = Modifier.fillMaxWidth())
                         }

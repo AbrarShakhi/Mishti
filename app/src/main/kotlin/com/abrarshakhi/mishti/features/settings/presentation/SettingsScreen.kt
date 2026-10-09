@@ -268,7 +268,11 @@ private fun ExternalLinkIcon() {
 @Composable
 private fun modelSummary(engineState: EngineState): String = when (engineState) {
     is EngineState.Ready -> stringResource(R.string.settings_model_ready, engineState.model.name)
-    is EngineState.Loading -> stringResource(R.string.settings_model_loading, engineState.model.name)
+    is EngineState.Loading -> stringResource(
+        R.string.settings_model_loading,
+        engineState.model.name
+    )
+
     is EngineState.Failed -> stringResource(R.string.settings_model_failed)
     EngineState.Idle -> stringResource(R.string.settings_model_idle)
 }

@@ -9,7 +9,7 @@ fun catalogModel(
     requiredRamBytes: Long = 3_200_000_000L,
     tags: Set<String> = emptySet(),
     groupId: String? = null,
-    source: CatalogSource = CatalogSource.MistirBhandar,
+    source: CatalogSource = CatalogSource.MishtirBhandar,
     hfRepo: String = "owner/$id-GGUF",
     hfFile: String = "$id.gguf",
     name: String = id,

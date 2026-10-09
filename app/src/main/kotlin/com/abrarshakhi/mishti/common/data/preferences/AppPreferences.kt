@@ -7,9 +7,7 @@ import com.abrarshakhi.mishti.common.ui.theme.ThemeMode
 import com.abrarshakhi.mishti.common.ui.theme.ThemeSettings
 import kotlinx.coroutines.flow.Flow
 
-
 interface AppPreferences {
-
     val hasCompletedOnboarding: Flow<Boolean>
 
     suspend fun setOnboardingCompleted(completed: Boolean)
@@ -32,5 +30,8 @@ interface AppPreferences {
 
     val thinkingModelIds: Flow<Set<String>>
 
-    suspend fun setThinking(modelId: String, enabled: Boolean)
+    suspend fun setThinking(
+        modelId: String,
+        enabled: Boolean,
+    )
 }

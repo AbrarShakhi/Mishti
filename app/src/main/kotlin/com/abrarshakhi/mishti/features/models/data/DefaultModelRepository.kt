@@ -42,12 +42,13 @@ class DefaultModelRepository(
     private val clock: () -> Long = System::currentTimeMillis,
     private val defaultImportName: String = "model.gguf",
 ) : ModelRepository {
-
     override val selectedModelId: Flow<String?> = preferences.selectedModelId
 
-    override val shelf: Flow<List<ShelfModel>> = dao.observeAll()
-        .map { rows -> rows.filter { storageManager.isPresent(it.id) }.map { it.toDomain() } }
-        .flowOn(Dispatchers.IO)
+    override val shelf: Flow<List<ShelfModel>> =
+        dao
+            .observeAll()
+            .map { rows -> rows.filter { storageManager.isPresent(it.id) }.map { it.toDomain() } }
+            .flowOn(Dispatchers.IO)
 
     private val _transfers = MutableStateFlow<List<Transfer>>(emptyList())
     override val transfers: Flow<List<Transfer>> = _transfers.asStateFlow()
@@ -65,8 +66,9 @@ class DefaultModelRepository(
     }
 
     override suspend fun select(modelId: String?) {
-        val valid = modelId == null ||
-                (dao.byId(modelId) != null && storageManager.isPresent(modelId))
+        val valid =
+            modelId == null ||
+                    (dao.byId(modelId) != null && storageManager.isPresent(modelId))
         if (valid) preferences.setSelectedModelId(modelId)
     }
 
@@ -77,47 +79,51 @@ class DefaultModelRepository(
         setTransfer(
             id,
             model.name,
-            TransferStatus.Downloading(storageManager.partialBytes(id), model.sizeBytes)
+            TransferStatus.Downloading(storageManager.partialBytes(id), model.sizeBytes),
         )
         notifier.onDownloadsActive()
 
-        jobs[id] = scope.launch {
-            try {
-                downloader.download(
-                    DownloadRequest(
-                        id,
-                        model.name,
-                        model.downloadUrl,
-                        model.sizeBytes,
-                        model.sha256
-                    ),
-                ) { progress ->
-                    setTransfer(
-                        id,
-                        model.name,
-                        when (progress) {
-                            is DownloadProgress.Downloading ->
-                                TransferStatus.Downloading(
-                                    progress.downloadedBytes,
-                                    progress.totalBytes
-                                )
+        jobs[id] =
+            scope.launch {
+                try {
+                    downloader.download(
+                        DownloadRequest(
+                            id,
+                            model.name,
+                            model.downloadUrl,
+                            model.sizeBytes,
+                            model.sha256,
+                        ),
+                    ) { progress ->
+                        setTransfer(
+                            id,
+                            model.name,
+                            when (progress) {
+                                is DownloadProgress.Downloading -> {
+                                    TransferStatus.Downloading(
+                                        progress.downloadedBytes,
+                                        progress.totalBytes,
+                                    )
+                                }
 
-                            DownloadProgress.Verifying -> TransferStatus.Verifying
-                        },
-                    )
+                                DownloadProgress.Verifying -> {
+                                    TransferStatus.Verifying
+                                }
+                            },
+                        )
+                    }
+                    dao.upsert(model.toEntity(storageManager.sizeOnDisk(id), clock()))
+                    removeTransfer(id)
+                } catch (e: CancellationException) {
+                    removeTransfer(id)
+                    throw e
+                } catch (e: Exception) {
+                    setTransfer(id, model.name, TransferStatus.Failed(e.toTransferError()))
+                } finally {
+                    jobs.remove(id)
+                    refreshStorage()
                 }
-                dao.upsert(model.toEntity(storageManager.sizeOnDisk(id), clock()))
-                removeTransfer(id)
-            } catch (e: CancellationException) {
-                removeTransfer(id)
-                throw e
-            } catch (e: Exception) {
-                setTransfer(id, model.name, TransferStatus.Failed(e.toTransferError()))
-            } finally {
-                jobs.remove(id)
-                refreshStorage()
             }
-        }
     }
 
     override fun import(uri: String) {
@@ -126,41 +132,44 @@ class DefaultModelRepository(
         setTransfer(id, name, TransferStatus.Importing(0L, -1L))
         notifier.onDownloadsActive()
 
-        jobs[id] = scope.launch {
-            try {
-                name = runCatching { importer.displayName(uri) }.getOrDefault(name)
-                val file = importer.import(id, uri) { done, total ->
-                    setTransfer(id, name, TransferStatus.Importing(done, total))
+        jobs[id] =
+            scope.launch {
+                try {
+                    name = runCatching { importer.displayName(uri) }.getOrDefault(name)
+                    val file =
+                        importer.import(id, uri) { done, total ->
+                            setTransfer(id, name, TransferStatus.Importing(done, total))
+                        }
+                    val info = file.info
+                    dao.upsert(
+                        InstalledModelEntity(
+                            id = id,
+                            name =
+                                info.name?.takeIf { it.isNotBlank() }
+                                    ?: file.displayName.removeSuffix(".gguf"),
+                            origin = ModelOrigin.Imported.name,
+                            quantization = info.quantization,
+                            parametersLabel = info.sizeLabel,
+                            sizeBytes = file.sizeBytes,
+                            hfRepo = null,
+                            hfFile = file.displayName,
+                            architecture = info.architecture,
+                            contextLength = info.contextLength,
+                            license = info.license,
+                            installedAtMillis = clock(),
+                        ),
+                    )
+                    removeTransfer(id)
+                } catch (e: CancellationException) {
+                    removeTransfer(id)
+                    throw e
+                } catch (e: Exception) {
+                    setTransfer(id, name, TransferStatus.Failed(e.toTransferError()))
+                } finally {
+                    jobs.remove(id)
+                    refreshStorage()
                 }
-                val info = file.info
-                dao.upsert(
-                    InstalledModelEntity(
-                        id = id,
-                        name = info.name?.takeIf { it.isNotBlank() }
-                            ?: file.displayName.removeSuffix(".gguf"),
-                        origin = ModelOrigin.Imported.name,
-                        quantization = info.quantization,
-                        parametersLabel = info.sizeLabel,
-                        sizeBytes = file.sizeBytes,
-                        hfRepo = null,
-                        hfFile = file.displayName,
-                        architecture = info.architecture,
-                        contextLength = info.contextLength,
-                        license = info.license,
-                        installedAtMillis = clock(),
-                    ),
-                )
-                removeTransfer(id)
-            } catch (e: CancellationException) {
-                removeTransfer(id)
-                throw e
-            } catch (e: Exception) {
-                setTransfer(id, name, TransferStatus.Failed(e.toTransferError()))
-            } finally {
-                jobs.remove(id)
-                refreshStorage()
             }
-        }
     }
 
     override fun cancel(transferId: String) {
@@ -189,8 +198,9 @@ class DefaultModelRepository(
 
         val known = knownModels().associateBy { it.id }
         storageManager.presentIds().filterNot { it in rows }.forEach { id ->
-            val entity = known[id]?.toEntity(storageManager.sizeOnDisk(id), clock())
-                ?: adoptUnknown(id)
+            val entity =
+                known[id]?.toEntity(storageManager.sizeOnDisk(id), clock())
+                    ?: adoptUnknown(id)
             dao.upsert(entity)
         }
     }
@@ -216,13 +226,18 @@ class DefaultModelRepository(
     }
 
     private fun refreshStorage() {
-        _storage.value = StorageUsage(
-            usedBytes = storageManager.usedBytes(),
-            availableBytes = storageManager.availableBytes(),
-        )
+        _storage.value =
+            StorageUsage(
+                usedBytes = storageManager.usedBytes(),
+                availableBytes = storageManager.availableBytes(),
+            )
     }
 
-    private fun setTransfer(id: String, name: String, status: TransferStatus) {
+    private fun setTransfer(
+        id: String,
+        name: String,
+        status: TransferStatus,
+    ) {
         _transfers.update { current ->
             val transfer = Transfer(id, name, status)
             val index = current.indexOfFirst { it.id == id }
@@ -241,13 +256,17 @@ class DefaultModelRepository(
     }
 }
 
-private fun Exception.toTransferError(): TransferError = when (this) {
-    is DownloadFailure -> error
-    is IOException -> TransferError.Network
-    else -> TransferError.Unknown
-}
+private fun Exception.toTransferError(): TransferError =
+    when (this) {
+        is DownloadFailure -> error
+        is IOException -> TransferError.Network
+        else -> TransferError.Unknown
+    }
 
-private fun CatalogModel.toEntity(sizeOnDisk: Long, now: Long) = InstalledModelEntity(
+private fun CatalogModel.toEntity(
+    sizeOnDisk: Long,
+    now: Long,
+) = InstalledModelEntity(
     id = id,
     name = name,
     origin = source.toOrigin().name,

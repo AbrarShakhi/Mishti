@@ -6,14 +6,18 @@ import kotlinx.coroutines.flow.StateFlow
 sealed interface EngineState {
     data object Idle : EngineState
 
-    data class Loading(val model: ModelHandle) : EngineState
+    data class Loading(
+        val model: ModelHandle,
+    ) : EngineState
 
     data class Ready(
         val model: ModelHandle,
         val supportsThinking: Boolean = false,
     ) : EngineState
 
-    data class Failed(val reason: String) : EngineState
+    data class Failed(
+        val reason: String,
+    ) : EngineState
 }
 
 data class LlmMessage(
@@ -24,7 +28,9 @@ data class LlmMessage(
 enum class LlmRole { System, User, Assistant }
 
 sealed interface GenerationEvent {
-    data class Token(val text: String) : GenerationEvent
+    data class Token(
+        val text: String,
+    ) : GenerationEvent
 
     data class Completed(
         val tokenCount: Int,
@@ -33,10 +39,12 @@ sealed interface GenerationEvent {
 }
 
 interface LlmEngine {
-
     val state: StateFlow<EngineState>
 
-    suspend fun load(model: ModelHandle, options: EngineOptions = EngineOptions())
+    suspend fun load(
+        model: ModelHandle,
+        options: EngineOptions = EngineOptions(),
+    )
 
     suspend fun unload()
 

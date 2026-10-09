@@ -11,15 +11,19 @@ enum class Recency { Today, Yesterday, PreviousWeek, PreviousMonth, Older }
 
 @get:StringRes
 val Recency.labelRes: Int
-    get() = when (this) {
-        Recency.Today -> R.string.recency_today
-        Recency.Yesterday -> R.string.recency_yesterday
-        Recency.PreviousWeek -> R.string.recency_previous_week
-        Recency.PreviousMonth -> R.string.recency_previous_month
-        Recency.Older -> R.string.recency_older
-    }
+    get() =
+        when (this) {
+            Recency.Today -> R.string.recency_today
+            Recency.Yesterday -> R.string.recency_yesterday
+            Recency.PreviousWeek -> R.string.recency_previous_week
+            Recency.PreviousMonth -> R.string.recency_previous_month
+            Recency.Older -> R.string.recency_older
+        }
 
-data class SessionGroup(val recency: Recency, val sessions: List<ChatSession>)
+data class SessionGroup(
+    val recency: Recency,
+    val sessions: List<ChatSession>,
+)
 
 fun groupSessionsByRecency(
     sessions: List<ChatSession>,
@@ -39,6 +43,5 @@ fun groupSessionsByRecency(
                 daysAgo < 30 -> Recency.PreviousMonth
                 else -> Recency.Older
             }
-        }
-        .map { (recency, grouped) -> SessionGroup(recency, grouped) }
+        }.map { (recency, grouped) -> SessionGroup(recency, grouped) }
 }

@@ -12,8 +12,8 @@ import org.junit.Test
 import java.io.File
 
 class CatalogParsersTest {
-
-    private val pocketPalJson = """
+    private val pocketPalJson =
+        """
         {
           "platform": "android",
           "rules_version": "2026-09-24.1",
@@ -55,19 +55,28 @@ class CatalogParsersTest {
             ]}
           }
         }
-    """.trimIndent()
+        """.trimIndent()
 
-    private fun device(ram: Long, hardware: String? = null, soc: String? = null) =
-        DeviceProfile(totalRamBytes = ram, socModel = soc, hardware = hardware, board = null)
+    private fun device(
+        ram: Long,
+        hardware: String? = null,
+        soc: String? = null,
+    ) = DeviceProfile(totalRamBytes = ram, socModel = soc, hardware = hardware, board = null)
 
     @Test
     fun `the bundled Mistir Bhandar catalog parses and lists recommended models`() {
         val catalog = MishtiCatalogParser.parse(File("../hub/catalog.v1.json").readText())
 
-        assertEquals(CatalogSource.MistirBhandar, catalog.source)
+        assertEquals(CatalogSource.MishtirBhandar, catalog.source)
         assertTrue(catalog.models.size >= 3)
         assertTrue(catalog.recommendedIds.isNotEmpty())
-        assertEquals(catalog.models.size, catalog.models.map { it.id }.toSet().size)
+        assertEquals(
+            catalog.models.size,
+            catalog.models
+                .map { it.id }
+                .toSet()
+                .size,
+        )
         catalog.models.forEach { model ->
             assertEquals("${model.id} has a sha256", 64, model.sha256.length)
             assertTrue("${model.id} has a size", model.sizeBytes > 0)
@@ -76,11 +85,18 @@ class CatalogParsersTest {
 
     @Test
     fun `the three original downloads keep their ids`() {
-        val ids = MishtiCatalogParser.parse(File("../hub/catalog.v1.json").readText()).models.map { it.id }
+        val ids =
+            MishtiCatalogParser.parse(File("../hub/catalog.v1.json").readText()).models.map { it.id }
 
-        assertTrue(ids.containsAll(
-            listOf("smollm2-360m-instruct-q4km", "qwen2.5-0.5b-instruct-q4km", "llama-3.2-1b-instruct-q4km"),
-        ))
+        assertTrue(
+            ids.containsAll(
+                listOf(
+                    "smollm2-360m-instruct-q4km",
+                    "qwen2.5-0.5b-instruct-q4km",
+                    "llama-3.2-1b-instruct-q4km"
+                ),
+            ),
+        )
     }
 
     @Test(expected = CatalogFormatException::class)
@@ -112,28 +128,42 @@ class CatalogParsersTest {
 
     @Test
     fun `the phone's tier comes from its memory and chip`() {
-        assertEquals("low", PocketPalCatalogParser.parse(pocketPalJson, device(3_800_000_000L)).deviceGroupId)
-        assertEquals("low", PocketPalCatalogParser.parse(pocketPalJson, device(5_000_000_000L)).deviceGroupId)
+        assertEquals(
+            "low",
+            PocketPalCatalogParser.parse(pocketPalJson, device(3_800_000_000L)).deviceGroupId
+        )
+        assertEquals(
+            "low",
+            PocketPalCatalogParser.parse(pocketPalJson, device(5_000_000_000L)).deviceGroupId
+        )
         assertEquals(
             "mid",
-            PocketPalCatalogParser.parse(pocketPalJson, device(5_000_000_000L, hardware = "lynx")).deviceGroupId,
+            PocketPalCatalogParser.parse(
+                pocketPalJson,
+                device(5_000_000_000L, hardware = "lynx")
+            ).deviceGroupId,
         )
         assertEquals(
             "flagship",
-            PocketPalCatalogParser.parse(pocketPalJson, device(12_000_000_000L, soc = "SM8650")).deviceGroupId,
+            PocketPalCatalogParser.parse(
+                pocketPalJson,
+                device(12_000_000_000L, soc = "SM8650")
+            ).deviceGroupId,
         )
     }
 
     @Test
     fun `recommendations are the models listed for the phone's tier`() {
-        val catalog = PocketPalCatalogParser.parse(pocketPalJson, device(5_000_000_000L, hardware = "lynx"))
+        val catalog =
+            PocketPalCatalogParser.parse(pocketPalJson, device(5_000_000_000L, hardware = "lynx"))
 
         assertEquals(2, catalog.recommendedIds.size)
     }
 
     @Test
     fun `PocketPal's memory figure is raised to what Mishti needs to run the file`() {
-        val small = PocketPalCatalogParser.parse(pocketPalJson, device(3_800_000_000L)).models.first()
+        val small =
+            PocketPalCatalogParser.parse(pocketPalJson, device(3_800_000_000L)).models.first()
 
         assertTrue(small.requiredRamBytes >= 3_200_000_000L)
     }

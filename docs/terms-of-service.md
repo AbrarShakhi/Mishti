@@ -27,7 +27,7 @@ License gives you over the code.
 ## 3. Models and catalogs
 
 - Models are made by third parties and downloaded from Hugging Face. **Each model has its own
-  licence and usage terms** (for example the Llama 3.2 Community License or the Gemma Terms of
+  license and usage terms** (for example the Llama 3.2 Community License or the Gemma Terms of
   Use), shown on the model's details in Mistir Bhandar and on its Hugging Face page. By
   downloading a model you agree to follow its terms.
 - The Mistir Bhandar catalog is curated by Mishti's developer. The PocketPal catalog is curated
@@ -38,7 +38,7 @@ License gives you over the code.
 
 ## 4. Acceptable use
 
-Do not use Mishti to break the law, to harm others, or in ways that a model's licence forbids.
+Do not use Mishti to break the law, to harm others, or in ways that a model's license forbids.
 
 ## 5. Your phone and your data
 

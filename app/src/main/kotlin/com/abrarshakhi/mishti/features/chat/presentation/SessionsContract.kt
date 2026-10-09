@@ -22,15 +22,21 @@ data class RenameState(
 sealed interface SessionsIntent : UiIntent {
     data object NewChatClicked : SessionsIntent
 
-    data class SessionSelected(val sessionId: String) : SessionsIntent
+    data class SessionSelected(
+        val sessionId: String,
+    ) : SessionsIntent
 
-    data class SessionLongPressed(val sessionId: String) : SessionsIntent
+    data class SessionLongPressed(
+        val sessionId: String,
+    ) : SessionsIntent
 
     data object ActionsDismissed : SessionsIntent
 
     data object RenameRequested : SessionsIntent
 
-    data class RenameTitleChanged(val title: String) : SessionsIntent
+    data class RenameTitleChanged(
+        val title: String,
+    ) : SessionsIntent
 
     data object RenameConfirmed : SessionsIntent
 
@@ -38,11 +44,15 @@ sealed interface SessionsIntent : UiIntent {
 
     data object DeleteRequested : SessionsIntent
 
-    data class DeleteConfirmed(val visibleSessionId: String?) : SessionsIntent
+    data class DeleteConfirmed(
+        val visibleSessionId: String?,
+    ) : SessionsIntent
 
     data object DeleteCancelled : SessionsIntent
 }
 
 sealed interface SessionsEffect : UiEffect {
-    data class OpenSession(val sessionId: String) : SessionsEffect
+    data class OpenSession(
+        val sessionId: String,
+    ) : SessionsEffect
 }

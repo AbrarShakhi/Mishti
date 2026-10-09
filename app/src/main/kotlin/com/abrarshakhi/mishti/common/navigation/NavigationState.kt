@@ -22,22 +22,24 @@ fun rememberNavigationState(
     startRoute: NavKey,
     topLevelRoutes: Set<NavKey>,
 ): NavigationState {
-    val topLevelRoute = rememberSerializable(
-        startRoute, topLevelRoutes,
-        serializer = MutableStateSerializer(NavKeySerializer()),
-    ) {
-        mutableStateOf(startRoute)
-    }
+    val topLevelRoute =
+        rememberSerializable(
+            startRoute,
+            topLevelRoutes,
+            serializer = MutableStateSerializer(NavKeySerializer()),
+        ) {
+            mutableStateOf(startRoute)
+        }
 
-    val backStacks = (topLevelRoutes + startRoute).associateWith { route ->
-        rememberNavBackStack(route)
-    }
+    val backStacks =
+        (topLevelRoutes + startRoute).associateWith { route ->
+            rememberNavBackStack(route)
+        }
 
     return remember(startRoute, topLevelRoutes) {
         NavigationState(startRoute, topLevelRoute, backStacks)
     }
 }
-
 
 class NavigationState(
     val startRoute: NavKey,
@@ -50,19 +52,25 @@ class NavigationState(
 
     @Composable
     fun toDecoratedEntries(entryProvider: (NavKey) -> NavEntry<NavKey>): List<NavEntry<NavKey>> {
-        val decoratedEntries = backStacks.mapValues { (_, stack) ->
-            rememberDecoratedNavEntries(
-                backStack = stack,
-                entryDecorators = listOf(
-                    rememberSaveableStateHolderNavEntryDecorator(),
-                    rememberViewModelStoreNavEntryDecorator(),
-                ),
-                entryProvider = entryProvider,
-            )
-        }
+        val decoratedEntries =
+            backStacks.mapValues { (_, stack) ->
+                rememberDecoratedNavEntries(
+                    backStack = stack,
+                    entryDecorators =
+                        listOf(
+                            rememberSaveableStateHolderNavEntryDecorator(),
+                            rememberViewModelStoreNavEntryDecorator(),
+                        ),
+                    entryProvider = entryProvider,
+                )
+            }
 
-        val stacksInUse = if (topLevelRoute == startRoute) listOf(startRoute)
-        else listOf(startRoute, topLevelRoute)
+        val stacksInUse =
+            if (topLevelRoute == startRoute) {
+                listOf(startRoute)
+            } else {
+                listOf(startRoute, topLevelRoute)
+            }
 
         return stacksInUse.flatMap { decoratedEntries.getValue(it) }
     }

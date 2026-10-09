@@ -2,6 +2,7 @@ package com.abrarshakhi.mishti.features.onboarding.presentation
 
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RawRes
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -33,7 +34,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -45,6 +45,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextAlign
@@ -55,8 +56,6 @@ import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
-import androidx.compose.ui.res.stringResource
-import androidx.annotation.StringRes
 
 private data class OnboardingPage(
     @RawRes val animation: Int,
@@ -84,7 +83,6 @@ private val Pages = listOf(
 
 private const val ArtParallax = 0.3f
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun OnboardingScreen(
     onContinue: () -> Unit,
@@ -191,7 +189,6 @@ private fun SkipButton(visible: Boolean, onClick: () -> Unit) {
 private fun PagerState.offsetOf(page: Int): Float =
     (currentPage - page) + currentPageOffsetFraction
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PageContent(
     page: OnboardingPage,

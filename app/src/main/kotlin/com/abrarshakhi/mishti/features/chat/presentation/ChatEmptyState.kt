@@ -108,7 +108,6 @@ private enum class EmptyKind {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ReadyState(engineState: EngineState, onSuggestion: (String) -> Unit) {
     val modelName = (engineState as? EngineState.Ready)?.model?.name

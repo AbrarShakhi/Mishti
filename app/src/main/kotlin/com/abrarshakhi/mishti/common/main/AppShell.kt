@@ -31,7 +31,7 @@ import com.abrarshakhi.mishti.common.navigation.TOP_LEVEL_ROUTES
 import com.abrarshakhi.mishti.common.navigation.appEntryProvider
 import com.abrarshakhi.mishti.common.navigation.rememberNavigationState
 import com.abrarshakhi.mishti.common.navigation.rememberSharedAxisTransition
-import com.abrarshakhi.mishti.common.ui.snackbar.SnackbarDispatcher
+import com.abrarshakhi.mishti.common.ui.snackbar.SnackBarDispatcher
 import com.abrarshakhi.mishti.features.chat.presentation.SessionsEffect
 import com.abrarshakhi.mishti.features.chat.presentation.SessionsIntent
 import com.abrarshakhi.mishti.features.chat.presentation.SessionsViewModel
@@ -61,12 +61,12 @@ fun AppShell(startRoute: NavKey) {
         )
     }
 
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
-    val snackbarDispatcher: SnackbarDispatcher = koinInject()
-    LaunchedEffect(snackbarDispatcher) {
-        snackbarDispatcher.messages.collect { message ->
-            snackbarHostState.showSnackbar(
+    val snackBarDispatcher: SnackBarDispatcher = koinInject()
+    LaunchedEffect(snackBarDispatcher) {
+        snackBarDispatcher.messages.collect { message ->
+            snackBarHostState.showSnackbar(
                 message = message.text.resolve(resources),
                 withDismissAction = message.duration != SnackbarDuration.Short,
                 duration = message.duration,
@@ -135,7 +135,7 @@ fun AppShell(startRoute: NavKey) {
             contentWindowInsets = WindowInsets.safeDrawing.only(
                 WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
             ),
-            snackbarHost = { SnackbarHost(snackbarHostState) },
+            snackbarHost = { SnackbarHost(snackBarHostState) },
         ) { innerPadding ->
             val forward = rememberSharedAxisTransition(forward = true)
             val backward = rememberSharedAxisTransition(forward = false)

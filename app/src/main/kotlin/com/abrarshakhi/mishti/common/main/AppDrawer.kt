@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -23,18 +24,19 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerDefaults
-import androidx.compose.material3.DropdownMenuGroup
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.DropdownMenuPopup
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
@@ -325,43 +327,51 @@ private fun ConversationItem(
 ) {
     val haptics = LocalHapticFeedback.current
 
-    Box(modifier = modifier) {
-        SegmentedListItem(
-            selected = selected,
-            onClick = onClick,
-            shapes = shapes,
-            onLongClick = {
-                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                onShowActions()
-            },
-            onLongClickLabel = stringResource(R.string.drawer_conversation_actions),
-            trailingContent = if (selected) {
-                {
-                    IconButton(onClick = onShowActions, shapes = IconButtonDefaults.shapes()) {
+    SegmentedListItem(
+        modifier = modifier,
+        selected = selected,
+        onClick = onClick,
+        shapes = shapes,
+        onLongClick = {
+            haptics.performHapticFeedback(
+                HapticFeedbackType.LongPress,
+            )
+            onShowActions()
+        },
+        onLongClickLabel = stringResource(
+            R.string.drawer_conversation_actions,
+        ),
+        trailingContent = if (selected) {
+            {
+                Box {
+                    IconButton(
+                        onClick = onShowActions,
+                        shapes = IconButtonDefaults.shapes(),
+                    ) {
                         Icon(
-                            Icons.Filled.MoreVert,
+                            imageVector = Icons.Filled.MoreVert,
                             contentDescription = stringResource(
                                 R.string.drawer_conversation_actions,
                             ),
                         )
                     }
-                }
-            } else {
-                null
-            },
-        ) {
-            Text(
-                text = sessionDisplayTitle(session.title),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
 
-        ConversationActionsMenu(
-            expanded = menuExpanded,
-            onDismiss = onMenuDismiss,
-            onRename = onRename,
-            onDelete = onDelete,
+                    ConversationActionsMenu(
+                        expanded = menuExpanded,
+                        onDismiss = onMenuDismiss,
+                        onRename = onRename,
+                        onDelete = onDelete,
+                    )
+                }
+            }
+        } else {
+            null
+        },
+    ) {
+        Text(
+            text = sessionDisplayTitle(session.title),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -373,36 +383,56 @@ private fun ConversationActionsMenu(
     onRename: () -> Unit,
     onDelete: () -> Unit,
 ) {
-    val containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+    val colorScheme = MaterialTheme.colorScheme
 
-    DropdownMenuPopup(expanded = expanded, onDismissRequest = onDismiss) {
-        DropdownMenuGroup(
-            shapes = MenuDefaults.groupShape(index = 0, count = 2),
-            containerColor = containerColor,
-        ) {
-            DropdownMenuItem(
-                onClick = onRename,
-                text = { Text(stringResource(R.string.drawer_rename)) },
-                shape = MenuDefaults.itemShape(index = 0, count = 1).shape,
-                leadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null) },
-            )
-        }
-        Spacer(Modifier.height(MenuDefaults.GroupSpacing))
-        DropdownMenuGroup(
-            shapes = MenuDefaults.groupShape(index = 1, count = 2),
-            containerColor = containerColor,
-        ) {
-            DropdownMenuItem(
-                onClick = onDelete,
-                text = { Text(stringResource(R.string.action_delete)) },
-                shape = MenuDefaults.itemShape(index = 0, count = 1).shape,
-                leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null) },
-                colors = MenuDefaults.itemColors(
-                    textColor = MaterialTheme.colorScheme.error,
-                    leadingIconColor = MaterialTheme.colorScheme.error,
-                ),
-            )
-        }
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(24.dp),
+        containerColor = colorScheme.surfaceContainer,
+        tonalElevation = 2.dp,
+        shadowElevation = 4.dp,
+    ) {
+        DropdownMenuItem(
+            text = {
+                Text(stringResource(R.string.drawer_rename))
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.Edit,
+                    contentDescription = null,
+                )
+            },
+            onClick = {
+                onDismiss()
+                onRename()
+            },
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 12.dp),
+            color = colorScheme.outlineVariant.copy(alpha = 0.5f),
+        )
+
+        DropdownMenuItem(
+            text = {
+                Text(
+                    text = stringResource(R.string.action_delete),
+                    color = colorScheme.error,
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.Delete,
+                    contentDescription = null,
+                    tint = colorScheme.error,
+                )
+            },
+            onClick = {
+                onDismiss()
+                onDelete()
+            },
+        )
     }
 }
 
@@ -497,9 +527,9 @@ private fun AppDrawerPreview() {
         AppDrawer(
             sessions = listOf(
                 ChatSession("1", "Running a model offline", 0L, now),
-                ChatSession("2", "Haiku about the sea", 0L, now - 3_600_000L),
-                ChatSession("3", "Dinner ideas", 0L, now - 86_400_000L),
-                ChatSession("4", "Regex for email addresses", 0L, now - 4 * 86_400_000L),
+//                ChatSession("2", "Haiku about the sea", 0L, now - 3_600_000L),
+//                ChatSession("3", "Dinner ideas", 0L, now - 86_400_000L),
+//                ChatSession("4", "Regex for email addresses", 0L, now - 4 * 86_400_000L),
             ),
             currentSessionId = "1",
             actionsFor = null,

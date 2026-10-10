@@ -20,9 +20,8 @@ class MainActivity : ComponentActivity() {
     private val mainAppViewModel: MainAppViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
+        installSplashScreen()
         super.onCreate(savedInstanceState)
-        splashScreen.setKeepOnScreenCondition { mainAppViewModel.startRoute.value == null }
         enableEdgeToEdge()
         setContent {
             val themeSettings by mainAppViewModel.themeSettings.collectAsStateWithLifecycle()
@@ -34,16 +33,15 @@ class MainActivity : ComponentActivity() {
                         Color.TRANSPARENT,
                         Color.TRANSPARENT,
                     ) { dark },
-                    navigationBarStyle = SystemBarStyle.auto(LightScrim, DarkScrim) { dark },
+                    navigationBarStyle = SystemBarStyle.auto(
+                        LightScrim, DarkScrim
+                    ) { dark },
                 )
                 onDispose {}
             }
 
             MishtiTheme(settings = themeSettings) {
-                val startRoute by mainAppViewModel.startRoute.collectAsStateWithLifecycle()
-                startRoute?.let { route ->
-                    AppShell(startRoute = route)
-                }
+                AppShell()
             }
         }
     }

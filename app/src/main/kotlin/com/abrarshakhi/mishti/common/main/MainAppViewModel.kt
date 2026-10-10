@@ -30,16 +30,6 @@ class MainAppViewModel(
             initialValue = ThemeSettings(),
         )
 
-    val startRoute: StateFlow<AppRouteKey?> =
-        flow {
-            val completed = preferences.hasCompletedOnboarding.first()
-            emit(if (completed) AppRouteKey.Chat() else AppRouteKey.Onboarding)
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = null,
-        )
-
     init {
         viewModelScope.launch {
             combine(

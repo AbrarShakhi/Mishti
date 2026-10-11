@@ -18,7 +18,6 @@ private fun SplashScreenRoute(navigator: Navigator) {
     val viewModel: SplashViewModel = koinViewModel()
     SplashScreen(
         onFinishSplashing = { navigator.resetTo(it) },
-        viewModel = viewModel
+        viewModel = viewModel,
     )
 }
-

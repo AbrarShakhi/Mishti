@@ -34,7 +34,8 @@ class MainActivity : ComponentActivity() {
                         Color.TRANSPARENT,
                     ) { dark },
                     navigationBarStyle = SystemBarStyle.auto(
-                        LightScrim, DarkScrim
+                        LightScrim,
+                        DarkScrim,
                     ) { dark },
                 )
                 onDispose {}

@@ -10,9 +10,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 
-class SplashViewModel(
-    private val preferences: AppPreferences,
-) : ViewModel() {
+class SplashViewModel(private val preferences: AppPreferences) : ViewModel() {
 
     val startRoute: StateFlow<AppRouteKey?> =
         flow {

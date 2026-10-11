@@ -279,38 +279,36 @@ private fun ConversationHistory(
 }
 
 private fun Modifier.fadingEdges(top: () -> Float, bottom: () -> Float): Modifier = graphicsLayer {
-    compositingStrategy =
-        CompositingStrategy.Offscreen
-}
-    .drawWithContent {
-        drawContent()
-        val length = FadeLength.toPx()
-        val topAlpha = top()
-        if (topAlpha > 0f) {
-            drawRect(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color.Black.copy(alpha = 1f - topAlpha), Color.Black),
-                    startY = 0f,
-                    endY = length,
-                ),
-                size = Size(size.width, length),
-                blendMode = BlendMode.DstIn,
-            )
-        }
-        val bottomAlpha = bottom()
-        if (bottomAlpha > 0f) {
-            drawRect(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color.Black, Color.Black.copy(alpha = 1f - bottomAlpha)),
-                    startY = size.height - length,
-                    endY = size.height,
-                ),
-                topLeft = Offset(0f, size.height - length),
-                size = Size(size.width, length),
-                blendMode = BlendMode.DstIn,
-            )
-        }
+    compositingStrategy = CompositingStrategy.Offscreen
+}.drawWithContent {
+    drawContent()
+    val length = FadeLength.toPx()
+    val topAlpha = top()
+    if (topAlpha > 0f) {
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(Color.Black.copy(alpha = 1f - topAlpha), Color.Black),
+                startY = 0f,
+                endY = length,
+            ),
+            size = Size(size.width, length),
+            blendMode = BlendMode.DstIn,
+        )
     }
+    val bottomAlpha = bottom()
+    if (bottomAlpha > 0f) {
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(Color.Black, Color.Black.copy(alpha = 1f - bottomAlpha)),
+                startY = size.height - length,
+                endY = size.height,
+            ),
+            topLeft = Offset(0f, size.height - length),
+            size = Size(size.width, length),
+            blendMode = BlendMode.DstIn,
+        )
+    }
+}
 
 @Composable
 private fun ConversationItem(

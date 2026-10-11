@@ -401,10 +401,7 @@ private fun ConversationActionsMenu(
                     contentDescription = null,
                 )
             },
-            onClick = {
-                onDismiss()
-                onRename()
-            },
+            onClick = onRename,
         )
 
         HorizontalDivider(
@@ -426,10 +423,7 @@ private fun ConversationActionsMenu(
                     tint = colorScheme.error,
                 )
             },
-            onClick = {
-                onDismiss()
-                onDelete()
-            },
+            onClick = onDelete,
         )
     }
 }

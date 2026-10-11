@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -325,23 +326,22 @@ private fun ConversationItem(
 ) {
     val haptics = LocalHapticFeedback.current
 
-    SegmentedListItem(
-        modifier = modifier,
-        selected = selected,
-        onClick = onClick,
-        shapes = shapes,
-        onLongClick = {
-            haptics.performHapticFeedback(
-                HapticFeedbackType.LongPress,
-            )
-            onShowActions()
-        },
-        onLongClickLabel = stringResource(
-            R.string.drawer_conversation_actions,
-        ),
-        trailingContent = if (selected) {
-            {
-                Box {
+    Box(modifier = modifier) {
+        SegmentedListItem(
+            selected = selected,
+            onClick = onClick,
+            shapes = shapes,
+            onLongClick = {
+                haptics.performHapticFeedback(
+                    HapticFeedbackType.LongPress,
+                )
+                onShowActions()
+            },
+            onLongClickLabel = stringResource(
+                R.string.drawer_conversation_actions,
+            ),
+            trailingContent = if (selected) {
+                {
                     IconButton(
                         onClick = onShowActions,
                         shapes = IconButtonDefaults.shapes(),
@@ -353,24 +353,30 @@ private fun ConversationItem(
                             ),
                         )
                     }
-
-                    ConversationActionsMenu(
-                        expanded = menuExpanded,
-                        onDismiss = onMenuDismiss,
-                        onRename = onRename,
-                        onDelete = onDelete,
-                    )
                 }
-            }
-        } else {
-            null
-        },
-    ) {
-        Text(
-            text = sessionDisplayTitle(session.title),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+            } else {
+                null
+            },
+        ) {
+            Text(
+                text = sessionDisplayTitle(session.title),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .wrapContentWidth(Alignment.End),
+        ) {
+            ConversationActionsMenu(
+                expanded = menuExpanded,
+                onDismiss = onMenuDismiss,
+                onRename = onRename,
+                onDelete = onDelete,
+            )
+        }
     }
 }
 

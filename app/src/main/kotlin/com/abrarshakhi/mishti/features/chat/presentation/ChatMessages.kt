@@ -1,6 +1,9 @@
 package com.abrarshakhi.mishti.features.chat.presentation
 
+import android.content.Context
+import android.text.format.DateUtils
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,21 +17,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -37,11 +40,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toUpperCase
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
-import com.abrarshakhi.mishti.common.ui.components.AppMark
-import com.abrarshakhi.mishti.common.ui.components.CookieShape
 import com.abrarshakhi.mishti.common.ui.modifiers.verticalScrollbar
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.features.chat.domain.model.ChatMessage
@@ -50,20 +62,20 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val StreamingItemKey = "streaming"
-private const val MaxBubbleWidthFraction = 0.85f
+private const val MaxUserMessageWidthFraction = 0.85f
 private const val PlaceholderDelayMillis = 250L
+private const val FreshMessageMillis = 2_000L
 
-private val AvatarSize = 32.dp
+private val AccentWidth = 3.dp
+private val AccentContentInset = AccentWidth + Spacing.Medium
+private val EntranceShift = 24.dp
+private val PlaceholderHeaderWidth = 72.dp
 
-private val UserBubbleShape = RoundedCornerShape(
-    topStart = 24.dp,
-    topEnd = 24.dp,
-    bottomEnd = 6.dp,
-    bottomStart = 24.dp,
-)
+private enum class AccentEdge { Start, End }
 
 @Composable
 internal fun MessageList(
@@ -77,6 +89,7 @@ internal fun MessageList(
 ) {
     val listState = rememberLazyListState()
     val newestMessageId = messages.lastOrNull()?.id
+    val newestFirst = messages.asReversed()
 
     LaunchedEffect(isGenerating) {
         if (listState.firstVisibleItemIndex <= 1) {
@@ -94,7 +107,7 @@ internal fun MessageList(
         state = listState,
         reverseLayout = true,
         contentPadding = PaddingValues(horizontal = Spacing.ScreenMargin, vertical = Spacing.Large),
-        verticalArrangement = Arrangement.spacedBy(Spacing.ExtraLarge, Alignment.Bottom),
+        verticalArrangement = Arrangement.spacedBy(Spacing.Small, Alignment.Bottom),
     ) {
         if (isGenerating) {
             item(key = StreamingItemKey) {
@@ -105,13 +118,21 @@ internal fun MessageList(
                     reasoningMillis = reasoningMillis,
                     tokensPerSecond = null,
                     isStreaming = true,
+                    showHeader = messages.lastOrNull()?.author != MessageAuthor.Assistant,
+                    animateEntrance = true,
                 )
             }
         }
 
-        items(items = messages.asReversed(), key = { it.id }) { message ->
+        itemsIndexed(items = newestFirst, key = { _, message -> message.id }) { index, message ->
+            val showHeader = newestFirst.getOrNull(index + 1)?.author != message.author
             when (message.author) {
-                MessageAuthor.User -> UserMessage(text = message.content)
+                MessageAuthor.User -> UserMessage(
+                    text = message.content,
+                    createdAtMillis = message.createdAtMillis,
+                    showHeader = showHeader,
+                    animateEntrance = message.isFresh(),
+                )
 
                 MessageAuthor.Assistant -> AssistantMessage(
                     text = message.content,
@@ -120,6 +141,8 @@ internal fun MessageList(
                     reasoningMillis = message.reasoningMillis,
                     tokensPerSecond = message.tokensPerSecond,
                     isStreaming = false,
+                    createdAtMillis = message.createdAtMillis,
+                    showHeader = showHeader,
                 )
             }
         }
@@ -127,24 +150,39 @@ internal fun MessageList(
 }
 
 @Composable
-private fun UserMessage(text: String, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-        Surface(
+private fun UserMessage(
+    text: String,
+    modifier: Modifier = Modifier,
+    createdAtMillis: Long? = null,
+    showHeader: Boolean = true,
+    animateEntrance: Boolean = false,
+) {
+    val accent = MaterialTheme.colorScheme.primary
+    val entrance by rememberEntranceProgress(animateEntrance)
+
+    Column(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.End) {
+        if (showHeader) {
+            MessageHeader(
+                name = stringResource(R.string.chat_sender_user),
+                color = accent,
+                createdAtMillis = createdAtMillis,
+                edge = AccentEdge.End,
+            )
+        }
+
+        Box(
             modifier = Modifier
-                .fillMaxWidth(MaxBubbleWidthFraction)
-                .wrapContentWidth(Alignment.End),
-            shape = UserBubbleShape,
-            color = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                .fillMaxWidth(MaxUserMessageWidthFraction)
+                .wrapContentWidth(Alignment.End)
+                .accentBar(accent, AccentEdge.End) { entrance }
+                .accentInset(AccentEdge.End)
+                .entranceShift(AccentEdge.End) { entrance },
         ) {
             SelectionContainer {
                 Text(
                     text = text,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(
-                        horizontal = Spacing.Large,
-                        vertical = Spacing.Medium,
-                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -160,14 +198,30 @@ private fun AssistantMessage(
     tokensPerSecond: Double?,
     isStreaming: Boolean,
     modifier: Modifier = Modifier,
+    createdAtMillis: Long? = null,
+    showHeader: Boolean = true,
+    animateEntrance: Boolean = false,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(Spacing.Medium),
-    ) {
-        AppMark(size = AvatarSize)
+    val accent = MaterialTheme.colorScheme.tertiary
+    val entrance by rememberEntranceProgress(animateEntrance)
 
-        Column(modifier = Modifier.weight(1f)) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        if (showHeader) {
+            MessageHeader(
+                name = stringResource(R.string.chat_sender_assistant),
+                color = accent,
+                createdAtMillis = createdAtMillis,
+                edge = AccentEdge.Start,
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .accentBar(accent, AccentEdge.Start) { entrance }
+                .accentInset(AccentEdge.Start)
+                .entranceShift(AccentEdge.Start) { entrance },
+        ) {
             if (reasoning != null) {
                 var expanded by rememberSaveable { mutableStateOf(false) }
                 if (isStreaming) {
@@ -191,9 +245,7 @@ private fun AssistantMessage(
                             placeholder = {
                                 if (reasoning == null) {
                                     DisableSelection {
-                                        ReadingIndicator(
-                                            modifier = Modifier.padding(top = Spacing.ExtraSmall),
-                                        )
+                                        ReadingIndicator()
                                     }
                                 }
                             },
@@ -203,12 +255,50 @@ private fun AssistantMessage(
                     MarkdownReply(markdown = text)
                 }
             }
+        }
 
-            if (!isStreaming) {
-                MessageActions(text = text, tokensPerSecond = tokensPerSecond)
-            }
+        if (!isStreaming) {
+            MessageActions(
+                text = text,
+                tokensPerSecond = tokensPerSecond,
+                modifier = Modifier.accentInset(AccentEdge.Start),
+            )
         }
     }
+}
+
+@Composable
+private fun MessageHeader(name: String, color: Color, createdAtMillis: Long?, edge: AccentEdge) {
+    val time = createdAtMillis?.let { rememberMessageTime(it) }
+
+    Row(
+        modifier = Modifier.padding(top = Spacing.Large, bottom = Spacing.ExtraSmall),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.Small),
+    ) {
+        if (edge == AccentEdge.End && time != null) {
+            MessageTime(time)
+        }
+        Text(
+            text = name.toUpperCase(Locale.current),
+            style = MaterialTheme.typography.labelLargeEmphasized,
+            color = color,
+            maxLines = 1,
+        )
+        if (edge == AccentEdge.Start && time != null) {
+            MessageTime(time)
+        }
+    }
+}
+
+@Composable
+private fun MessageTime(time: String) {
+    Text(
+        text = time,
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+    )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -229,9 +319,9 @@ private fun ReadingIndicator(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun MessageActions(text: String, tokensPerSecond: Double?) {
+private fun MessageActions(text: String, tokensPerSecond: Double?, modifier: Modifier = Modifier) {
     Row(
-        modifier = Modifier.offset(x = -Spacing.Medium),
+        modifier = modifier.offset(x = -Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (text.isNotBlank()) {
@@ -252,6 +342,61 @@ private fun MessageActions(text: String, tokensPerSecond: Double?) {
 }
 
 @Composable
+private fun rememberEntranceProgress(animate: Boolean): State<Float> {
+    val spec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
+    var played by rememberSaveable { mutableStateOf(!animate) }
+    val progress = remember { Animatable(if (played) 1f else 0f) }
+
+    LaunchedEffect(progress) {
+        if (!played) {
+            played = true
+            progress.animateTo(1f, spec)
+        }
+    }
+    return progress.asState()
+}
+
+@Composable
+private fun rememberMessageTime(createdAtMillis: Long): String {
+    val context = LocalContext.current
+    return remember(context, createdAtMillis) { formatMessageTime(context, createdAtMillis) }
+}
+
+private fun formatMessageTime(context: Context, millis: Long): String {
+    val flags = if (DateUtils.isToday(millis)) {
+        DateUtils.FORMAT_SHOW_TIME
+    } else {
+        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_MONTH or DateUtils.FORMAT_SHOW_TIME
+    }
+    return DateUtils.formatDateTime(context, millis, flags)
+}
+
+private fun ChatMessage.isFresh(): Boolean = System.currentTimeMillis() - createdAtMillis in 0..FreshMessageMillis
+
+private fun Modifier.accentBar(color: Color, edge: AccentEdge, progress: () -> Float): Modifier = drawBehind {
+    val width = AccentWidth.toPx()
+    val height = size.height * progress().coerceIn(0f, 1f)
+    val onLeft = (edge == AccentEdge.Start) == (layoutDirection == LayoutDirection.Ltr)
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(if (onLeft) 0f else size.width - width, size.height - height),
+        size = Size(width, height),
+        cornerRadius = CornerRadius(width / 2),
+    )
+}
+
+private fun Modifier.accentInset(edge: AccentEdge): Modifier = when (edge) {
+    AccentEdge.Start -> padding(start = AccentContentInset)
+    AccentEdge.End -> padding(end = AccentContentInset)
+}
+
+private fun Modifier.entranceShift(edge: AccentEdge, progress: () -> Float): Modifier = offset {
+    val distance = (1f - progress()) * EntranceShift.toPx()
+    val towardAccent = if (edge == AccentEdge.Start) -distance else distance
+    IntOffset(towardAccent.roundToInt(), distance.roundToInt())
+}
+
+@Composable
 internal fun ConversationPlaceholder(modifier: Modifier = Modifier) {
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -269,40 +414,36 @@ internal fun ConversationPlaceholder(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .shimmer(rememberShimmer(ShimmerBounds.View))
                 .padding(horizontal = Spacing.ScreenMargin, vertical = Spacing.Large),
-            verticalArrangement = Arrangement.spacedBy(Spacing.ExtraLarge, Alignment.Bottom),
+            verticalArrangement = Arrangement.spacedBy(Spacing.Small, Alignment.Bottom),
         ) {
-            PlaceholderUserBubble(widthFraction = 0.55f)
-            PlaceholderReply(lineFractions = listOf(1f, 0.92f, 0.6f))
-            PlaceholderUserBubble(widthFraction = 0.4f)
-            PlaceholderReply(lineFractions = listOf(1f, 0.7f))
+            PlaceholderMessage(edge = AccentEdge.End, lineFractions = listOf(0.55f))
+            PlaceholderMessage(edge = AccentEdge.Start, lineFractions = listOf(1f, 0.92f, 0.6f))
+            PlaceholderMessage(edge = AccentEdge.End, lineFractions = listOf(0.4f))
+            PlaceholderMessage(edge = AccentEdge.Start, lineFractions = listOf(1f, 0.7f))
         }
     }
 }
 
 @Composable
-private fun PlaceholderUserBubble(widthFraction: Float) {
-    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(widthFraction)
-                .height(44.dp)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest, UserBubbleShape),
-        )
-    }
-}
+private fun PlaceholderMessage(edge: AccentEdge, lineFractions: List<Float>) {
+    val bone = MaterialTheme.colorScheme.surfaceContainerHighest
+    val alignment = if (edge == AccentEdge.Start) Alignment.Start else Alignment.End
 
-@Composable
-private fun PlaceholderReply(lineFractions: List<Float>) {
-    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.Medium)) {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = alignment) {
         Box(
             modifier = Modifier
-                .size(AvatarSize)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest, CookieShape),
+                .padding(top = Spacing.Large, bottom = Spacing.Small)
+                .width(PlaceholderHeaderWidth)
+                .height(12.dp)
+                .background(bone, CircleShape),
         )
         Column(
             modifier = Modifier
-                .weight(1f)
-                .padding(top = Spacing.ExtraSmall),
+                .fillMaxWidth(if (edge == AccentEdge.Start) 1f else MaxUserMessageWidthFraction)
+                .accentBar(bone, edge) { 1f }
+                .accentInset(edge)
+                .padding(vertical = Spacing.ExtraSmall),
+            horizontalAlignment = alignment,
             verticalArrangement = Arrangement.spacedBy(Spacing.Small),
         ) {
             lineFractions.forEach { fraction ->
@@ -310,9 +451,22 @@ private fun PlaceholderReply(lineFractions: List<Float>) {
                     modifier = Modifier
                         .fillMaxWidth(fraction)
                         .height(14.dp)
-                        .background(MaterialTheme.colorScheme.surfaceContainerHighest, CircleShape),
+                        .background(bone, CircleShape),
                 )
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun AssistantMessagePreview() {
+    AssistantMessage(
+        text = "this is an example text",
+        reasoning = null,
+        isReasoning = false,
+        reasoningMillis = null,
+        tokensPerSecond = 10.0,
+        isStreaming = false,
+    )
 }

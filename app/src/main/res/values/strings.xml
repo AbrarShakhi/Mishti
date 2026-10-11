@@ -43,6 +43,8 @@
     <string name="chat_send">Send message</string>
     <string name="chat_stop">Stop generating</string>
     <string name="chat_reading">Reading your message…</string>
+    <string name="chat_sender_user">You</string>
+    <string name="chat_sender_assistant">Mishti</string>
     <string name="chat_think">Think</string>
     <string name="chat_reasoning_active">Thinking…</string>
     <string name="chat_reasoning_done">Thoughts</string>

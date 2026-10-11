@@ -39,10 +39,8 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 @Composable
-fun AppShell(startRoute: AppRouteKey) {
-    val navigator: Navigator = remember {
-        Navigator(startRoute)
-    }
+fun AppShell() {
+    val navigator: Navigator = koinInject()
 
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -52,7 +50,6 @@ fun AppShell(startRoute: AppRouteKey) {
 
     val entryProvider = remember(navigator) {
         navEntryProvider(
-            navigator = navigator,
             onOpenDrawer = { coroutineScope.launch { drawerState.open() } },
             onNewChat = { sessionsViewModel.onIntent(SessionsIntent.NewChatClicked) },
         )

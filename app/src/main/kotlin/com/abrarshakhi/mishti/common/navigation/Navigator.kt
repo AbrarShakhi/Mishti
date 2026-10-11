@@ -3,9 +3,9 @@ package com.abrarshakhi.mishti.common.navigation
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
-class Navigator(startRoute: AppRouteKey) {
+class Navigator {
     val backStack: List<AppRouteKey>
-        field: SnapshotStateList<AppRouteKey> = mutableStateListOf(startRoute)
+        field: SnapshotStateList<AppRouteKey> = mutableStateListOf(AppRouteKey.Splash)
 
     val currentRoute get() = backStack.lastOrNull()
 

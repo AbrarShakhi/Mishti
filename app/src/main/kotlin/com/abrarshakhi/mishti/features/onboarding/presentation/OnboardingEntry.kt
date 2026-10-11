@@ -10,9 +10,9 @@ import com.abrarshakhi.mishti.common.navigation.Navigator
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
-fun EntryProviderScope<AppRouteKey>.onboardingEntry(navigator: Navigator) {
+fun EntryProviderScope<AppRouteKey>.onboardingEntry() {
     entry<AppRouteKey.Onboarding> {
-        OnboardingRoute(navigator = navigator)
+        OnboardingRoute(navigator = koinInject())
     }
 }
 

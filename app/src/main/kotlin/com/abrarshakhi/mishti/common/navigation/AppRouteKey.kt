@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface AppRouteKey {
     @Serializable
+    data object Splash : AppRouteKey
+
+    @Serializable
     data object Onboarding : AppRouteKey
 
     @Serializable

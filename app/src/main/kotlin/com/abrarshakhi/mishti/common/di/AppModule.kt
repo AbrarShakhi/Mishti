@@ -9,6 +9,7 @@ import com.abrarshakhi.mishti.common.data.preferences.DataStoreAppPreferences
 import com.abrarshakhi.mishti.common.llm.LlamaEngine
 import com.abrarshakhi.mishti.common.llm.LlmEngine
 import com.abrarshakhi.mishti.common.main.MainAppViewModel
+import com.abrarshakhi.mishti.common.navigation.Navigator
 import com.abrarshakhi.mishti.common.ui.snackbar.SnackBarDispatcher
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -16,7 +17,7 @@ import org.koin.dsl.module
 
 val appModule =
     module {
-
+        single { Navigator() }
         single {
             Room
                 .databaseBuilder(androidContext(), MishtiDatabase::class.java, DATABASE_NAME)

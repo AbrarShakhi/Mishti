@@ -13,11 +13,11 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
-fun EntryProviderScope<AppRouteKey>.chatEntry(navigator: Navigator, onOpenDrawer: () -> Unit, onNewChat: () -> Unit) {
+fun EntryProviderScope<AppRouteKey>.chatEntry(onOpenDrawer: () -> Unit, onNewChat: () -> Unit) {
     entry<AppRouteKey.Chat> { key ->
         ChatRoute(
             sessionId = key.sessionId,
-            navigator = navigator,
+            navigator = koinInject(),
             onOpenDrawer = onOpenDrawer,
             onNewChat = onNewChat,
         )

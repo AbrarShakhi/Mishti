@@ -9,25 +9,26 @@ import com.abrarshakhi.mishti.BuildConfig
 import com.abrarshakhi.mishti.common.navigation.AppRouteKey
 import com.abrarshakhi.mishti.common.navigation.Navigator
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
-fun EntryProviderScope<AppRouteKey>.settingsEntry(navigator: Navigator) {
+fun EntryProviderScope<AppRouteKey>.settingsEntry() {
     entry<AppRouteKey.Settings> {
-        SettingsRoute(navigator = navigator)
+        SettingsRoute(navigator = koinInject())
     }
     entry<AppRouteKey.Document> { key ->
-        DocumentRoute(document = key.document, navigator = navigator)
+        DocumentRoute(document = key.document, navigator = koinInject())
     }
     entry<AppRouteKey.AppearanceSettings> {
-        AppearanceSettingsRoute(navigator = navigator)
+        AppearanceSettingsRoute(navigator = koinInject())
     }
     entry<AppRouteKey.ChatSettings> {
-        ChatSettingsRoute(navigator = navigator)
+        ChatSettingsRoute(navigator = koinInject())
     }
     entry<AppRouteKey.GenerationSettings> {
-        GenerationSettingsRoute(navigator = navigator)
+        GenerationSettingsRoute(navigator = koinInject())
     }
     entry<AppRouteKey.PerformanceSettings> {
-        PerformanceSettingsRoute(navigator = navigator)
+        PerformanceSettingsRoute(navigator = koinInject())
     }
 }
 

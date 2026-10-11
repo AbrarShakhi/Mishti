@@ -22,10 +22,11 @@ import com.abrarshakhi.mishti.common.mvi.CollectEffects
 import com.abrarshakhi.mishti.common.navigation.AppRouteKey
 import com.abrarshakhi.mishti.common.navigation.Navigator
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
-fun EntryProviderScope<AppRouteKey>.modelsEntry(navigator: Navigator) {
+fun EntryProviderScope<AppRouteKey>.modelsEntry() {
     entry<AppRouteKey.Models> {
-        ModelsRoute(navigator = navigator)
+        ModelsRoute(navigator = koinInject())
     }
 }
 

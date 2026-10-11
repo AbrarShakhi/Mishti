@@ -57,3 +57,5 @@ captures/
 *.jks
 
 .idea
+.mise.toml
+!mise.toml

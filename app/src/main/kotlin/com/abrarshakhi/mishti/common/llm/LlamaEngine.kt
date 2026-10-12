@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
 
@@ -87,7 +88,7 @@ class LlamaEngine(private val inferenceDispatcher: CoroutineDispatcher = singleI
                 params.maxTokens,
                 if (supportsThinking && !params.thinking) SKIP_THINKING_PREFIX else "",
             ) { piece ->
-                trySend(GenerationEvent.Token(piece)).isSuccess
+                isActive && trySend(GenerationEvent.Token(piece)).isSuccess
             }
 
         if (produced < 0) {

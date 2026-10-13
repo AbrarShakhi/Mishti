@@ -153,7 +153,7 @@ class ModelDownloadService : Service() {
                 } else {
                     getString(R.string.notification_percent, progress)
                 },
-            ).setSmallIcon(R.drawable.ic_launcher_foreground)
+            ).setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(open)
             .addAction(0, getString(R.string.action_cancel), cancel)
             .setOngoing(true)

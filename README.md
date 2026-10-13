@@ -199,6 +199,5 @@ Mishti is built on [llama.cpp](https://github.com/ggml-org/llama.cpp) by Georgi 
 contributors. Its second catalog comes
 from [PocketPal AI](https://github.com/a-ghorbani/pocketpal-ai)'s
 [pocketpal-device-rules](https://github.com/a-ghorbani/pocketpal-device-rules), fetched unmodified
-and never bundled. The typefaces (Inter, Lora, JetBrains Mono) are under the SIL Open Font License,
-and the app icon is <a href="https://www.flaticon.com/free-icons/sweet" title="sweet icons">Sweet
-icons created by Magnific — Flaticon</a>. The full list is in [docs/credits.md](docs/credits.md).
+and never bundled. The typefaces (Inter, Lora, JetBrains Mono) are under the SIL Open Font License.
+The full list is in [docs/credits.md](docs/credits.md).

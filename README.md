@@ -152,7 +152,7 @@ persistence are written against a seam rather than against llama.cpp directly.
 | DI         | Koin 4.2                                     |
 | Storage    | Room 2.8, DataStore Preferences              |
 | Networking | Ktor 3.6                                     |
-| Inference  | llama.cpp (`b11030`) via JNI, NDK 28.2       |
+| Inference  | llama.cpp (`b11577`) via JNI, NDK 28.2       |
 | Build      | AGP 9.4, Gradle 9.7, JVM 17 target           |
 
 ## Status

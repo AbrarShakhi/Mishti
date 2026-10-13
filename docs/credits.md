@@ -4,7 +4,7 @@ Mishti stands on the work of many people. Thank you.
 
 ## Inference
 
-- **[llama.cpp](https://github.com/ggml-org/llama.cpp)** (`b11030`) by Georgi Gerganov and
+- **[llama.cpp](https://github.com/ggml-org/llama.cpp)** (`b11577`) by Georgi Gerganov and
   contributors, including the ggml tensor library. MIT License. It runs every model in Mishti.
 
 ## Model catalogs

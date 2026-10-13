@@ -34,7 +34,7 @@ fun AppMark(
         color = containerColor,
     ) {
         Image(
-            painter = painterResource(R.mipmap.ic_launcher_foreground),
+            painter = painterResource(R.drawable.ic_launcher_foreground),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
         )

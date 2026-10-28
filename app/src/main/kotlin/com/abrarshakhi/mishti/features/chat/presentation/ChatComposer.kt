@@ -11,17 +11,12 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Psychology
-import androidx.compose.material.icons.outlined.Psychology
-import androidx.compose.material.icons.rounded.Stop
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -38,8 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.tooling.preview.Preview
 import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.common.ui.theme.icons
 
 private const val ComposerMaxLines = 6
 
@@ -60,33 +57,49 @@ internal fun ChatComposer(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing.Medium, vertical = Spacing.Small),
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column {
+            TextField(
+                value = draft,
+                onValueChange = onDraftChange,
+                modifier = Modifier.padding(end = Spacing.Small),
+                placeholder = { Text(stringResource(R.string.chat_composer_placeholder)) },
+                textStyle = MaterialTheme.typography.bodyLarge,
+                maxLines = ComposerMaxLines,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Sentences,
+                ),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                ),
+            )
+
             Row(
                 modifier = Modifier.padding(end = Spacing.Small),
                 verticalAlignment = Alignment.Bottom,
             ) {
-                TextField(
-                    value = draft,
-                    onValueChange = onDraftChange,
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text(stringResource(R.string.chat_composer_placeholder)) },
-                    textStyle = MaterialTheme.typography.bodyLarge,
-                    maxLines = ComposerMaxLines,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledIndicatorColor = Color.Transparent,
-                    ),
-                )
+                AnimatedVisibility(
+                    visible = thinkingSupported,
+                    enter = expandVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) +
+                        fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
+                    exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()) +
+                        fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                ) {
+                    ThinkingChip(
+                        selected = thinkingEnabled,
+                        onClick = onThinkingToggle,
+                        modifier = Modifier.padding(start = Spacing.Medium),
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
 
                 SendButton(
                     canSend = canSend,
@@ -94,20 +107,6 @@ internal fun ChatComposer(
                     onSend = onSend,
                     onStop = onStop,
                     modifier = Modifier.padding(bottom = Spacing.Small),
-                )
-            }
-
-            AnimatedVisibility(
-                visible = thinkingSupported,
-                enter = expandVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) +
-                    fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
-                exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()) +
-                    fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
-            ) {
-                ThinkingChip(
-                    selected = thinkingEnabled,
-                    onClick = onThinkingToggle,
-                    modifier = Modifier.padding(start = Spacing.Medium, bottom = Spacing.Small),
                 )
             }
         }
@@ -122,7 +121,11 @@ private fun ThinkingChip(selected: Boolean, onClick: () -> Unit, modifier: Modif
         label = { Text(stringResource(R.string.chat_think)) },
         leadingIcon = {
             Icon(
-                imageVector = if (selected) Icons.Filled.Psychology else Icons.Outlined.Psychology,
+                imageVector = if (selected) {
+                    MaterialTheme.icons.actions.thinking.filled
+                } else {
+                    MaterialTheme.icons.actions.thinking.outline
+                },
                 contentDescription = null,
                 modifier = Modifier.size(FilterChipDefaults.IconSize),
             )
@@ -155,15 +158,31 @@ private fun SendButton(
         ) { stopping ->
             if (stopping) {
                 Icon(
-                    imageVector = Icons.Rounded.Stop,
+                    imageVector = MaterialTheme.icons.actions.pause.filled,
                     contentDescription = stringResource(R.string.chat_stop),
                 )
             } else {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    imageVector = MaterialTheme.icons.actions.send.filled,
                     contentDescription = stringResource(R.string.chat_send),
                 )
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun ChatComposerPreview() {
+    ChatComposer(
+        draft = "This is a draft message",
+        canSend = true,
+        canStop = false,
+        thinkingSupported = true,
+        thinkingEnabled = true,
+        onDraftChange = {},
+        onSend = {},
+        onStop = {},
+        onThinkingToggle = {},
+    )
 }

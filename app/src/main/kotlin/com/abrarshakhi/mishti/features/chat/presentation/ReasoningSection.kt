@@ -19,9 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Psychology
-import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
@@ -55,6 +52,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.common.ui.theme.icons
+import com.abrarshakhi.mishti.features.models.domain.model.estimatedRamBytes
 
 private val LivePreviewHeight = 120.dp
 private val LivePreviewFade = 32.dp
@@ -131,7 +130,7 @@ private fun ReasoningHeader(isReasoning: Boolean, durationMillis: Long?, expande
             LoadingIndicator(modifier = Modifier.size(HeaderIconSize))
         } else {
             Icon(
-                imageVector = Icons.Outlined.Psychology,
+                imageVector = MaterialTheme.icons.actions.thinking.outline,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(HeaderIconSize),
@@ -143,7 +142,7 @@ private fun ReasoningHeader(isReasoning: Boolean, durationMillis: Long?, expande
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Icon(
-            imageVector = Icons.Rounded.ExpandMore,
+            imageVector = MaterialTheme.icons.actions.more.outline,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier

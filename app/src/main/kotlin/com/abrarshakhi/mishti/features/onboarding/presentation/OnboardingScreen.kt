@@ -30,8 +30,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -54,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.common.ui.theme.icons
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
@@ -163,7 +162,7 @@ fun OnboardingScreen(onContinue: () -> Unit, modifier: Modifier = Modifier) {
                             if (!last) {
                                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                    imageVector = MaterialTheme.icons.navigation.foreword.filled,
                                     contentDescription = null,
                                     modifier = Modifier.size(
                                         ButtonDefaults.iconSizeFor(ButtonDefaults.MediumContainerHeight),

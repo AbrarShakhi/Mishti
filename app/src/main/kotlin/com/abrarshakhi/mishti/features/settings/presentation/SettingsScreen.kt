@@ -1,21 +1,5 @@
 package com.abrarshakhi.mishti.features.settings.presentation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Gavel
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.PrivacyTip
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +18,7 @@ import com.abrarshakhi.mishti.common.llm.ModelHandle
 import com.abrarshakhi.mishti.common.ui.components.AppMark
 import com.abrarshakhi.mishti.common.ui.components.ShapedIcon
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
+import com.abrarshakhi.mishti.common.ui.theme.icons
 
 @Composable
 fun SettingsScreen(
@@ -66,7 +51,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.Storefront,
+                        icon = MaterialTheme.icons.navigation.store.filled,
                         iconColor = modelColor,
                         title = stringResource(R.string.models_title),
                         supporting = modelSummary(state.engineState),
@@ -80,7 +65,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.Palette,
+                        icon = MaterialTheme.icons.navigation.theme.filled,
                         iconColor = generalColor,
                         title = stringResource(R.string.settings_appearance),
                         supporting = stringResource(R.string.settings_appearance_subtitle),
@@ -90,7 +75,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.AutoMirrored.Filled.Chat,
+                        icon = MaterialTheme.icons.navigation.chat.filled,
                         iconColor = generalColor,
                         title = stringResource(R.string.settings_chat),
                         supporting = stringResource(R.string.settings_chat_subtitle),
@@ -104,7 +89,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.Tune,
+                        icon = MaterialTheme.icons.navigation.config.filled,
                         iconColor = advancedColor,
                         title = stringResource(R.string.settings_generation),
                         supporting = stringResource(R.string.settings_generation_subtitle),
@@ -114,7 +99,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.Speed,
+                        icon = MaterialTheme.icons.navigation.speed.filled,
                         iconColor = advancedColor,
                         title = stringResource(R.string.settings_performance),
                         supporting = stringResource(R.string.settings_performance_subtitle),
@@ -141,7 +126,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.Favorite,
+                        icon = MaterialTheme.icons.navigation.favorite.filled,
                         iconColor = aboutColor,
                         title = stringResource(R.string.document_credits),
                         supporting = stringResource(R.string.settings_credits_subtitle),
@@ -151,7 +136,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.PrivacyTip,
+                        icon = MaterialTheme.icons.navigation.privacy.filled,
                         iconColor = aboutColor,
                         title = stringResource(R.string.document_privacy),
                         supporting = stringResource(R.string.settings_privacy_subtitle),
@@ -161,7 +146,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.Gavel,
+                        icon = MaterialTheme.icons.navigation.gavel.filled,
                         iconColor = aboutColor,
                         title = stringResource(R.string.document_terms),
                         supporting = stringResource(R.string.settings_terms_subtitle),
@@ -175,7 +160,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.Code,
+                        icon = MaterialTheme.icons.navigation.github.filled,
                         iconColor = communityColor,
                         title = stringResource(R.string.settings_source_code),
                         supporting = stringResource(R.string.settings_source_code_subtitle),
@@ -186,7 +171,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.BugReport,
+                        icon = MaterialTheme.icons.visuals.error.filled,
                         iconColor = communityColor,
                         title = stringResource(R.string.settings_report_issue),
                         supporting = stringResource(R.string.settings_report_issue_subtitle),
@@ -197,7 +182,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.Lightbulb,
+                        icon = MaterialTheme.icons.actions.lightTheme.filled,
                         iconColor = communityColor,
                         title = stringResource(R.string.settings_suggest_model),
                         supporting = stringResource(R.string.settings_suggest_model_subtitle),
@@ -208,7 +193,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.VolunteerActivism,
+                        icon = MaterialTheme.icons.navigation.volunteerActivism.filled,
                         iconColor = communityColor,
                         title = stringResource(R.string.document_contributing),
                         supporting = stringResource(R.string.settings_contribute_subtitle),
@@ -218,7 +203,7 @@ fun SettingsScreen(
                 row { shapes ->
                     CategoryRow(
                         shapes = shapes,
-                        icon = Icons.Filled.Star,
+                        icon = MaterialTheme.icons.navigation.star.filled,
                         iconColor = communityColor,
                         title = stringResource(R.string.settings_star),
                         supporting = stringResource(R.string.settings_star_subtitle),
@@ -254,13 +239,13 @@ private fun CategoryRow(
 
 @Composable
 private fun InternalLinkIcon() {
-    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
+    Icon(MaterialTheme.icons.navigation.arrowOut.filled, contentDescription = null)
 }
 
 @Composable
 private fun ExternalLinkIcon() {
     Icon(
-        Icons.AutoMirrored.Filled.OpenInNew,
+        MaterialTheme.icons.navigation.browser.filled,
         contentDescription = stringResource(R.string.settings_opens_browser),
     )
 }

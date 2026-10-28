@@ -21,12 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularWavyProgressIndicator
@@ -61,6 +55,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.common.ui.theme.icons
 import com.abrarshakhi.mishti.features.models.domain.model.MemoryFit
 import com.abrarshakhi.mishti.features.models.domain.model.TransferStatus
 import kotlinx.coroutines.delay
@@ -194,7 +189,7 @@ internal fun CompactTransferAction(
                     shapes = IconButtonDefaults.shapes(),
                 ) {
                     Icon(
-                        Icons.Filled.Download,
+                        MaterialTheme.icons.actions.download.filled,
                         contentDescription = stringResource(
                             R.string.models_download_named,
                             item.model.name,
@@ -215,7 +210,7 @@ internal fun CompactTransferAction(
                     )
                     IconButton(onClick = onCancel) {
                         Icon(
-                            Icons.Filled.Close,
+                            MaterialTheme.icons.actions.cancel.filled,
                             contentDescription = stringResource(R.string.models_cancel_download),
                             modifier = Modifier.size(18.dp),
                         )
@@ -229,7 +224,7 @@ internal fun CompactTransferAction(
                     shapes = IconButtonDefaults.shapes(),
                 ) {
                     Icon(
-                        Icons.Filled.Refresh,
+                        MaterialTheme.icons.actions.redo.filled,
                         contentDescription = stringResource(
                             R.string.models_retry_named,
                             item.model.name,
@@ -239,7 +234,7 @@ internal fun CompactTransferAction(
                 }
 
                 ActionKind.OnShelf -> Icon(
-                    Icons.Filled.CheckCircle,
+                    MaterialTheme.icons.actions.check.filled,
                     contentDescription = stringResource(R.string.models_on_shelf),
                     tint = MaterialTheme.colorScheme.primary,
                 )
@@ -273,12 +268,10 @@ internal fun WideTransferAction(
                     .height(56.dp),
             ) {
                 Icon(
-                    imageVector = if (kind ==
-                        ActionKind.Failed
-                    ) {
-                        Icons.Filled.Refresh
+                    imageVector = if (kind == ActionKind.Failed) {
+                        MaterialTheme.icons.actions.check.filled
                     } else {
-                        Icons.Filled.Download
+                        MaterialTheme.icons.actions.download.filled
                     },
                     contentDescription = null,
                 )
@@ -323,7 +316,7 @@ internal fun WideTransferAction(
                         if (status is TransferStatus.Downloading) {
                             IconButton(onClick = onCancel) {
                                 Icon(
-                                    Icons.Filled.Close,
+                                    MaterialTheme.icons.actions.cancel.filled,
                                     contentDescription = stringResource(
                                         R.string.models_cancel_download,
                                     ),
@@ -349,7 +342,7 @@ internal fun WideTransferAction(
                     .fillMaxWidth()
                     .height(56.dp),
             ) {
-                Icon(Icons.Filled.Check, contentDescription = null)
+                Icon(MaterialTheme.icons.actions.check.filled, contentDescription = null)
                 Spacer(Modifier.width(Spacing.Small))
                 Text(
                     stringResource(R.string.models_on_shelf),

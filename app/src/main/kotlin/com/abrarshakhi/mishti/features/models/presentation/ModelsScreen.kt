@@ -7,14 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Inventory2
-import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.filled.UploadFile
-import androidx.compose.material.icons.outlined.Inventory2
-import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -40,6 +32,7 @@ import androidx.compose.ui.unit.Dp
 import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.device.DeviceCapability
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
+import com.abrarshakhi.mishti.common.ui.theme.icons
 import com.abrarshakhi.mishti.features.models.domain.model.Catalog
 import com.abrarshakhi.mishti.features.models.domain.model.CatalogModel
 import com.abrarshakhi.mishti.features.models.domain.model.CatalogSource
@@ -84,7 +77,7 @@ fun ModelsScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
                         Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
+                            MaterialTheme.icons.navigation.back.outline,
                             contentDescription = stringResource(R.string.action_back),
                         )
                     }
@@ -92,7 +85,7 @@ fun ModelsScreen(
                 actions = {
                     IconButton(onClick = onImport, shapes = IconButtonDefaults.shapes()) {
                         Icon(
-                            Icons.Filled.UploadFile,
+                            MaterialTheme.icons.actions.importFile.filled,
                             contentDescription = stringResource(R.string.models_import),
                         )
                     }
@@ -133,9 +126,9 @@ fun ModelsScreen(
                         BadgedBox(badge = { if (active > 0) Badge { Text("$active") } }) {
                             Icon(
                                 if (pagerState.currentPage == ShelfPage) {
-                                    Icons.Filled.Inventory2
+                                    MaterialTheme.icons.navigation.shelf.filled
                                 } else {
-                                    Icons.Outlined.Inventory2
+                                    MaterialTheme.icons.navigation.shelf.outline
                                 },
                                 contentDescription = "My Shelf Icon",
                             )
@@ -151,9 +144,9 @@ fun ModelsScreen(
                     icon = {
                         Icon(
                             if (pagerState.currentPage == BrowsePage) {
-                                Icons.Filled.Storefront
+                                MaterialTheme.icons.navigation.store.filled
                             } else {
-                                Icons.Outlined.Storefront
+                                MaterialTheme.icons.navigation.store.outline
                             },
                             contentDescription = "Browse Icon",
                         )
@@ -209,7 +202,7 @@ fun ModelsScreen(
     state.deleting?.let { model ->
         AlertDialog(
             onDismissRequest = { onIntent(ModelsIntent.DeleteCancelled) },
-            icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+            icon = { Icon(MaterialTheme.icons.actions.delete.outline, contentDescription = null) },
             title = { Text(stringResource(R.string.models_delete_title, model.name)) },
             text = {
                 Text(

@@ -23,13 +23,6 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.Public
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
@@ -76,6 +69,7 @@ import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.components.SectionHeader
 import com.abrarshakhi.mishti.common.ui.components.ShapedIcon
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.common.ui.theme.icons
 import com.abrarshakhi.mishti.features.models.domain.model.CatalogSource
 import com.abrarshakhi.mishti.features.models.domain.model.CatalogState
 import com.abrarshakhi.mishti.features.models.domain.model.MemoryFit
@@ -314,9 +308,9 @@ private fun CatalogSourceSelector(
                     imageVector = if (source ==
                         CatalogSource.MishtirBhandar
                     ) {
-                        Icons.Filled.Storefront
+                        MaterialTheme.icons.navigation.store.filled
                     } else {
-                        Icons.Filled.Public
+                        MaterialTheme.icons.navigation.global.filled
                     },
                     contentDescription = null,
                     modifier = Modifier.size(ToggleButtonDefaults.IconSize),
@@ -373,12 +367,12 @@ private fun SearchField(query: String, onQueryChange: (String) -> Unit, modifier
         onValueChange = onQueryChange,
         modifier = modifier.fillMaxWidth(),
         placeholder = { Text(stringResource(R.string.models_search)) },
-        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+        leadingIcon = { Icon(MaterialTheme.icons.actions.search.filled, contentDescription = null) },
         trailingIcon = if (query.isNotEmpty()) {
             {
                 IconButton(onClick = { onQueryChange("") }) {
                     Icon(
-                        Icons.Filled.Clear,
+                        MaterialTheme.icons.actions.search.filled,
                         contentDescription = stringResource(R.string.models_clear_search),
                     )
                 }
@@ -484,7 +478,7 @@ private fun FilterRow(
                 leadingIcon = if (isSelected) {
                     {
                         Icon(
-                            Icons.Filled.Check,
+                            MaterialTheme.icons.actions.check.outline,
                             contentDescription = null,
                             modifier = Modifier.size(FilterChipDefaults.IconSize),
                         )
@@ -549,7 +543,7 @@ private fun CatalogUnavailable(reason: String, onRetry: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             ShapedIcon(
-                imageVector = Icons.Filled.CloudOff,
+                imageVector = MaterialTheme.icons.visuals.notOnline.filled,
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 size = 56.dp,
             )

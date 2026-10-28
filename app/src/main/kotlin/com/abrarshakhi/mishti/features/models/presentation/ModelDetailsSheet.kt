@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.common.ui.theme.icons
 import com.abrarshakhi.mishti.features.models.domain.model.MemoryFit
 import kotlin.math.roundToInt
 
@@ -145,7 +144,7 @@ internal fun ModelDetailsSheet(
             ) {
                 Text(stringResource(R.string.models_view_on_hugging_face))
                 Spacer(Modifier.width(Spacing.ExtraSmall))
-                Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null)
+                Icon(MaterialTheme.icons.navigation.browser.filled, contentDescription = null)
             }
 
             Spacer(Modifier.height(Spacing.Large))

@@ -21,12 +21,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -57,6 +51,7 @@ import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.components.SectionHeader
 import com.abrarshakhi.mishti.common.ui.components.ShapedIcon
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.common.ui.theme.icons
 import com.abrarshakhi.mishti.features.models.domain.model.ShelfModel
 import com.abrarshakhi.mishti.features.models.domain.model.Transfer
 import com.abrarshakhi.mishti.features.models.domain.model.TransferStatus
@@ -199,7 +194,7 @@ private fun InUseCard(model: ShelfModel, onDelete: () -> Unit, modifier: Modifie
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = onDelete, shapes = IconButtonDefaults.shapes()) {
                     Icon(
-                        Icons.Filled.Delete,
+                        MaterialTheme.icons.actions.delete.outline,
                         contentDescription = stringResource(
                             R.string.models_delete_named,
                             model.name,
@@ -267,7 +262,7 @@ private fun TransferRow(
         leadingContent = {
             if (status is TransferStatus.Failed) {
                 ShapedIcon(
-                    imageVector = Icons.Filled.ErrorOutline,
+                    imageVector = MaterialTheme.icons.visuals.error.filled,
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                 )
             } else {
@@ -330,7 +325,7 @@ private fun TransferRow(
         trailingContent = {
             IconButton(onClick = if (status is TransferStatus.Failed) onDismiss else onCancel) {
                 Icon(
-                    Icons.Filled.Close,
+                    MaterialTheme.icons.actions.cancel.outline,
                     contentDescription = stringResource(
                         if (status is TransferStatus.Failed) R.string.action_dismiss else R.string.action_cancel,
                     ),
@@ -380,13 +375,13 @@ private fun EmptyShelf(onBrowse: () -> Unit, onImport: () -> Unit, modifier: Mod
             )
             Spacer(Modifier.height(Spacing.ExtraLarge))
             Button(onClick = onBrowse, shapes = ButtonDefaults.shapes()) {
-                Icon(Icons.Filled.Storefront, contentDescription = null)
+                Icon(MaterialTheme.icons.navigation.store.outline, contentDescription = null)
                 Spacer(Modifier.width(Spacing.Small))
                 Text(stringResource(R.string.models_empty_browse))
             }
             Spacer(Modifier.height(Spacing.Small))
             OutlinedButton(onClick = onImport, shapes = ButtonDefaults.shapes()) {
-                Icon(Icons.Filled.UploadFile, contentDescription = null)
+                Icon(MaterialTheme.icons.actions.importFile.outline, contentDescription = null)
                 Spacer(Modifier.width(Spacing.Small))
                 Text(stringResource(R.string.models_empty_import))
             }

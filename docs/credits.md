@@ -50,6 +50,7 @@ for publishing the GGUF conversions.
 | [Lottie for Android](https://github.com/airbnb/lottie-android) `6.7.1`                                                                 | Apache 2.0 |
 | [Multiplatform Markdown Renderer](https://github.com/mikepenz/multiplatform-markdown-renderer) `0.45.0` by Mike Penz                   | Apache 2.0 |
 | [MaterialKolor](https://github.com/jordond/MaterialKolor) `5.0.1` by Jordon de Hoog                                                    | MIT        |
+| [PhosphorIcon-compose](https://github.com/dev778g-me/PhosphorIcon-compose) `1.0.5` by dev778g-me                                   | MIT        |
 | [compose-shimmer](https://github.com/valentinilk/compose-shimmer) `1.5.0` by Valentin Ilk                                              | Apache 2.0 |
 
 ## Typefaces
@@ -59,6 +60,12 @@ All under the SIL Open Font License 1.1. Copies of the licenses ship inside the 
 - [Inter](https://rsms.me/inter/) by Rasmus Andersson
 - [Lora](https://github.com/cyrealtype/Lora-Cyrillic) by Cyreal
 - [JetBrains Mono](https://www.jetbrains.com/lp/mono/) by JetBrains
+
+## Icons
+
+Icons are free and open-source, licensed under MIT.
+
+- [Phosphor Icons](https://phosphoricons.com/) by Helena Zhang and Tobias Fried
 
 ## Prior art
 

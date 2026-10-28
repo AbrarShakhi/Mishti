@@ -19,10 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Shuffle
-import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -50,6 +46,7 @@ import com.abrarshakhi.mishti.common.llm.EngineState
 import com.abrarshakhi.mishti.common.ui.components.AppMark
 import com.abrarshakhi.mishti.common.ui.components.CookieShape
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.common.ui.theme.icons
 import kotlin.random.Random
 
 private val HeroSize = 88.dp
@@ -157,7 +154,7 @@ private fun ReadyState(engineState: EngineState, onSuggestion: (String) -> Unit)
                 modifier = Modifier.padding(top = Spacing.Small),
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Shuffle,
+                    imageVector = MaterialTheme.icons.actions.shuffle.filled,
                     contentDescription = null,
                     modifier = Modifier.size(ButtonDefaults.IconSize),
                 )
@@ -193,7 +190,7 @@ private fun NoModelState(onOpenModels: () -> Unit) {
             contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
         ) {
             Icon(
-                imageVector = Icons.Filled.Storefront,
+                imageVector = MaterialTheme.icons.navigation.store.filled,
                 contentDescription = null,
                 modifier = Modifier.size(ButtonDefaults.IconSize),
             )
@@ -215,7 +212,7 @@ private fun FailedState(onOpenModels: () -> Unit) {
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        Icons.Filled.Warning,
+                        MaterialTheme.icons.visuals.warning.filled,
                         contentDescription = null,
                         modifier = Modifier.size(36.dp),
                     )

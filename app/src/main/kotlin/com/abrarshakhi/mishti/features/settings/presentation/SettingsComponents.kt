@@ -14,9 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -43,6 +40,7 @@ import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.components.SectionHeader
 import com.abrarshakhi.mishti.common.ui.components.ShapedIcon
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.common.ui.theme.icons
 
 @Composable
 internal fun SettingsScaffold(
@@ -66,7 +64,7 @@ internal fun SettingsScaffold(
                 navigationIcon = {
                     IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
                         Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
+                            MaterialTheme.icons.navigation.back.outline,
                             contentDescription = stringResource(R.string.action_back),
                         )
                     }
@@ -240,7 +238,7 @@ internal fun RestoreDefaultsRow(shapes: ListItemShapes, defaults: String, enable
         enabled = enabled,
         leadingContent = {
             ShapedIcon(
-                imageVector = Icons.Filled.RestartAlt,
+                imageVector = MaterialTheme.icons.actions.redo.filled,
                 containerColor = if (enabled) {
                     MaterialTheme.colorScheme.secondaryContainer
                 } else {

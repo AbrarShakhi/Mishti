@@ -34,8 +34,6 @@ fun ChatScreen(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             ChatTopBar(
-                title = state.title,
-                engineState = state.engineState,
                 scrollBehavior = scrollBehavior,
                 onOpenDrawer = onOpenDrawer,
                 onNewChat = onNewChat,
@@ -125,7 +123,6 @@ private fun ChatScreenPreview(state: ChatUiState) {
 @Composable
 private fun ChatScreenReadyPreview() = ChatScreenPreview(
     ChatUiState(
-        title = "New chat",
         isLoading = false,
         engineState = EngineState.Ready(PreviewModel),
     ),
@@ -134,14 +131,13 @@ private fun ChatScreenReadyPreview() = ChatScreenPreview(
 @Preview(name = "No model", showBackground = true)
 @Composable
 private fun ChatScreenNoModelPreview() = ChatScreenPreview(
-    ChatUiState(title = "New chat", isLoading = false),
+    ChatUiState(isLoading = false),
 )
 
 @Preview(name = "Conversation", showBackground = true)
 @Composable
 private fun ChatScreenConversationPreview() = ChatScreenPreview(
     ChatUiState(
-        title = "Rainbows",
         isLoading = false,
         messages = listOf(
             ChatMessage("1", MessageAuthor.User, "Explain how rainbows form", 0L),
@@ -165,7 +161,6 @@ private fun ChatScreenConversationPreview() = ChatScreenPreview(
 @Composable
 private fun ChatScreenStreamingPreview() = ChatScreenPreview(
     ChatUiState(
-        title = "Rainbows",
         isLoading = false,
         messages = listOf(ChatMessage("1", MessageAuthor.User, "Explain how rainbows form", 0L)),
         streamingResponse = "Sunlight bends as it enters a rain",
@@ -179,7 +174,6 @@ private fun ChatScreenStreamingPreview() = ChatScreenPreview(
 @Composable
 private fun ChatScreenThinkingPreview() = ChatScreenPreview(
     ChatUiState(
-        title = "Rainbows",
         isLoading = false,
         messages = listOf(ChatMessage("1", MessageAuthor.User, "Explain how rainbows form", 0L)),
         streamingReasoning = "The user wants the physics of rainbows. Start with refraction, " +
@@ -197,7 +191,6 @@ private fun ChatScreenThinkingPreview() = ChatScreenPreview(
 @Composable
 private fun ChatScreenReasonedPreview() = ChatScreenPreview(
     ChatUiState(
-        title = "Rainbows",
         isLoading = false,
         messages = listOf(
             ChatMessage("1", MessageAuthor.User, "Explain how rainbows form", 0L),

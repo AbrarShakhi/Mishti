@@ -25,11 +25,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BrightnessAuto
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
@@ -63,6 +58,7 @@ import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.common.ui.theme.ThemeMode
 import com.abrarshakhi.mishti.common.ui.theme.appColorScheme
 import com.abrarshakhi.mishti.common.ui.theme.fontFamily
+import com.abrarshakhi.mishti.common.ui.theme.icons
 import com.abrarshakhi.mishti.common.ui.theme.isDark
 import com.abrarshakhi.mishti.common.ui.theme.labelRes
 import kotlinx.coroutines.Dispatchers
@@ -190,10 +186,11 @@ private fun ThemeModeSelector(selected: ThemeMode, onSelect: (ThemeMode) -> Unit
 }
 
 private val ThemeMode.icon: ImageVector
+    @Composable
     get() = when (this) {
-        ThemeMode.System -> Icons.Filled.BrightnessAuto
-        ThemeMode.Light -> Icons.Filled.LightMode
-        ThemeMode.Dark -> Icons.Filled.DarkMode
+        ThemeMode.System -> MaterialTheme.icons.actions.autoBrightness.filled
+        ThemeMode.Light -> MaterialTheme.icons.actions.lightTheme.filled
+        ThemeMode.Dark -> MaterialTheme.icons.actions.darkTheme.filled
     }
 
 @Composable
@@ -297,7 +294,7 @@ private fun SelectedBadge(visible: Boolean, containerColor: Color, contentColor:
     ) {
         Surface(shape = CircleShape, color = containerColor, contentColor = contentColor) {
             Icon(
-                imageVector = Icons.Filled.Check,
+                imageVector = MaterialTheme.icons.actions.check.filled,
                 contentDescription = null,
                 modifier = Modifier
                     .padding(Spacing.ExtraSmall)

@@ -18,15 +18,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DropdownMenu
@@ -43,6 +34,7 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedListItem
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -75,6 +67,7 @@ import com.abrarshakhi.mishti.common.ui.components.AppMark
 import com.abrarshakhi.mishti.common.ui.components.SectionHeader
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
+import com.abrarshakhi.mishti.common.ui.theme.icons
 import com.abrarshakhi.mishti.features.chat.domain.model.ChatSession
 import com.abrarshakhi.mishti.features.chat.presentation.RenameState
 import com.abrarshakhi.mishti.features.chat.presentation.SessionGroup
@@ -128,7 +121,12 @@ fun AppDrawer(
 
         NavigationDrawerItem(
             label = { Text(stringResource(R.string.drawer_new_chat)) },
-            icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+            icon = {
+                Icon(
+                    MaterialTheme.icons.actions.newChat.filled,
+                    contentDescription = null,
+                )
+            },
             selected = false,
             onClick = onNewChatClick,
             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
@@ -337,9 +335,7 @@ private fun ConversationItem(
                 )
                 onShowActions()
             },
-            onLongClickLabel = stringResource(
-                R.string.drawer_conversation_actions,
-            ),
+            onLongClickLabel = stringResource(R.string.drawer_conversation_actions),
             trailingContent = if (selected) {
                 {
                     IconButton(
@@ -347,7 +343,7 @@ private fun ConversationItem(
                         shapes = IconButtonDefaults.shapes(),
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.MoreVert,
+                            imageVector = MaterialTheme.icons.actions.moreAction.outline,
                             contentDescription = stringResource(
                                 R.string.drawer_conversation_actions,
                             ),
@@ -403,7 +399,7 @@ private fun ConversationActionsMenu(
             },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Rounded.Edit,
+                    imageVector = MaterialTheme.icons.actions.edit.outline,
                     contentDescription = null,
                 )
             },
@@ -424,7 +420,7 @@ private fun ConversationActionsMenu(
             },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Rounded.Delete,
+                    imageVector = MaterialTheme.icons.actions.delete.outline,
                     contentDescription = null,
                     tint = colorScheme.error,
                 )
@@ -435,23 +431,55 @@ private fun ConversationActionsMenu(
 }
 
 @Composable
-private fun DrawerFooter(onModelsClick: () -> Unit, onSettingsClick: () -> Unit) {
-    NavigationDrawerItem(
-        label = { Text(stringResource(R.string.models_title)) },
-        icon = { Icon(Icons.Filled.Storefront, contentDescription = null) },
-        selected = false,
-        onClick = onModelsClick,
-        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
-    )
-    NavigationDrawerItem(
-        label = { Text(stringResource(R.string.drawer_settings)) },
-        icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
-        selected = false,
-        onClick = onSettingsClick,
+private fun DrawerFooter(
+    onModelsClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+) {
+    Row(
         modifier = Modifier
-            .padding(NavigationDrawerItemDefaults.ItemPadding)
+            .fillMaxWidth()
+            .padding(horizontal = Spacing.Medium)
             .padding(bottom = Spacing.Medium),
-    )
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Surface(
+            onClick = onModelsClick,
+            shape = RoundedCornerShape(28.dp),
+            color = Color.Transparent,
+            modifier = Modifier.height(56.dp),
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = Spacing.Medium),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = MaterialTheme.icons.navigation.store.filled,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.width(Spacing.Medium))
+                Text(
+                    text = stringResource(R.string.models_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        Spacer(Modifier.weight(1f))
+
+        // Settings Item (Icon Button)
+        IconButton(
+            onClick = onSettingsClick,
+            shapes = IconButtonDefaults.shapes(),
+        ) {
+            Icon(
+                imageVector = MaterialTheme.icons.navigation.settings.outline,
+                contentDescription = stringResource(R.string.drawer_settings),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
 }
 
 @Composable
@@ -466,7 +494,7 @@ private fun RenameDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = { Icon(Icons.Filled.Edit, contentDescription = null) },
+        icon = { Icon(MaterialTheme.icons.actions.edit.outline, contentDescription = null) },
         title = { Text(stringResource(R.string.drawer_rename_title)) },
         text = {
             OutlinedTextField(
@@ -498,7 +526,7 @@ private fun RenameDialog(
 private fun DeleteDialog(session: ChatSession, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = { Icon(Icons.Filled.Delete, contentDescription = null) },
+        icon = { Icon(MaterialTheme.icons.actions.delete.outline, contentDescription = null) },
         title = { Text(stringResource(R.string.drawer_delete_title)) },
         text = {
             Text(stringResource(R.string.drawer_delete_body, sessionDisplayTitle(session.title)))
@@ -525,9 +553,9 @@ private fun AppDrawerPreview() {
         AppDrawer(
             sessions = listOf(
                 ChatSession("1", "Running a model offline", 0L, now),
-//                ChatSession("2", "Haiku about the sea", 0L, now - 3_600_000L),
-//                ChatSession("3", "Dinner ideas", 0L, now - 86_400_000L),
-//                ChatSession("4", "Regex for email addresses", 0L, now - 4 * 86_400_000L),
+                ChatSession("2", "Haiku about the sea", 0L, now - 3_600_000L),
+                ChatSession("3", "Dinner ideas", 0L, now - 86_400_000L),
+                ChatSession("4", "Regex for email addresses", 0L, now - 4 * 86_400_000L),
             ),
             currentSessionId = "1",
             actionsFor = null,

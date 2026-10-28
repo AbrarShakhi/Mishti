@@ -8,11 +8,9 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,6 +24,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
+import com.abrarshakhi.mishti.common.ui.theme.icons
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
@@ -61,7 +60,11 @@ internal fun CopyButton(text: String, contentDescription: String, modifier: Modi
             label = "CopyIcon",
         ) { isCopied ->
             Icon(
-                imageVector = if (isCopied) Icons.Filled.Check else Icons.Filled.ContentCopy,
+                imageVector = if (isCopied) {
+                    MaterialTheme.icons.actions.check.outline
+                } else {
+                    MaterialTheme.icons.actions.copy.outline
+                },
                 contentDescription = if (isCopied) {
                     stringResource(
                         R.string.action_copied,

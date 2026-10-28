@@ -31,7 +31,6 @@ import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Surface
@@ -115,21 +114,28 @@ fun AppDrawer(
 
     ModalDrawerSheet(
         modifier = modifier.width(drawerWidth),
-        drawerContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+        // A cleaner surface color makes the drawer feel modern and lightweight
+        drawerContainerColor = MaterialTheme.colorScheme.surface,
     ) {
         DrawerHeader()
 
         NavigationDrawerItem(
-            label = { Text(stringResource(R.string.drawer_new_chat)) },
+            label = {
+                Text(
+                    text = stringResource(R.string.drawer_new_chat),
+                    style = MaterialTheme.typography.titleSmall
+                )
+            },
             icon = {
                 Icon(
-                    MaterialTheme.icons.actions.newChat.filled,
+                    imageVector = MaterialTheme.icons.actions.newChat.filled,
                     contentDescription = null,
                 )
             },
             selected = false,
             onClick = onNewChatClick,
-            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+            modifier = Modifier.padding(horizontal = Spacing.Medium, vertical = Spacing.Small),
+            shape = RoundedCornerShape(12.dp) // Sleek slightly-rounded rectangle
         )
 
         ConversationHistory(
@@ -173,18 +179,18 @@ fun AppDrawer(
 private fun DrawerHeader() {
     Row(
         modifier = Modifier.padding(
-            start = Spacing.ExtraLarge,
-            end = Spacing.ExtraLarge,
-            top = Spacing.ExtraLarge,
-            bottom = Spacing.Large,
+            start = Spacing.Large,
+            end = Spacing.Large,
+            top = Spacing.Large,
+            bottom = Spacing.Medium,
         ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AppMark(size = 40.dp)
+        AppMark(size = 32.dp) // Slightly smaller logo for a balanced top
         Spacer(Modifier.width(Spacing.Medium))
         Text(
             text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.titleLargeEmphasized,
+            style = MaterialTheme.typography.titleMedium, // Clean elegant typography
             color = MaterialTheme.colorScheme.onSurface,
         )
     }
@@ -225,11 +231,12 @@ private fun ConversationHistory(
             end = Spacing.Medium,
             bottom = Spacing.Large,
         ),
-        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+        verticalArrangement = Arrangement.spacedBy(2.dp), // Tighter standard layout
     ) {
         item(key = TopAnchorKey) {
-            Spacer(Modifier.height(Spacing.Small - ListItemDefaults.SegmentedGap))
+            Spacer(Modifier.height(Spacing.Small))
         }
+
         if (groups.isEmpty()) {
             item(key = "empty") {
                 Text(
@@ -243,13 +250,17 @@ private fun ConversationHistory(
                 )
             }
         }
+
         groups.forEachIndexed { groupIndex, group ->
             item(key = group.recency, contentType = "recency") {
                 SectionHeader(
                     title = stringResource(group.recency.labelRes),
                     modifier = Modifier
                         .animateItem()
-                        .padding(top = if (groupIndex == 0) 0.dp else Spacing.Medium),
+                        .padding(
+                            top = if (groupIndex == 0) Spacing.Small else Spacing.Medium,
+                            bottom = Spacing.Small
+                        ),
                 )
             }
             itemsIndexed(
@@ -344,9 +355,7 @@ private fun ConversationItem(
                     ) {
                         Icon(
                             imageVector = MaterialTheme.icons.actions.moreAction.outline,
-                            contentDescription = stringResource(
-                                R.string.drawer_conversation_actions,
-                            ),
+                            contentDescription = stringResource(R.string.drawer_conversation_actions),
                         )
                     }
                 }
@@ -358,6 +367,7 @@ private fun ConversationItem(
                 text = sessionDisplayTitle(session.title),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium, // Smaller font density feels organized and neat
             )
         }
 
@@ -388,15 +398,13 @@ private fun ConversationActionsMenu(
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(24.dp),
-        containerColor = colorScheme.surfaceContainer,
+        shape = RoundedCornerShape(16.dp),
+        containerColor = colorScheme.surfaceContainerHigh,
         tonalElevation = 2.dp,
         shadowElevation = 4.dp,
     ) {
         DropdownMenuItem(
-            text = {
-                Text(stringResource(R.string.drawer_rename))
-            },
+            text = { Text(stringResource(R.string.drawer_rename)) },
             leadingIcon = {
                 Icon(
                     imageVector = MaterialTheme.icons.actions.edit.outline,
@@ -438,15 +446,15 @@ private fun DrawerFooter(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.Medium)
-            .padding(bottom = Spacing.Medium),
+            .padding(horizontal = Spacing.Medium, vertical = Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Models pill - matches standard minimalist button layout
         Surface(
             onClick = onModelsClick,
-            shape = RoundedCornerShape(28.dp),
+            shape = RoundedCornerShape(12.dp),
             color = Color.Transparent,
-            modifier = Modifier.height(56.dp),
+            modifier = Modifier.height(48.dp),
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = Spacing.Medium),
@@ -468,7 +476,7 @@ private fun DrawerFooter(
 
         Spacer(Modifier.weight(1f))
 
-        // Settings Item (Icon Button)
+        // Settings Icon
         IconButton(
             onClick = onSettingsClick,
             shapes = IconButtonDefaults.shapes(),
@@ -508,6 +516,7 @@ private fun RenameDialog(
                 ),
                 keyboardActions = KeyboardActions(onDone = { if (state.canConfirm) onConfirm() }),
                 modifier = Modifier.focusRequester(focusRequester),
+                shape = RoundedCornerShape(12.dp),
             )
         },
         confirmButton = {

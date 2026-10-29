@@ -26,8 +26,10 @@ private fun variableFamily(resId: Int): FontFamily = FontFamily(
 private val InterFamily by lazy { variableFamily(R.font.inter) }
 private val LoraFamily by lazy { variableFamily(R.font.lora) }
 private val JetBrainsMonoFamily by lazy { variableFamily(R.font.jetbrains_mono) }
+private val eduNswActCursive by lazy { variableFamily(R.font.edu_nsw_act_cursive)}
 
 val CodeFontFamily: FontFamily get() = JetBrainsMonoFamily
+val AppMarkFontFamily: FontFamily get() = eduNswActCursive
 
 fun AppFont.fontFamily(): FontFamily? = when (this) {
     AppFont.System -> null

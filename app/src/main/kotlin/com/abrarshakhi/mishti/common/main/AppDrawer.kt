@@ -1,6 +1,7 @@
 package com.abrarshakhi.mishti.common.main
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,13 +28,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -42,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -63,6 +63,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.abrarshakhi.mishti.R
 import com.abrarshakhi.mishti.common.ui.components.AppMark
+import com.abrarshakhi.mishti.common.ui.components.AppName
 import com.abrarshakhi.mishti.common.ui.components.SectionHeader
 import com.abrarshakhi.mishti.common.ui.theme.MishtiTheme
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
@@ -114,7 +115,6 @@ fun AppDrawer(
 
     ModalDrawerSheet(
         modifier = modifier.width(drawerWidth),
-        // A cleaner surface color makes the drawer feel modern and lightweight
         drawerContainerColor = MaterialTheme.colorScheme.surface,
     ) {
         DrawerHeader()
@@ -134,8 +134,10 @@ fun AppDrawer(
             },
             selected = false,
             onClick = onNewChatClick,
-            modifier = Modifier.padding(horizontal = Spacing.Medium, vertical = Spacing.Small),
-            shape = RoundedCornerShape(12.dp) // Sleek slightly-rounded rectangle
+            modifier = Modifier
+                .padding(horizontal = Spacing.Medium)
+                .height(48.dp),
+            shape = MaterialTheme.shapes.large,
         )
 
         ConversationHistory(
@@ -186,13 +188,9 @@ private fun DrawerHeader() {
         ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        AppMark(size = 32.dp) // Slightly smaller logo for a balanced top
+        AppMark(size = 32.dp)
         Spacer(Modifier.width(Spacing.Medium))
-        Text(
-            text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.titleMedium, // Clean elegant typography
-            color = MaterialTheme.colorScheme.onSurface,
-        )
+        AppName()
     }
 }
 
@@ -231,10 +229,11 @@ private fun ConversationHistory(
             end = Spacing.Medium,
             bottom = Spacing.Large,
         ),
-        verticalArrangement = Arrangement.spacedBy(2.dp), // Tighter standard layout
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         item(key = TopAnchorKey) {
             Spacer(Modifier.height(Spacing.Small))
+            HorizontalDivider()
         }
 
         if (groups.isEmpty()) {
@@ -257,23 +256,16 @@ private fun ConversationHistory(
                     title = stringResource(group.recency.labelRes),
                     modifier = Modifier
                         .animateItem()
-                        .padding(
-                            top = if (groupIndex == 0) Spacing.Small else Spacing.Medium,
-                            bottom = Spacing.Small
-                        ),
+                        .padding(top = if (groupIndex == 0) Spacing.Small else Spacing.Medium)
                 )
             }
             itemsIndexed(
                 items = group.sessions,
                 key = { _, session -> session.id },
                 contentType = { _, _ -> "session" },
-            ) { index, session ->
+            ) { _, session ->
                 ConversationItem(
                     session = session,
-                    shapes = ListItemDefaults.segmentedShapes(
-                        index = index,
-                        count = group.sessions.size,
-                    ),
                     selected = session.id == currentSessionId,
                     menuExpanded = actionsFor?.id == session.id,
                     onClick = { onSessionClick(session.id) },
@@ -323,7 +315,6 @@ private fun Modifier.fadingEdges(top: () -> Float, bottom: () -> Float): Modifie
 @Composable
 private fun ConversationItem(
     session: ChatSession,
-    shapes: ListItemShapes,
     selected: Boolean,
     menuExpanded: Boolean,
     onClick: () -> Unit,
@@ -334,41 +325,60 @@ private fun ConversationItem(
     modifier: Modifier = Modifier,
 ) {
     val haptics = LocalHapticFeedback.current
+    val containerColor =
+        if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
+    val contentColor =
+        if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
 
     Box(modifier = modifier) {
-        SegmentedListItem(
-            selected = selected,
-            onClick = onClick,
-            shapes = shapes,
-            onLongClick = {
-                haptics.performHapticFeedback(
-                    HapticFeedbackType.LongPress,
+        Surface(
+            color = containerColor,
+            shape = MaterialTheme.shapes.large,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp)
+                .clip(MaterialTheme.shapes.large)
+                .combinedClickable(
+                    onClick = onClick, onLongClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onShowActions()
+                    }, onLongClickLabel = stringResource(R.string.drawer_conversation_actions)
                 )
-                onShowActions()
-            },
-            onLongClickLabel = stringResource(R.string.drawer_conversation_actions),
-            trailingContent = if (selected) {
-                {
-                    IconButton(
-                        onClick = onShowActions,
-                        shapes = IconButtonDefaults.shapes(),
-                    ) {
-                        Icon(
-                            imageVector = MaterialTheme.icons.actions.moreAction.outline,
-                            contentDescription = stringResource(R.string.drawer_conversation_actions),
-                        )
-                    }
-                }
-            } else {
-                null
-            },
         ) {
-            Text(
-                text = sessionDisplayTitle(session.title),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyMedium, // Smaller font density feels organized and neat
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Spacing.Medium),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = if (selected) MaterialTheme.icons.navigation.chat.filled
+                    else MaterialTheme.icons.navigation.chat.outline,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 5.dp)
+                )
+
+                Text(
+                    text = sessionDisplayTitle(session.title),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = contentColor,
+                    modifier = Modifier.weight(1f)
+                )
+
+                IconButton(
+                    onClick = onShowActions,
+                    modifier = Modifier.size(32.dp),
+                ) {
+                    Icon(
+                        imageVector = MaterialTheme.icons.actions.more.outline,
+                        contentDescription = stringResource(R.string.drawer_conversation_actions),
+                        modifier = Modifier.size(20.dp),
+                        tint = contentColor
+                    )
+                }
+            }
         }
 
         Box(
@@ -449,7 +459,7 @@ private fun DrawerFooter(
             .padding(horizontal = Spacing.Medium, vertical = Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Models pill - matches standard minimalist button layout
+
         Surface(
             onClick = onModelsClick,
             shape = RoundedCornerShape(12.dp),
@@ -476,7 +486,7 @@ private fun DrawerFooter(
 
         Spacer(Modifier.weight(1f))
 
-        // Settings Icon
+
         IconButton(
             onClick = onSettingsClick,
             shapes = IconButtonDefaults.shapes(),
@@ -565,6 +575,7 @@ private fun AppDrawerPreview() {
                 ChatSession("2", "Haiku about the sea", 0L, now - 3_600_000L),
                 ChatSession("3", "Dinner ideas", 0L, now - 86_400_000L),
                 ChatSession("4", "Regex for email addresses", 0L, now - 4 * 86_400_000L),
+                ChatSession("5", "Regex for email addresses", 0L, now - 4 * 86_400_000L),
             ),
             currentSessionId = "1",
             actionsFor = null,

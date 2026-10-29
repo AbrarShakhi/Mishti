@@ -60,6 +60,7 @@ All under the SIL Open Font License 1.1. Copies of the licenses ship inside the 
 - [Inter](https://rsms.me/inter/) by Rasmus Andersson
 - [Lora](https://github.com/cyrealtype/Lora-Cyrillic) by Cyreal
 - [JetBrains Mono](https://www.jetbrains.com/lp/mono/) by JetBrains
+- [EDU NSW ACT](https://github.com/SorkinType/NSWACTSchoolHandAustralia) by SorkinType
 
 ## Icons
 

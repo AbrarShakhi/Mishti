@@ -33,8 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.tooling.preview.Preview
 import com.abrarshakhi.mishti.R
+import com.abrarshakhi.mishti.common.llm.EngineState
 import com.abrarshakhi.mishti.common.ui.theme.Spacing
 import com.abrarshakhi.mishti.common.ui.theme.icons
 
@@ -43,6 +43,7 @@ private const val ComposerMaxLines = 6
 @Composable
 internal fun ChatComposer(
     draft: String,
+    engineState: EngineState,
     canSend: Boolean,
     canStop: Boolean,
     thinkingSupported: Boolean,
@@ -88,9 +89,9 @@ internal fun ChatComposer(
                 AnimatedVisibility(
                     visible = thinkingSupported,
                     enter = expandVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) +
-                        fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
+                            fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
                     exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()) +
-                        fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                            fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
                 ) {
                     ThinkingChip(
                         selected = thinkingEnabled,
@@ -169,20 +170,4 @@ private fun SendButton(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun ChatComposerPreview() {
-    ChatComposer(
-        draft = "This is a draft message",
-        canSend = true,
-        canStop = false,
-        thinkingSupported = true,
-        thinkingEnabled = true,
-        onDraftChange = {},
-        onSend = {},
-        onStop = {},
-        onThinkingToggle = {},
-    )
 }

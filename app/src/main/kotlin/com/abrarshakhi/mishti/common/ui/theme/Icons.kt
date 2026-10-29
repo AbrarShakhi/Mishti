@@ -16,6 +16,8 @@ import com.phosphor.icons.filled.BrainFill
 import com.phosphor.icons.filled.BroomFill
 import com.phosphor.icons.filled.BugDroidFill
 import com.phosphor.icons.filled.ChatCircleFill
+import com.phosphor.icons.filled.ChatTeardropTextFill
+import com.phosphor.icons.filled.ChatsTeardropFill
 import com.phosphor.icons.filled.CheckFill
 import com.phosphor.icons.filled.CircleHalfFill
 import com.phosphor.icons.filled.CloudArrowDownFill
@@ -57,6 +59,8 @@ import com.phosphor.icons.regular.Brain
 import com.phosphor.icons.regular.Broom
 import com.phosphor.icons.regular.BugDroid
 import com.phosphor.icons.regular.ChatCircle
+import com.phosphor.icons.regular.ChatTeardropText
+import com.phosphor.icons.regular.ChatsTeardrop
 import com.phosphor.icons.regular.Check
 import com.phosphor.icons.regular.CircleHalf
 import com.phosphor.icons.regular.CloudArrowDown
@@ -83,6 +87,7 @@ import com.phosphor.icons.regular.Pencil
 import com.phosphor.icons.regular.SealWarning
 import com.phosphor.icons.regular.ShieldCheck
 import com.phosphor.icons.regular.Shuffle
+import com.phosphor.icons.regular.SidebarSimple
 import com.phosphor.icons.regular.Star
 import com.phosphor.icons.regular.StopCircle
 import com.phosphor.icons.regular.Storefront
@@ -95,7 +100,7 @@ data class MishtiIcon(val filled: ImageVector, val outline: ImageVector)
 @Immutable
 data class ActionIcons(
     val newChat: MishtiIcon,
-    val moreAction: MishtiIcon,
+    val moreRounded: MishtiIcon,
     val edit: MishtiIcon,
     val delete: MishtiIcon,
     val send: MishtiIcon,
@@ -153,8 +158,8 @@ data class MishtiIcons(
 @Composable
 fun defaultMishtiIcons(): MishtiIcons = MishtiIcons(
     actions = ActionIcons(
-        newChat = MishtiIcon(PhIcons.Filled.ChatCircleFill, PhIcons.Regular.ChatCircle),
-        moreAction = MishtiIcon(
+        newChat = MishtiIcon(PhIcons.Filled.ChatsTeardropFill, PhIcons.Regular.ChatsTeardrop),
+        moreRounded = MishtiIcon(
             PhIcons.Filled.DotsThreeCircleVerticalFill,
             PhIcons.Regular.DotsThreeCircleVertical,
         ),
@@ -195,7 +200,7 @@ fun defaultMishtiIcons(): MishtiIcons = MishtiIcons(
             PhIcons.Filled.ArrowCircleRightFill,
             PhIcons.Regular.ArrowCircleRight,
         ),
-        menu = MishtiIcon(PhIcons.Filled.SidebarSimpleFill, PhIcons.Regular.ChatCircle),
+        menu = MishtiIcon(PhIcons.Filled.SidebarSimpleFill, PhIcons.Regular.SidebarSimple),
         settings = MishtiIcon(PhIcons.Filled.GearSixFill, PhIcons.Regular.GearSix),
         store = MishtiIcon(PhIcons.Filled.StorefrontFill, PhIcons.Regular.Storefront),
         global = MishtiIcon(
@@ -208,7 +213,7 @@ fun defaultMishtiIcons(): MishtiIcons = MishtiIcons(
         ),
         shelf = MishtiIcon(PhIcons.Filled.ArchiveFill, PhIcons.Regular.Archive),
         theme = MishtiIcon(PhIcons.Filled.PaintRollerFill, PhIcons.Regular.PaintRoller),
-        chat = MishtiIcon(PhIcons.Filled.ChatCircleFill, PhIcons.Regular.ChatCircle),
+        chat = MishtiIcon(PhIcons.Filled.ChatTeardropTextFill, PhIcons.Regular.ChatTeardropText),
         config = MishtiIcon(
             PhIcons.Filled.FadersHorizontalFill,
             PhIcons.Regular.FadersHorizontal,

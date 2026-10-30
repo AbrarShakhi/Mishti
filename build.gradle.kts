@@ -39,3 +39,23 @@ project(":app") {
             dependsOn(rootProject.tasks.named("spotlessCheck"))
         }
 }
+
+val syncLlamaCpp =
+    tasks.register<Sync>("syncLlamaCpp") {
+        group = "build"
+        description = "Synchronizes llama.cpp into Android C++ sources."
+
+        from(rootProject.file("llama.cpp")) {
+            exclude(".git/**")
+        }
+
+        into(rootProject.file("app/src/main/cpp/llama.cpp"))
+    }
+
+project(":app") {
+    tasks.configureEach {
+        if (name.startsWith("configureCMake")) {
+            dependsOn(syncLlamaCpp)
+        }
+    }
+}

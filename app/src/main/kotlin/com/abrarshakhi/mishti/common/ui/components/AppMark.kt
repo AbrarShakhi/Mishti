@@ -49,13 +49,13 @@ fun AppMark(
 fun AppName(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.onSurface,
-    style: TextStyle = MaterialTheme.typography.titleLarge
+    style: TextStyle = MaterialTheme.typography.titleLarge,
 ) {
     Text(
         text = stringResource(R.string.app_name),
         modifier = modifier,
         style = style,
         color = color,
-        fontFamily = AppMarkFontFamily
+        fontFamily = AppMarkFontFamily,
     )
 }

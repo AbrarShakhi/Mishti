@@ -149,11 +149,7 @@ data class NavigationIcons(
 data class VisualIcons(val warning: MishtiIcon, val notOnline: MishtiIcon, val error: MishtiIcon)
 
 @Immutable
-data class MishtiIcons(
-    val actions: ActionIcons,
-    val navigation: NavigationIcons,
-    val visuals: VisualIcons
-)
+data class MishtiIcons(val actions: ActionIcons, val navigation: NavigationIcons, val visuals: VisualIcons)
 
 @Composable
 fun defaultMishtiIcons(): MishtiIcons = MishtiIcons(

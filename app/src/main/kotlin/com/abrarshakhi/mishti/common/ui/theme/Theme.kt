@@ -61,21 +61,20 @@ private fun rememberThemeColorScheme(scheme: AppColorScheme, dark: Boolean): Col
 
 private val seededSchemes = ConcurrentHashMap<Pair<Color, Boolean>, ColorScheme>()
 
-fun appColorScheme(context: Context, scheme: AppColorScheme, dark: Boolean): ColorScheme =
-    if (scheme ==
-        AppColorScheme.Dynamic &&
-        isDynamicColorAvailable
-    ) {
-        if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-    } else {
-        seededSchemes.getOrPut(scheme.seed to dark) {
-            dynamicColorScheme(
-                seedColor = scheme.seed,
-                isDark = dark,
-                style = PaletteStyle.TonalSpot,
-                specVersion = ColorSpec.SpecVersion.SPEC_2025,
-            )
-        }
+fun appColorScheme(context: Context, scheme: AppColorScheme, dark: Boolean): ColorScheme = if (scheme ==
+    AppColorScheme.Dynamic &&
+    isDynamicColorAvailable
+) {
+    if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+} else {
+    seededSchemes.getOrPut(scheme.seed to dark) {
+        dynamicColorScheme(
+            seedColor = scheme.seed,
+            isDark = dark,
+            style = PaletteStyle.TonalSpot,
+            specVersion = ColorSpec.SpecVersion.SPEC_2025,
+        )
     }
+}
 
 val isDynamicColorAvailable: Boolean get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

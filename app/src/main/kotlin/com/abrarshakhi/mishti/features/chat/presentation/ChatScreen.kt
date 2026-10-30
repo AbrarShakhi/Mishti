@@ -146,8 +146,8 @@ private fun ChatScreenConversationPreview() = ChatScreenPreview(
                 "2",
                 MessageAuthor.Assistant,
                 "Sunlight bends as it enters a raindrop, reflects off the back, and bends " +
-                        "again on the way out. Each colour bends by a slightly different amount, " +
-                        "so the white light fans out into a band of colours.",
+                    "again on the way out. Each colour bends by a slightly different amount, " +
+                    "so the white light fans out into a band of colours.",
                 0L,
                 12.4,
             ),
@@ -178,7 +178,7 @@ private fun ChatScreenThinkingPreview() = ChatScreenPreview(
         isLoading = false,
         messages = listOf(ChatMessage("1", MessageAuthor.User, "Explain how rainbows form", 0L)),
         streamingReasoning = "The user wants the physics of rainbows. Start with refraction, " +
-                "then reflection inside the drop, then dispersion.",
+            "then reflection inside the drop, then dispersion.",
         isReasoning = true,
         isGenerating = true,
         canStop = true,
@@ -199,7 +199,7 @@ private fun ChatScreenReasonedPreview() = ChatScreenPreview(
                 id = "2",
                 author = MessageAuthor.Assistant,
                 content = "Sunlight bends as it enters a raindrop, reflects off the back, and " +
-                        "splits into colours on the way out.",
+                    "splits into colours on the way out.",
                 createdAtMillis = 0L,
                 tokensPerSecond = 9.8,
                 reasoning = "Refraction, reflection, dispersion. Keep it short.",

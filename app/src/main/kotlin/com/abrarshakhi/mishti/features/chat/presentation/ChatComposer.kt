@@ -89,9 +89,9 @@ internal fun ChatComposer(
                 AnimatedVisibility(
                     visible = thinkingSupported,
                     enter = expandVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) +
-                            fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
+                        fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
                     exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()) +
-                            fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                        fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
                 ) {
                     ThinkingChip(
                         selected = thinkingEnabled,

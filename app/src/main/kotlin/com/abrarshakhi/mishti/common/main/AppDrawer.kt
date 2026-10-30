@@ -123,7 +123,7 @@ fun AppDrawer(
             label = {
                 Text(
                     text = stringResource(R.string.drawer_new_chat),
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.titleSmall,
                 )
             },
             icon = {
@@ -256,7 +256,7 @@ private fun ConversationHistory(
                     title = stringResource(group.recency.labelRes),
                     modifier = Modifier
                         .animateItem()
-                        .padding(top = if (groupIndex == 0) Spacing.Small else Spacing.Medium)
+                        .padding(top = if (groupIndex == 0) Spacing.Small else Spacing.Medium),
                 )
             }
             itemsIndexed(
@@ -339,11 +339,13 @@ private fun ConversationItem(
                 .height(44.dp)
                 .clip(MaterialTheme.shapes.large)
                 .combinedClickable(
-                    onClick = onClick, onLongClick = {
+                    onClick = onClick,
+                    onLongClick = {
                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                         onShowActions()
-                    }, onLongClickLabel = stringResource(R.string.drawer_conversation_actions)
-                )
+                    },
+                    onLongClickLabel = stringResource(R.string.drawer_conversation_actions),
+                ),
         ) {
             Row(
                 modifier = Modifier
@@ -352,10 +354,13 @@ private fun ConversationItem(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    imageVector = if (selected) MaterialTheme.icons.navigation.chat.filled
-                    else MaterialTheme.icons.navigation.chat.outline,
+                    imageVector = if (selected) {
+                        MaterialTheme.icons.navigation.chat.filled
+                    } else {
+                        MaterialTheme.icons.navigation.chat.outline
+                    },
                     contentDescription = null,
-                    modifier = Modifier.padding(end = 5.dp)
+                    modifier = Modifier.padding(end = 5.dp),
                 )
 
                 Text(
@@ -364,7 +369,7 @@ private fun ConversationItem(
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyMedium,
                     color = contentColor,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
 
                 IconButton(
@@ -375,7 +380,7 @@ private fun ConversationItem(
                         imageVector = MaterialTheme.icons.actions.more.outline,
                         contentDescription = stringResource(R.string.drawer_conversation_actions),
                         modifier = Modifier.size(20.dp),
-                        tint = contentColor
+                        tint = contentColor,
                     )
                 }
             }
@@ -449,17 +454,13 @@ private fun ConversationActionsMenu(
 }
 
 @Composable
-private fun DrawerFooter(
-    onModelsClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-) {
+private fun DrawerFooter(onModelsClick: () -> Unit, onSettingsClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = Spacing.Medium, vertical = Spacing.Medium),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-
         Surface(
             onClick = onModelsClick,
             shape = RoundedCornerShape(12.dp),
@@ -485,7 +486,6 @@ private fun DrawerFooter(
         }
 
         Spacer(Modifier.weight(1f))
-
 
         IconButton(
             onClick = onSettingsClick,

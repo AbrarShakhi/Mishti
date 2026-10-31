@@ -34,10 +34,6 @@ spotless {
     }
 }
 
-tasks.named("spotlessKotlin") {
-    mustRunAfter(syncLlamaCpp)
-}
-
 project(":androidApp") {
     tasks
         .matching {
@@ -45,24 +41,4 @@ project(":androidApp") {
         }.configureEach {
             dependsOn(rootProject.tasks.named("spotlessCheck"))
         }
-}
-
-val syncLlamaCpp =
-    tasks.register<Sync>("syncLlamaCpp") {
-        group = "build"
-        description = "Synchronizes llama.cpp into Android C++ sources."
-
-        from(rootProject.file("llama.cpp")) {
-            exclude(".git/**")
-        }
-
-        into(rootProject.file("androidApp/src/main/cpp/llama.cpp"))
-    }
-
-project(":androidApp") {
-    tasks.configureEach {
-        if (name.startsWith("configureCMake")) {
-            dependsOn(syncLlamaCpp)
-        }
-    }
 }

@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "llama.h"
+#include "../../../../llama.cpp/include/llama.h"
 
 namespace {
 

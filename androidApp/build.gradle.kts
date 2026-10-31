@@ -1,23 +1,24 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.androidx.room)
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.composeCompiler)
+}
+
+kotlin {
+    compilerOptions { jvmTarget = JvmTarget.JVM_17 }
 }
 
 android {
     namespace = "com.abrarshakhi.mishti"
-    compileSdk { version = release(37) }
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     ndkVersion = "28.2.13676358"
 
     defaultConfig {
         applicationId = "com.abrarshakhi.mishti"
-        minSdk = 30
-        targetSdk = 37
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        targetSdk = libs.versions.android.targetSdk.get().toInt()
 
         versionCode = 5
         versionName = "1.2.0-beta.1"
@@ -32,6 +33,7 @@ android {
         }
     }
 
+    // NOTE: path is relative to androidApp/ now -> move app/src/main/cpp to androidApp/src/main/cpp
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
@@ -59,6 +61,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     sourceSets {
         getByName("main") {
             assets.directories.add(rootProject.file("hub").absolutePath)
@@ -71,13 +74,6 @@ android {
     }
 }
 
-room {
-    schemaDirectory("$projectDir/schemas")
-}
-
-kotlin {
-    compilerOptions { jvmTarget = JvmTarget.JVM_17 }
-}
 abstract class BundleDocsTask : DefaultTask() {
 
     @get:InputFiles
@@ -114,32 +110,33 @@ androidComponents {
 }
 
 dependencies {
-    // BOMs (Platforms must be declared separately)
+    implementation(project(":shared"))
+
+    // BOM: kept only so the version-less androidx test/manifest artifacts below still resolve.
+    // Can be removed once those are replaced.
     implementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
-    // Core & Extras
+    // Core & Activity
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
 
-    // Bundles
-    implementation(libs.bundles.compose.core)
-    implementation(libs.bundles.compose.ui.extras)
-    implementation(libs.bundles.lifecycle)
+    // Android-only libraries (not usable from commonMain)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.lottie.compose)
+    implementation(libs.phosphoricon.compose)
+
+    // TODO: move to shared/commonMain once KMP-ready replacements are in the catalog
     implementation(libs.bundles.navigation)
-    implementation(libs.bundles.ktor)
     implementation(libs.bundles.koin)
-    implementation(libs.bundles.room)
-    implementation(libs.bundles.coroutines.serialization)
 
-    // Annotation Processors (Cannot be in standard implementation bundles)
-    ksp(libs.androidx.room.compiler)
+    // Compose preview / tooling
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // Testing Bundles
+    // Testing
     testImplementation(libs.bundles.testing.unit)
     androidTestImplementation(libs.bundles.testing.android)
-
-    // Debug
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

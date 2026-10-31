@@ -25,6 +25,16 @@ kotlinxCoroutines = "1.11.0"
 phosphoriconCompose = "1.0.5"
 room = "2.8.5"
 
+# --- KMP additions ---
+android-compileSdk = "37"
+android-minSdk = "30"
+android-targetSdk = "37"
+appcompat = "1.8.0"
+androidxTestRunner = "1.7.0"
+composeMultiplatform = "1.12.2"
+composeMaterial3 = "1.12.0-alpha03"
+jetbrainsLifecycle = "2.11.0"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
@@ -67,12 +77,32 @@ markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-
 material-kolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 phosphoricon-compose = { module = "io.github.dev778g-me:phosphoricon-compose", version.ref = "phosphoriconCompose" }
 
+# --- KMP additions ---
+# Kotlin test
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
+jetbrains-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "jetbrainsLifecycle" }
+jetbrains-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "jetbrainsLifecycle" }
+# Compose Multiplatform
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3" }
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
+compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
+compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
+compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
+
 [plugins]
-android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
+androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 
 [bundles]
 compose-core = [
@@ -137,4 +167,24 @@ testing-android = [
     "androidx-junit",
     "androidx-espresso-core",
     "androidx-compose-ui-test-junit4"
+]
+
+# --- KMP additions ---
+composeMultiplatform = [
+    "compose-runtime",
+    "compose-foundation",
+    "compose-material3",
+    "compose-ui",
+    "compose-components-resources",
+    "compose-ui-tooling-preview"
+]
+
+lifecycle-multiplatform = [
+    "jetbrains-lifecycle-runtime-compose",
+    "jetbrains-lifecycle-viewmodel-compose"
+]
+
+testing-kotlin = [
+    "kotlin-test",
+    "kotlin-test-junit"
 ]

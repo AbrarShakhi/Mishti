@@ -30,7 +30,7 @@ existing entries: phones that already downloaded a model find it by its id.
 
 ### Translate Mishti
 
-All of Mishti's text lives in `app/src/main/res/values/strings.xml`. To add a language, copy that
+All of Mishti's text lives in `androidApp/src/main/res`. To add a language, copy that
 file to `values-<language code>/strings.xml` (for example `values-bn` for Bengali), translate the
 text, and leave the names and placeholders (`%1$s`, `%1$d`) as they are.
 

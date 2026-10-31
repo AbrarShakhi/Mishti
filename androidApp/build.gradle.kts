@@ -62,58 +62,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    sourceSets {
-        getByName("main") {
-            assets.directories.add(rootProject.file("hub").absolutePath)
-        }
-    }
-
     buildFeatures {
         compose = true
         buildConfig = true
     }
 }
 
-abstract class BundleDocsTask : DefaultTask() {
-
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.NAME_ONLY)
-    abstract val documents: ConfigurableFileCollection
-
-    @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
-
-    @TaskAction
-    fun bundle() {
-        val target = outputDir.get().asFile.resolve("docs")
-        target.deleteRecursively()
-        target.mkdirs()
-        documents.files.filter { it.isFile }.forEach { file ->
-            file.copyTo(target.resolve(file.name.lowercase()), overwrite = true)
-        }
-    }
-}
-
-val bundleDocs = tasks.register<BundleDocsTask>("bundleDocs") {
-    group = "build"
-    description = "Copies the repository's docs into the app's assets."
-    documents.from(
-        rootProject.fileTree("docs") { include("*.md") },
-        rootProject.file("CONTRIBUTING.md"),
-    )
-}
-
-androidComponents {
-    onVariants { variant ->
-        variant.sources.assets?.addGeneratedSourceDirectory(bundleDocs, BundleDocsTask::outputDir)
-    }
-}
-
 dependencies {
     implementation(project(":shared"))
 
-    // BOM: kept only so the version-less androidx test/manifest artifacts below still resolve.
-    // Can be removed once those are replaced.
     implementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
@@ -123,6 +80,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // Android-only libraries (not usable from commonMain)
+    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.lottie.compose)
     implementation(libs.phosphoricon.compose)

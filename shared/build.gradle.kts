@@ -46,7 +46,7 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
+            api(libs.compose.components.resources)
             implementation(libs.compose.ui.tooling.preview)
 
             // Lifecycle (JetBrains KMP)
@@ -77,7 +77,11 @@ kotlin {
     }
 }
 
-// Room: schema export (moved from app/build.gradle.kts)
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.abrarshakhi.mishti.shared.resources"
+}
+
 room {
     schemaDirectory("$projectDir/schemas")
 }
@@ -89,4 +93,39 @@ dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+}
+
+abstract class BundleDocsTask : DefaultTask() {
+
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    abstract val documents: ConfigurableFileCollection
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun bundle() {
+        val target = outputDir.get().asFile.resolve("docs")
+        target.deleteRecursively()
+        target.mkdirs()
+        documents.files.filter { it.isFile }.forEach { file ->
+            file.copyTo(target.resolve(file.name.lowercase()), overwrite = true)
+        }
+    }
+}
+
+val bundleDocs = tasks.register<BundleDocsTask>("bundleDocs") {
+    group = "build"
+    description = "Copies the repository's docs into the shared module's assets."
+    documents.from(
+        rootProject.fileTree("docs") { include("*.md") },
+        rootProject.file("CONTRIBUTING.md"),
+    )
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(bundleDocs, BundleDocsTask::outputDir)
+    }
 }

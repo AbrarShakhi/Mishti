@@ -18,6 +18,7 @@ spotless {
             "androidApp/src/**/kotlin/**/*.kt",
             "shared/src/**/kotlin/**/*.kt",
         )
+        targetExclude("**/cpp/**")
         ktlint().editorConfigOverride(
             mapOf(
                 "max_line_length" to "120",
@@ -33,12 +34,17 @@ spotless {
     }
 }
 
+tasks.named("spotlessKotlin") {
+    mustRunAfter(syncLlamaCpp)
+}
+
 project(":androidApp") {
-    tasks.matching {
-        it.name.startsWith("pre") && it.name.endsWith("ReleaseBuild")
-    }.configureEach {
-        dependsOn(rootProject.tasks.named("spotlessCheck"))
-    }
+    tasks
+        .matching {
+            it.name.startsWith("pre") && it.name.endsWith("ReleaseBuild")
+        }.configureEach {
+            dependsOn(rootProject.tasks.named("spotlessCheck"))
+        }
 }
 
 val syncLlamaCpp =

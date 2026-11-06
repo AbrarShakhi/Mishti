@@ -1,3 +1,8 @@
+/*
+ * @file: shared/build.gradle.kts
+ * @module: shared
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -31,42 +36,58 @@ kotlin {
         }
     }
     sourceSets {
-        androidMain.dependencies {
-            implementation(libs.compose.ui.tooling.preview)
-            implementation(libs.compose.ui.tooling)
-
-            // Android-only engines / artifacts
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.androidx.room.ktx)
-            implementation(libs.kotlinx.coroutines.android)
-        }
         commonMain.dependencies {
             // Compose Multiplatform
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            api(libs.compose.components.resources)
+            api(libs.compose.material3)
+            api(libs.compose.ui)
             implementation(libs.compose.ui.tooling.preview)
+            api(libs.compose.components.resources)
+            api(libs.compose.material3.adaptive)
+            api(libs.compose.material3.adaptive.navigation.suite)
 
-            // Lifecycle (JetBrains KMP)
+            // Lifecycle
             implementation(libs.jetbrains.lifecycle.viewmodel.compose)
             implementation(libs.jetbrains.lifecycle.runtime.compose)
 
+            // Navigation 3
+            implementation(libs.jetbrains.navigation3.ui)
+            implementation(libs.jetbrains.lifecycle.viewmodel.navigation3)
+
+            // Koin
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
+            implementation(libs.koin.compose.navigation3)
+
             // Data
-            implementation(libs.androidx.datastore.preferences)
-            implementation(libs.androidx.room.runtime)
-            implementation(libs.kotlinx.serialization.core)
+            api(libs.androidx.datastore)
+            api(libs.androidx.datastore.preferences)
+            api(libs.androidx.room.runtime)
+            api(libs.kotlinx.serialization.core)
+            api(libs.okio)
 
             // Networking
-            implementation(libs.ktor.client.core)
+            api(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
 
-            // UI extras (multiplatform artifacts)
+            // UI extras
+            implementation(libs.compottie)
             implementation(libs.markdown.renderer.m3)
             implementation(libs.material.kolor)
             implementation(libs.compose.shimmer)
+            implementation(libs.phosphoricon.compose)
+        }
+        androidMain.dependencies {
+            implementation(libs.koin.android)
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.androidx.room.ktx)
+            implementation(libs.kotlinx.coroutines.android)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -87,9 +108,10 @@ room {
 }
 
 dependencies {
+    // Tooling only for debug/runtime classpath, never shipped in release
     androidRuntimeClasspath(libs.compose.ui.tooling)
 
-    // Room compiler (KSP) per target. Verify these configuration names in your project.
+    // Room compiler (KSP) per target
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)

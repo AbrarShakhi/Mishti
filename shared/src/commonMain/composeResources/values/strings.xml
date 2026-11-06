@@ -286,4 +286,5 @@
         <item quantity="one">%1$s (+%2$d more)</item>
         <item quantity="other">%1$s (+%2$d more)</item>
     </plurals>
+    <string name="close_drawer">Close Drawer</string>
 </resources>

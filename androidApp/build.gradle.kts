@@ -1,3 +1,8 @@
+/*
+ * @file: androidApp/build.gradle.kts
+ * @module: androidApp
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -23,8 +28,6 @@ android {
         versionCode = 5
         versionName = "1.2.0-beta.1"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
         externalNativeBuild {
             cmake {
                 arguments += "-DCMAKE_BUILD_TYPE=Release"
@@ -33,7 +36,6 @@ android {
         }
     }
 
-    // NOTE: path is relative to androidApp/ now -> move app/src/main/cpp to androidApp/src/main/cpp
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
@@ -71,30 +73,10 @@ android {
 dependencies {
     implementation(project(":shared"))
 
-    implementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-
-    // Core & Activity
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-
-    // Android-only libraries (not usable from commonMain)
-    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.lottie.compose)
-    implementation(libs.phosphoricon.compose)
+    implementation(libs.koin.android)
 
-    // TODO: move to shared/commonMain once KMP-ready replacements are in the catalog
-    implementation(libs.bundles.navigation)
-    implementation(libs.bundles.koin)
-
-    // Compose preview / tooling
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    // Testing
-    testImplementation(libs.bundles.testing.unit)
-    androidTestImplementation(libs.bundles.testing.android)
 }

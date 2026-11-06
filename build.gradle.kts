@@ -1,4 +1,8 @@
-// Top-level build file where you can add configuration options common to all subprojects/modules.
+/*
+ * @file: ./build.gradle.kts
+ * Top-level build
+ */
+
 plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.androidMultiplatformLibrary) apply false

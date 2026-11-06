@@ -87,24 +87,24 @@ std::string build_prompt(const llama_model *model,
 extern "C" {
 
 JNIEXPORT void JNICALL
-Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeInit(JNIEnv *, jobject) {
+Java_com_abrarshakhi_mishti_core_llm_data_LlamaNative_nativeInit(JNIEnv *, jobject) {
     llama_log_set(forward_log, nullptr);
     llama_backend_init();
     __android_log_print(ANDROID_LOG_INFO, kTag, "llama backend initialised (%s)", llama_version());
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeVersion(JNIEnv *env, jobject) {
+Java_com_abrarshakhi_mishti_core_llm_data_LlamaNative_nativeVersion(JNIEnv *env, jobject) {
     return env->NewStringUTF(llama_version());
 }
 
 JNIEXPORT void JNICALL
-Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeFree(JNIEnv *, jobject) {
+Java_com_abrarshakhi_mishti_core_llm_data_LlamaNative_nativeFree(JNIEnv *, jobject) {
     llama_backend_free();
 }
 
 JNIEXPORT jlong JNICALL
-Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeLoadModel(
+Java_com_abrarshakhi_mishti_core_llm_data_LlamaNative_nativeLoadModel(
         JNIEnv *env, jobject, jstring path, jint context_tokens, jint threads) {
 
     const std::string model_path = to_string(env, path);
@@ -137,7 +137,7 @@ Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeLoadModel(
 }
 
 JNIEXPORT void JNICALL
-Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeFreeModel(
+Java_com_abrarshakhi_mishti_core_llm_data_LlamaNative_nativeFreeModel(
         JNIEnv *, jobject, jlong handle) {
     auto *session = reinterpret_cast<Session *>(handle);
     if (session == nullptr) return;
@@ -147,7 +147,7 @@ Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeFreeModel(
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeChatTemplate(
+Java_com_abrarshakhi_mishti_core_llm_data_LlamaNative_nativeChatTemplate(
         JNIEnv *env, jobject, jlong handle) {
     auto *session = reinterpret_cast<Session *>(handle);
     if (session == nullptr) return nullptr;
@@ -156,7 +156,7 @@ Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeChatTemplate(
 }
 
 JNIEXPORT jint JNICALL
-Java_com_abrarshakhi_mishti_common_llm_LlamaNative_nativeGenerate(
+Java_com_abrarshakhi_mishti_core_llm_data_LlamaNative_nativeGenerate(
         JNIEnv *env, jobject, jlong handle,
         jobjectArray roles, jobjectArray contents,
         jfloat temperature, jint top_k, jfloat top_p, jint max_tokens,

@@ -1,11 +1,13 @@
 package com.abrarshakhi.mishti.core.di
 
+import com.abrarshakhi.mishti.core.llm.domain.SelectedModelSource
 import com.abrarshakhi.mishti.core.storage.preferences.data.DataStoreAppPreferences
 import com.abrarshakhi.mishti.core.storage.preferences.domain.AppPreferences
 import com.abrarshakhi.mishti.core.ui.AppViewModel
 import com.abrarshakhi.mishti.core.ui.drawer.DrawerController
 import com.abrarshakhi.mishti.core.ui.navigation.Navigator
 import com.abrarshakhi.mishti.core.ui.snackbar.SnackBarDispatcher
+import kotlinx.coroutines.flow.flowOf
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
@@ -18,6 +20,7 @@ val sharedModule = module {
     singleOf(::SnackBarDispatcher)
 
     singleOf(::DataStoreAppPreferences).bind<AppPreferences>()
+    single<SelectedModelSource> { SelectedModelSource { flowOf(null) } }
     viewModelOf(::AppViewModel)
 }
 

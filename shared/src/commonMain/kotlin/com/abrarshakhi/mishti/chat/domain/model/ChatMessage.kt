@@ -1,0 +1,16 @@
+package com.abrarshakhi.mishti.chat.domain.model
+
+enum class MessageAuthor {
+    User,
+    Assistant,
+}
+
+data class ChatMessage(
+    val id: String,
+    val author: MessageAuthor,
+    val content: String,
+    val createdAtMillis: Long,
+    val tokensPerSecond: Double? = null,
+    val reasoning: String? = null,
+    val reasoningMillis: Long? = null,
+)

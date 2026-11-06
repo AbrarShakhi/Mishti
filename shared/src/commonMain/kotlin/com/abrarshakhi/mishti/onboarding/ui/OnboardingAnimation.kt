@@ -57,38 +57,33 @@ private class AnimationSource(
     val loop: ClosedFloatingPointRange<Float>?,
 )
 
-private suspend fun loadAnimationSource(path: String): AnimationSource =
-    withContext(Dispatchers.Default) {
-        val json = Res.readBytes(path).decodeToString()
-        val root = Json.parseToJsonElement(json).jsonObject
+private suspend fun loadAnimationSource(path: String): AnimationSource = withContext(Dispatchers.Default) {
+    val json = Res.readBytes(path).decodeToString()
+    val root = Json.parseToJsonElement(json).jsonObject
 
-        // Lottie: ip/op = in/out frame, markers[] = { cm: name, tm: start frame, dr: duration }
-        val inPoint = root["ip"]?.jsonPrimitive?.floatOrNull ?: 0f
-        val outPoint = root["op"]?.jsonPrimitive?.floatOrNull ?: inPoint
-        val totalFrames = outPoint - inPoint
-        val markers = root["markers"]?.jsonArray.orEmpty().map { it.jsonObject }
+    // Lottie: ip/op = in/out frame, markers[] = { cm: name, tm: start frame, dr: duration }
+    val inPoint = root["ip"]?.jsonPrimitive?.floatOrNull ?: 0f
+    val outPoint = root["op"]?.jsonPrimitive?.floatOrNull ?: inPoint
+    val totalFrames = outPoint - inPoint
+    val markers = root["markers"]?.jsonArray.orEmpty().map { it.jsonObject }
 
-        fun clip(name: String): ClosedFloatingPointRange<Float>? {
-            if (totalFrames <= 0f) return null
-            val marker = markers.firstOrNull {
-                it["cm"]?.jsonPrimitive?.contentOrNull == name
-            } ?: return null
-            val start = marker["tm"]?.jsonPrimitive?.floatOrNull ?: return null
-            val end = start + (marker["dr"]?.jsonPrimitive?.floatOrNull ?: 0f)
-            val from = ((start - inPoint) / totalFrames).coerceIn(0f, 1f)
-            val to = ((end - inPoint) / totalFrames).coerceIn(0f, 1f)
-            return if (to > from) from..to else null
-        }
-
-        AnimationSource(path, json, clip(IntroMarker), clip(LoopMarker))
+    fun clip(name: String): ClosedFloatingPointRange<Float>? {
+        if (totalFrames <= 0f) return null
+        val marker = markers.firstOrNull {
+            it["cm"]?.jsonPrimitive?.contentOrNull == name
+        } ?: return null
+        val start = marker["tm"]?.jsonPrimitive?.floatOrNull ?: return null
+        val end = start + (marker["dr"]?.jsonPrimitive?.floatOrNull ?: 0f)
+        val from = ((start - inPoint) / totalFrames).coerceIn(0f, 1f)
+        val to = ((end - inPoint) / totalFrames).coerceIn(0f, 1f)
+        return if (to > from) from..to else null
     }
 
+    AnimationSource(path, json, clip(IntroMarker), clip(LoopMarker))
+}
+
 @Composable
-internal fun OnboardingAnimation(
-    animationPath: String,
-    isActive: Boolean,
-    modifier: Modifier = Modifier,
-) {
+internal fun OnboardingAnimation(animationPath: String, isActive: Boolean, modifier: Modifier = Modifier) {
     val source by produceState<AnimationSource?>(null, animationPath) {
         value = loadAnimationSource(animationPath)
     }
@@ -100,11 +95,7 @@ internal fun OnboardingAnimation(
 }
 
 @Composable
-private fun AnimationPlayer(
-    source: AnimationSource,
-    isActive: Boolean,
-    modifier: Modifier = Modifier,
-) {
+private fun AnimationPlayer(source: AnimationSource, isActive: Boolean, modifier: Modifier = Modifier) {
     val composition by rememberLottieComposition(source) {
         LottieCompositionSpec.JsonString(source.json)
     }

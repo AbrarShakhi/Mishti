@@ -1,5 +1,6 @@
 package com.abrarshakhi.mishti.core.di
 
+import com.abrarshakhi.mishti.chat.di.chatModule
 import com.abrarshakhi.mishti.onboarding.di.onboardingModule
 import com.abrarshakhi.mishti.splash.di.splashModule
 import org.koin.core.context.startKoin
@@ -12,7 +13,8 @@ fun setupKoin(config: KoinAppDeclaration? = null) {
             sharedModule,
             platformModule,
             splashModule,
-            onboardingModule
+            onboardingModule,
+            chatModule,
         )
     }
 }

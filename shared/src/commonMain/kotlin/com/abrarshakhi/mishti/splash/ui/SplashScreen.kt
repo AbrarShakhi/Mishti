@@ -168,11 +168,7 @@ fun SplashScreen(onFinishSplashing: (Screen) -> Unit, viewModel: SplashViewModel
 }
 
 @Composable
-private fun SplashContent(
-    motion: SplashMotion,
-    letters: List<String>,
-    modifier: Modifier = Modifier
-) {
+private fun SplashContent(motion: SplashMotion, letters: List<String>, modifier: Modifier = Modifier) {
     val colors = MaterialTheme.colorScheme
     val container = colors.primaryContainer
     val ringColor = colors.primary
@@ -202,7 +198,7 @@ private fun SplashContent(
                 containerColor = container,
                 modifier = Modifier.graphicsLayer {
                     val scale = lerp(CookieStartScale, 1f, motion.bloom.value) *
-                            lerp(ArtStartScale, 1f, motion.art.value)
+                        lerp(ArtStartScale, 1f, motion.art.value)
                     scaleX = scale
                     scaleY = scale
                     rotationZ = lerp(CookieStartTurn, 0f, motion.turn.value)
@@ -242,7 +238,7 @@ private fun DrawScope.drawGlow(color: Color, cookie: Float, progress: Float) {
         brush = Brush.radialGradient(
             colors = listOf(
                 color.copy(alpha = 0.55f * progress.coerceAtMost(1f)),
-                Color.Transparent
+                Color.Transparent,
             ),
             center = center,
             radius = radius,

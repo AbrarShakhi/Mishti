@@ -68,11 +68,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.absoluteValue
 
-private data class OnboardingPage(
-    val animationPath: String,
-    val title: StringResource,
-    val body: StringResource,
-)
+private data class OnboardingPage(val animationPath: String, val title: StringResource, val body: StringResource)
 
 private val Pages = listOf(
     OnboardingPage(
@@ -176,8 +172,11 @@ fun OnboardingScreen(onContinue: () -> Unit, modifier: Modifier = Modifier) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = stringResource(
-                                    if (last) Res.string.onboarding_get_started
-                                    else Res.string.onboarding_next
+                                    if (last) {
+                                        Res.string.onboarding_get_started
+                                    } else {
+                                        Res.string.onboarding_next
+                                    },
                                 ),
                                 style = ButtonDefaults.textStyleFor(ButtonDefaults.MediumContainerHeight),
                             )

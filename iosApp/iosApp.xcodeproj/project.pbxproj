@@ -15,6 +15,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				llama_bridge_ios.cpp,
 			);
 			target = BB0D88BDFB7128E92BDA7838 /* iosApp */;
 		};
@@ -71,6 +72,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 369B3A968441AC04EA7B6AA1 /* Build configuration list for PBXNativeTarget "iosApp" */;
 			buildPhases = (
+				4ED8827A614D4B2CACAE17D5 /* Build llama.cpp */,
 				60A1CACB52DE50D87D82C04B /* Compile Kotlin Framework */,
 				EF22DA75FEDF690182BECC3B /* Sources */,
 				9E9DE65DDFFDC8E918FEA6B8 /* Frameworks */,
@@ -135,6 +137,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		4ED8827A614D4B2CACAE17D5 /* Build llama.cpp */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = ();
+			inputPaths = ();
+			name = "Build llama.cpp";
+			outputPaths = ();
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -eu\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"\n/bin/sh \"$SRCROOT/../tools/ios/build-llama.sh\"\n";
+		};
+
 		60A1CACB52DE50D87D82C04B /* Compile Kotlin Framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -152,7 +167,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
+			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :composeApp:embedAndSignAppleFrameworkForXcode\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

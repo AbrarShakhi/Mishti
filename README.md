@@ -13,7 +13,7 @@
 
 ---
 
-Mishti is an offline chat app for Android. It downloads a small open-weights model to your device
+Mishti is a Compose Multiplatform offline chat app targeting Android and iOS. It downloads a small open-weights model to your device
 and runs it locally through [llama.cpp](https://github.com/ggml-org/llama.cpp), so conversations
 never leave the phone. After the model is downloaded, no network connection is needed to use it.
 
@@ -57,7 +57,7 @@ Uncomment once the images are in place.
   outputs, allowing users to view or hide the model's step-by-step cognitive process depending on
   capability.
 - **Mishtir Bhandar, the model shop.** Browse two distinct catalogs: Mishti’s native catalog, which
-  ships with the app and updates online upon opening the shop, and PocketPal AI's community-tested
+  is fetched online and cached on the phone, and PocketPal AI's community-tested
   list. Models are evaluated against device memory constraints with personalized recommendations,
   supporting resumable background downloads and SHA-256 integrity verification prior to acceptance.
 - **Bring your own model.** Import any GGUF file directly from device storage. Mishti inspects the
@@ -76,9 +76,9 @@ Uncomment once the images are in place.
 
 ## Models
 
-Mishti's catalog lives in [`hub/catalog.v1.json`](hub/catalog.v1.json). It is bundled in the APK, so
-the list renders without a connection, and the app picks up changes to the copy on
-`main` when you open the shop. To add a model:
+Mishti's catalog lives in [`hub/catalog.v1.json`](hub/catalog.v1.json). The app fetches it from
+jsDelivr when you open the shop and caches the result for offline browsing. A fresh install needs
+a connection to load the list; no catalog is bundled in the app. To add a model:
 
 ```bash
 python3 tools/hub.py add --id qwen3-0.6b-q4km --name "Qwen3 0.6B" \
@@ -124,23 +124,72 @@ sdk.dir=/path/to/Android/Sdk
 Then:
 
 ```bash
-./gradlew assembleDebug          # build the APK
-./gradlew installDebug           # build and install on a connected device
-./gradlew testDebugUnitTest      # JVM unit tests
-./gradlew lintDebug              # Android Lint
+./gradlew :androidApp:assembleDebug    # build the APK
+./gradlew :androidApp:installDebug     # build and install on a connected device
+./gradlew testAndroidHostTest         # unit tests across all KMP modules
+./gradlew :androidApp:lintDebug        # Android Lint
 ```
 
 The first build compiles ggml and llama.cpp from source and takes a while. Debug builds are
 restricted to `arm64-v8a` to keep that cost down; release builds add `x86_64`.
 
+## Building for iOS
+
+Use macOS with Xcode, a JDK compatible with the Gradle wrapper, and CMake 3.22.1 or newer available
+on Xcode's PATH (`/opt/homebrew/bin` and `/usr/local/bin` are included by the build phase).
+Open `iosApp/iosApp.xcodeproj`, set `TEAM_ID` in `iosApp/Configuration/Config.xcconfig`, and select
+an arm64 device or Apple Silicon simulator. Xcode builds the CPU llama.cpp backend with
+`tools/ios/build-llama.sh`, then builds and embeds the ComposeApp Kotlin framework. Native outputs stay
+in Xcode's derived files; no prebuilt native binaries are checked in. The app uses the real native
+bridge on both platforms; the scripted engine is confined to tests. The Gradle `:iosApp:assemble`
+task links the device and simulator frameworks; building and signing the iOS application itself
+requires Xcode. On other hosts, `:composeApp:compileIosMainKotlinMetadata` checks shared iOS metadata
+but does not validate native linking or Swift compilation.
+
+Android keeps the native database path and reads the existing native DataStore preferences file.
+Early CMP preferences at their former path are retained when present. Exported database schemas and
+migration notes are in `core/storage/schemas/`.
+
 ## Architecture
 
-Kotlin and Jetpack Compose throughout, with MVI for every stateful screen and Koin for dependency
-injection. Code is split by ownership — `common/` for the app shell, navigation, theme and the
-engine interface, and `features/<feature>/` for each screen and the layers it actually needs.
+Kotlin and Compose Multiplatform target Android and iOS, with MVI for stateful screens and Koin
+for dependency injection. Platform adapters live in each module's `androidMain` and `iosMain`
+source sets. There is no desktop target.
 
-The inference engine sits behind a single `LlmEngine` interface, so the UI, streaming and
-persistence are written against a seam rather than against llama.cpp directly.
+| Module | Responsibility |
+|--------|----------------|
+| `:androidApp` | Android host and native llama.cpp build |
+| `:iosApp` | Xcode host; Gradle lifecycle tasks for the Kotlin framework |
+| `:composeApp` | App shell, drawer, navigation entries and application dependency wiring |
+| `:core:domain` | Pure conversation, preferences, theme, inference and document contracts and models |
+| `:core:designsystem` | Theme, typography, palettes, fonts, shared icons and common text |
+| `:core:device` | Device capabilities and platform clock |
+| `:core:llm` | llama.cpp engine implementation and platform bridges |
+| `:core:storage` | Room database, migrations, conversation persistence and DataStore |
+| `:core:ui` | Generic MVI, navigation, snackbars, Markdown and reusable components |
+| `:core:session` | Session list presentation, actions, grouping and title formatting |
+| `:core:testing` | Reusable fakes; available only to test source sets |
+| `:feature:chat` | Conversation screen and streaming behavior |
+| `:feature:model` | Catalogs, downloads, imports and model selection |
+| `:feature:settings` | Preferences screens and generated repository documents |
+| `:feature:onboarding` | First-run flow and its Lottie animations |
+| `:feature:splash` | Startup routing |
+
+Features depend on core modules and never on other features. Core modules never depend on
+features or `composeApp`. Domain contracts have no Compose, Room, DataStore or Koin dependencies.
+Data implementations depend on those contracts, and `composeApp` selects the implementations.
+The model feature's data layer uses storage's installed-model DAO; its domain and UI layers use
+its repository interface.
+
+The drawer belongs to the app shell and uses `SessionsViewModel` from `core:session`. Chat
+uses the conversation repository from `core:domain`, with Room bound at the app composition root.
+Neither chat nor core UI imports the other feature's ViewModel, keeping the dependency graph acyclic.
+The `LlmEngine` interface similarly isolates features from the llama.cpp backend.
+
+Resources are owned by the module that uses them. Fonts, palettes and reusable artwork belong to
+`core:designsystem`; onboarding animations belong to `feature:onboarding`; Settings owns document
+resources. Feature text lives in each feature's `src/commonMain/composeResources/values/strings.xml`.
+Cross-module resource access uses explicit generated resource namespaces.
 
 ## Tech stack
 
@@ -185,8 +234,12 @@ documents and have not been reviewed by a lawyer.
   license
 - [Contributing](CONTRIBUTING.md): report bugs, suggest models, translate, or send code
 
-These pages are also built into the app (Settings → About), copied from this repository at build
-time.
+These pages are also built into the Android and iOS apps (Settings → About). Keep their sources
+in `docs/` and `CONTRIBUTING.md` at the repository root. The Settings Gradle `bundleDocs` task stages
+them as `files/docs/*.md` in generated Compose resources under `feature/settings/build/`, alongside
+Settings string resources. Resource preparation depends on this task, so debug and release builds
+include the current documents automatically. No manual copies in source resource directories are
+needed. You can run `./gradlew :feature:settings:bundleDocs` to inspect the generated files.
 
 ## License
 

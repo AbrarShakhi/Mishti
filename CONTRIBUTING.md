@@ -30,9 +30,11 @@ existing entries: phones that already downloaded a model find it by its id.
 
 ### Translate Mishti
 
-All of Mishti's text lives in `androidApp/src/main/res`. To add a language, copy that
-file to `values-<language code>/strings.xml` (for example `values-bn` for Bengali), translate the
-text, and leave the names and placeholders (`%1$s`, `%1$d`) as they are.
+App text lives in each owning module's `src/commonMain/composeResources/values/strings.xml`.
+Shared labels belong to `core/designsystem`; feature labels belong to their feature under
+`feature/`, and app-shell labels belong to `composeApp`. To add a language, copy the relevant
+module's `values/strings.xml` into `values-<language code>/strings.xml` beside it (for example
+`values-bn` for Bengali), translate the text, and preserve the names and placeholders (`%1$s`, `%1$d`).
 
 ### Improve the code
 
@@ -44,15 +46,16 @@ text, and leave the names and placeholders (`%1$s`, `%1$d`) as they are.
    `local.properties` at it. The first build compiles llama.cpp and takes a while.
 3. Make your change on a branch, then check it:
    ```bash
-   ./gradlew testDebugUnitTest lintDebug assembleDebug
+   ./gradlew testAndroidHostTest :androidApp:lintDebug :androidApp:assembleDebug
    ```
 4. Open a pull request that explains what changed and why, with screenshots for anything visible.
 
 ## House style
 
-- Kotlin with Jetpack Compose and Material 3 Expressive. Follow the structure described in
-  [CLAUDE.md](https://github.com/AbrarShakhi/Mishti/blob/main/CLAUDE.md): MVI per screen, one
-  feature per folder.
+- Kotlin with Jetpack Compose and Material 3 Expressive. Follow the module boundaries in
+  [README.md](README.md#architecture): MVI per screen, one feature per module. Keep domain code
+  independent of UI and persistence, and wire implementations in `composeApp`. Features must not
+  depend on each other; core modules must not depend on features.
 - **No comments in source files.** Let names and structure explain the code, and put any non-obvious
   reasoning in the pull request or commit message.
 - User-visible text goes in `strings.xml`, never inline in Kotlin.

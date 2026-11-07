@@ -1,0 +1,11 @@
+<resources>
+    <string name="recency_today">Today</string>
+    <string name="recency_yesterday">Yesterday</string>
+    <string name="recency_previous_week">Previous 7 days</string>
+    <string name="recency_previous_month">Previous 30 days</string>
+    <string name="recency_older">Older</string>
+    <string name="chat_untitled">New chat</string>
+    <string name="chat_error_rename">Could not rename that conversation.</string>
+    <string name="chat_error_delete">Could not delete that conversation.</string>
+    <string name="chat_deleted">Conversation deleted.</string>
+</resources>

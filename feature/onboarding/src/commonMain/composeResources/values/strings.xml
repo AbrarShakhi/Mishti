@@ -1,0 +1,12 @@
+<resources>
+    <string name="onboarding_meet_title">Meet Mishti</string>
+    <string name="onboarding_meet_body">A language model that runs entirely on your phone.</string>
+    <string name="onboarding_private_title">Private and offline</string>
+    <string name="onboarding_private_body">Conversations never leave this device, and once a model is downloaded no network is needed.</string>
+    <string name="onboarding_personalize_title">Make it yours</string>
+    <string name="onboarding_personalize_body">Choose the model, the colors and the typeface, and tune how it answers.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_page">Page %1$d of %2$d</string>
+</resources>

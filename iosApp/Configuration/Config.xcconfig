@@ -8,3 +8,6 @@ MARKETING_VERSION=1.0
 
 SWIFT_OBJC_BRIDGING_HEADER=iosApp/iosApp-Bridging-Header.h
 HEADER_SEARCH_PATHS=$(inherited) "${SRCROOT}/../llama.cpp/include" "${SRCROOT}/../llama.cpp/ggml/include"
+
+LIBRARY_SEARCH_PATHS=$(inherited) "$(DERIVED_FILE_DIR)/llama-install/lib"
+OTHER_LDFLAGS=$(inherited) -lmishti_llama_ios -lllama -lggml -lggml-cpu -lggml-base -framework Accelerate -lc++

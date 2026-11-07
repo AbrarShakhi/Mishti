@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Mishti</string>
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_try_again">Try again</string>
+    <string name="drawer_new_chat">New chat</string>
+    <string name="chat_status_loading">Loading %1$s…</string>
+    <string name="chat_status_failed">Model failed to load</string>
+    <string name="chat_status_idle">No model selected</string>
+    <string name="chat_error_new">Could not start a new chat.</string>
+    <string name="settings_save_failed">Could not save that setting.</string>
+    <string name="models_title">Mishtir Bhandar</string>
+    <string name="models_import_default_name">Model file</string>
+    <string name="notification_preparing">Preparing</string>
+    <plurals name="notification_more">
+        <item quantity="one">%1$s (+%2$d more)</item>
+        <item quantity="other">%1$s (+%2$d more)</item>
+    </plurals>
+    <string name="close_drawer">Close Drawer</string>
+</resources>

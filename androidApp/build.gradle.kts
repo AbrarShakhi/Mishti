@@ -16,14 +16,23 @@ kotlin {
 
 android {
     namespace = "com.abrarshakhi.mishti"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
 
     ndkVersion = "28.2.13676358"
 
     defaultConfig {
         applicationId = "com.abrarshakhi.mishti"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
+        targetSdk =
+            libs.versions.android.targetSdk
+                .get()
+                .toInt()
 
         versionCode = 5
         versionName = "1.2.0-beta.1"
@@ -71,7 +80,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":shared"))
+    implementation(project(":composeApp"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)

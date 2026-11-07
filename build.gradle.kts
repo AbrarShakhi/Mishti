@@ -12,15 +12,16 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.androidx.room) apply false
-
-    id("com.diffplug.spotless") version "8.10.4"
+    alias(libs.plugins.spotless)
 }
 
 spotless {
     kotlin {
         target(
             "androidApp/src/**/kotlin/**/*.kt",
-            "shared/src/**/kotlin/**/*.kt",
+            "composeApp/src/**/kotlin/**/*.kt",
+            "core/**/src/**/kotlin/**/*.kt",
+            "feature/**/src/**/kotlin/**/*.kt",
         )
         targetExclude("**/cpp/**")
         ktlint().editorConfigOverride(
@@ -33,7 +34,14 @@ spotless {
     }
 
     kotlinGradle {
-        target("*.gradle.kts")
+        target(
+            "*.gradle.kts",
+            "androidApp/*.gradle.kts",
+            "iosApp/*.gradle.kts",
+            "composeApp/*.gradle.kts",
+            "core/*/*.gradle.kts",
+            "feature/*/*.gradle.kts",
+        )
         ktlint()
     }
 }

@@ -18,7 +18,7 @@ and no telemetry.
   is where models live:
     - **My shelf** holds the models you have downloaded or imported, and the one you are chatting
       with.
-    - **Browse** offers two catalogs: Mishti's own hand-picked list, which ships inside the app, and
+    - **Browse** offers two catalogs: Mishti's own hand-picked list, fetched online and cached for offline browsing, and
       the community-tested list from PocketPal AI.
     - Every model is marked by whether it fits your phone's memory, and the best picks for your
       phone are recommended first.

@@ -29,10 +29,7 @@
             </intent-filter>
         </activity>
 
-<!--        <service-->
-<!--            android:name=".features.models.data.ModelDownloadService"-->
-<!--            android:exported="false"-->
-<!--            android:foregroundServiceType="dataSync" />-->
+
 
     </application>
 

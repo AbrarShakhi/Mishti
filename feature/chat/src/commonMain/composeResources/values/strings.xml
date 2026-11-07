@@ -1,0 +1,54 @@
+<resources>
+    <string name="chat_open_conversations">Open conversations</string>
+    <string name="chat_composer_placeholder">Message Mishti</string>
+    <string name="chat_send">Send message</string>
+    <string name="chat_stop">Stop generating</string>
+    <string name="chat_reading">Reading your message…</string>
+    <string name="chat_sender_user">You</string>
+    <string name="chat_sender_assistant">Mishti</string>
+    <string name="chat_think">Think</string>
+    <string name="chat_reasoning_active">Thinking…</string>
+    <string name="chat_reasoning_done">Thoughts</string>
+    <plurals name="chat_reasoning_duration">
+        <item quantity="one">Thought for %d second</item>
+        <item quantity="other">Thought for %d seconds</item>
+    </plurals>
+    <string name="chat_reasoning_show">Show thinking</string>
+    <string name="chat_reasoning_hide">Hide thinking</string>
+    <string name="chat_copy_reply">Copy reply</string>
+    <string name="chat_tokens_per_second">%1$s tokens/s</string>
+    <string name="chat_ready_title">How can I help?</string>
+    <string name="chat_ready_body_model">%1$s runs on this phone, so your messages never leave it.</string>
+    <string name="chat_ready_body">Your messages never leave this phone.</string>
+    <string name="chat_suggestions_shuffle">Other ideas</string>
+    <string name="chat_loading_title">Getting %1$s ready</string>
+    <string name="chat_loading_fallback_name">the model</string>
+    <string name="chat_loading_body">Loading it into memory takes a few seconds.</string>
+    <string name="chat_no_model_title">Choose a model to start</string>
+    <string name="chat_no_model_body">Mishti runs a small language model entirely on this phone. Pick one from Mishtir Bhandar to begin.</string>
+    <string name="chat_no_model_action">Visit Mishtir Bhandar</string>
+    <string name="chat_failed_title">The model couldn't be loaded</string>
+    <string name="chat_failed_body">It may need more memory than is free right now. Try a smaller model.</string>
+    <string name="chat_failed_action">Open Misthir Bhandar</string>
+    <string name="chat_error_open">Could not open this conversation.</string>
+    <string name="chat_error_send">Could not send that message.</string>
+    <string name="chat_error_generation">Generation failed.</string>
+    <string-array name="chat_suggestions">
+        <item>Explain how rainbows form</item>
+        <item>Write a haiku about the monsoon</item>
+        <item>Suggest a name for a kitten</item>
+        <item>Give me three quick dinner ideas</item>
+        <item>Plan a relaxed weekend in the hills</item>
+        <item>Explain black holes like I'm ten</item>
+        <item>Help me write a polite thank-you note</item>
+        <item>What is a good morning routine?</item>
+        <item>Tell me a fun fact about octopuses</item>
+        <item>Give me a riddle to solve</item>
+        <item>Explain compound interest simply</item>
+        <item>Write a short bedtime story</item>
+        <item>How do I make a cup of milk tea?</item>
+        <item>Suggest five books for a long journey</item>
+        <item>Explain recursion with an example</item>
+        <item>Help me practise for a job interview</item>
+    </string-array>
+</resources>

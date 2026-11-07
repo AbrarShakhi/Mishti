@@ -1,19 +1,5 @@
 #include "llama_bridge_ios.h"
-
-#if __has_include("llama.h")
 #include "llama.h"
-#define HAS_LLAMA 1
-#elif __has_include(<llama/llama.h>)
-#include <llama/llama.h>
-#define HAS_LLAMA 1
-#elif __has_include("../../llama.cpp/include/llama.h")
-#include "../../llama.cpp/include/llama.h"
-#define HAS_LLAMA 1
-#else
-#define HAS_LLAMA 0
-#endif
-
-#if HAS_LLAMA
 
 #include <algorithm>
 #include <cstring>
@@ -71,7 +57,7 @@ std::string build_prompt(const llama_model *model,
     return written > 0 ? std::string(buf.data(), written) : std::string();
 }
 
-} // namespace
+}
 
 extern "C" {
 
@@ -88,14 +74,10 @@ void llama_bridge_free(void) {
 }
 
 int64_t llama_bridge_load_model(const char *path, int32_t context_tokens, int32_t threads) {
-    if (path == nullptr) return 0;
+    if (path == nullptr || context_tokens <= 0 || threads <= 0) return 0;
 
     llama_model_params model_params = llama_model_default_params();
-#if defined(TARGET_OS_SIMULATOR) && TARGET_OS_SIMULATOR
     model_params.n_gpu_layers = 0;
-#else
-    model_params.n_gpu_layers = 99;
-#endif
 
     llama_model *model = llama_model_load_from_file(path, model_params);
     if (model == nullptr) return 0;
@@ -143,7 +125,7 @@ int32_t llama_bridge_generate(
     void *user_data
 ) {
     auto *session = reinterpret_cast<Session *>(handle);
-    if (session == nullptr || message_count <= 0) return -1;
+    if (session == nullptr || message_count <= 0 || roles == nullptr || contents == nullptr || max_tokens <= 0) return -1;
 
     std::vector<llama_chat_message> messages(message_count);
     for (int32_t i = 0; i < message_count; ++i) {
@@ -160,6 +142,7 @@ int32_t llama_bridge_generate(
             session->vocab, prompt.c_str(), static_cast<int32_t>(prompt.size()),
             nullptr, 0, true, true);
 
+    if (n_prompt <= 0) return -1;
     std::vector<llama_token> tokens(n_prompt);
     if (llama_tokenize(session->vocab, prompt.c_str(), static_cast<int32_t>(prompt.size()),
                        tokens.data(), n_prompt, true, true) < 0) {
@@ -208,46 +191,4 @@ int32_t llama_bridge_generate(
     return failed ? -1 : generated;
 }
 
-} // extern "C"
-
-#else // !HAS_LLAMA
-
-extern "C" {
-
-void llama_bridge_init(void) {}
-
-const char *llama_bridge_version(void) {
-    return "stub";
 }
-
-void llama_bridge_free(void) {}
-
-int64_t llama_bridge_load_model(const char *, int32_t, int32_t) {
-    return 0;
-}
-
-void llama_bridge_free_model(int64_t) {}
-
-const char *llama_bridge_chat_template(int64_t) {
-    return nullptr;
-}
-
-int32_t llama_bridge_generate(
-    int64_t,
-    const char * const *,
-    const char * const *,
-    int32_t,
-    float,
-    int32_t,
-    float,
-    int32_t,
-    const char *,
-    LlamaTokenCallback,
-    void *
-) {
-    return -1;
-}
-
-} // extern "C"
-
-#endif // HAS_LLAMA

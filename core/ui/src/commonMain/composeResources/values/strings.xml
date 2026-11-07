@@ -1,0 +1,4 @@
+<resources>
+    <string name="action_copied">Copied</string>
+    <string name="chat_copy_code">Copy code</string>
+</resources>

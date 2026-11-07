@@ -1,37 +1,25 @@
+import Darwin
 import Foundation
-import Shared
+import ComposeApp
 
 final class IosLlamaBridge: LlamaBridge {
     var isAvailable: Bool {
-        let v = String(cString: llama_bridge_version())
-        return v != "stub"
+        !String(cString: llama_bridge_version()).isEmpty
     }
 
-    func init_() {
-        llama_bridge_init()
-    }
-
-    func version() -> String {
-        return String(cString: llama_bridge_version())
-    }
-
-    func free() {
-        llama_bridge_free()
-    }
+    func init_() { llama_bridge_init() }
+    func version() -> String { String(cString: llama_bridge_version()) }
+    func free() { llama_bridge_free() }
 
     func loadModel(path: String, contextTokens: Int32, threads: Int32) -> Int64 {
-        return path.withCString { cPath in
-            llama_bridge_load_model(cPath, contextTokens, threads)
-        }
+        path.withCString { llama_bridge_load_model($0, contextTokens, threads) }
     }
 
-    func freeModel(handle: Int64) {
-        llama_bridge_free_model(handle)
-    }
+    func freeModel(handle: Int64) { llama_bridge_free_model(handle) }
 
     func chatTemplate(handle: Int64) -> String? {
-        guard let cStr = llama_bridge_chat_template(handle) else { return nil }
-        return String(cString: cStr)
+        guard let template = llama_bridge_chat_template(handle) else { return nil }
+        return String(cString: template)
     }
 
     func generate(
@@ -45,41 +33,40 @@ final class IosLlamaBridge: LlamaBridge {
         assistantPrefix: String,
         callback: @escaping (String) -> KotlinBoolean
     ) -> Int32 {
-        let count = Int32(roles.count)
-
-        var roleCStrings = roles.map { strdup($0) }
-        var contentCStrings = contents.map { strdup($0) }
-
+        guard roles.count == contents.count, !roles.isEmpty, roles.count <= Int(Int32.max) else { return -1 }
+        let storedRoles = roles.map { strdup($0) }
+        let storedContents = contents.map { strdup($0) }
         defer {
-            for ptr in roleCStrings { free(ptr) }
-            for ptr in contentCStrings { free(ptr) }
+            storedRoles.forEach { Darwin.free($0) }
+            storedContents.forEach { Darwin.free($0) }
         }
-
-        var box: (String) -> Bool = { token in
-            callback(token).boolValue
+        guard storedRoles.allSatisfy({ $0 != nil }), storedContents.allSatisfy({ $0 != nil }) else { return -1 }
+        let rolePointers = storedRoles.map { $0.map { UnsafePointer<CChar>($0) } }
+        let contentPointers = storedContents.map { $0.map { UnsafePointer<CChar>($0) } }
+        var pending = Data()
+        typealias TokenConsumer = (UnsafePointer<CChar>) -> Bool
+        var tokenCallback: TokenConsumer = { piece in
+            let bytes = UnsafeRawPointer(piece).assumingMemoryBound(to: UInt8.self)
+            pending.append(bytes, count: strlen(piece))
+            guard let text = String(data: pending, encoding: .utf8) else { return true }
+            pending.removeAll(keepingCapacity: true)
+            return callback(text).boolValue
         }
-
-        return assistantPrefix.withCString { cPrefix in
-            roleCStrings.withUnsafeMutableBufferPointer { rBuf in
-                contentCStrings.withUnsafeMutableBufferPointer { cBuf in
-                    llama_bridge_generate(
-                        handle,
-                        rBuf.baseAddress.map { UnsafePointer($0) },
-                        cBuf.baseAddress.map { UnsafePointer($0) },
-                        count,
-                        temperature,
-                        topK,
-                        topP,
-                        maxTokens,
-                        cPrefix,
-                        { piece, userData in
-                            guard let piece = piece, let userData = userData else { return true }
-                            let closure = userData.assumingMemoryBound(to: ((String) -> Bool).self).pointee
-                            let token = String(cString: piece)
-                            return closure(token)
-                        },
-                        &box
-                    )
+        return withUnsafeMutablePointer(to: &tokenCallback) { context in
+            assistantPrefix.withCString { prefix in
+                rolePointers.withUnsafeBufferPointer { roleBuffer in
+                    contentPointers.withUnsafeBufferPointer { contentBuffer in
+                        llama_bridge_generate(
+                            handle, roleBuffer.baseAddress, contentBuffer.baseAddress, Int32(roles.count),
+                            temperature, topK, topP, maxTokens, prefix,
+                            { piece, userData in
+                                guard let piece = piece, let userData = userData else { return false }
+                                let consume = userData.assumingMemoryBound(to: TokenConsumer.self).pointee
+                                return consume(piece)
+                            },
+                            context
+                        )
+                    }
                 }
             }
         }

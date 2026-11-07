@@ -1,0 +1,155 @@
+package com.abrarshakhi.mishti.core.session.ui
+
+import androidx.lifecycle.viewModelScope
+import com.abrarshakhi.mishti.core.designsystem.resources.chat_error_new
+import com.abrarshakhi.mishti.core.domain.chat.repository.ChatRepository
+import com.abrarshakhi.mishti.core.domain.chat.usecase.CreateNewSessionUseCase
+import com.abrarshakhi.mishti.core.session.resources.chat_deleted
+import com.abrarshakhi.mishti.core.session.resources.chat_error_delete
+import com.abrarshakhi.mishti.core.session.resources.chat_error_rename
+import com.abrarshakhi.mishti.core.ui.mvi.MviViewModel
+import com.abrarshakhi.mishti.core.ui.snackbar.SnackBarDispatcher
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
+import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignsystemRes
+import com.abrarshakhi.mishti.core.session.resources.Res as CoreSessionRes
+
+class SessionsViewModel(
+    private val repository: ChatRepository,
+    private val createNewSession: CreateNewSessionUseCase,
+    private val snackBar: SnackBarDispatcher,
+) : MviViewModel<SessionsUiState, SessionsIntent, SessionsEffect>(SessionsUiState()) {
+
+    init {
+        viewModelScope.launch {
+            repository.observeSessions().collect { sessions ->
+                updateState {
+                    copy(
+                        sessions = sessions,
+                        actionsFor = actionsFor?.let { open -> sessions.find { it.id == open.id } },
+                        deleting = deleting?.let { open -> sessions.find { it.id == open.id } },
+                        renaming = renaming?.takeIf { draft -> sessions.any { it.id == draft.sessionId } },
+                    )
+                }
+            }
+        }
+    }
+
+    override fun handleIntent(intent: SessionsIntent) {
+        when (intent) {
+            SessionsIntent.DrawerClosed -> updateState { copy(actionsFor = null, renaming = null, deleting = null) }
+
+            SessionsIntent.NewChatClicked -> onNewChatClicked()
+
+            is SessionsIntent.SessionSelected -> {
+                emitEffect(SessionsEffect.OpenSession(intent.sessionId))
+            }
+
+            is SessionsIntent.SessionLongPressed -> {
+                updateState {
+                    copy(actionsFor = sessions.find { it.id == intent.sessionId })
+                }
+            }
+
+            SessionsIntent.ActionsDismissed -> {
+                updateState { copy(actionsFor = null) }
+            }
+
+            SessionsIntent.RenameRequested -> {
+                updateState {
+                    val target = actionsFor
+                    copy(
+                        actionsFor = null,
+                        renaming = target?.let { RenameState(it.id, it.title) },
+                    )
+                }
+            }
+
+            is SessionsIntent.RenameTitleChanged -> {
+                updateState {
+                    copy(renaming = renaming?.copy(title = intent.title))
+                }
+            }
+
+            SessionsIntent.RenameConfirmed -> onRenameConfirmed()
+
+            SessionsIntent.RenameCancelled -> {
+                updateState { copy(renaming = null) }
+            }
+
+            SessionsIntent.DeleteRequested -> {
+                updateState {
+                    copy(actionsFor = null, deleting = actionsFor)
+                }
+            }
+
+            is SessionsIntent.DeleteConfirmed -> {
+                onDeleteConfirmed(intent.visibleSessionId)
+            }
+
+            SessionsIntent.DeleteCancelled -> {
+                updateState { copy(deleting = null) }
+            }
+        }
+    }
+
+    private fun onNewChatClicked() {
+        viewModelScope.launch {
+            val sessionId = try {
+                createNewSession()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                snackBar.showError(CoreDesignsystemRes.string.chat_error_new)
+                return@launch
+            }
+            emitEffect(SessionsEffect.OpenSession(sessionId))
+        }
+    }
+
+    private fun onRenameConfirmed() {
+        val renaming = currentState.renaming ?: return
+        if (!renaming.canConfirm) return
+
+        updateState { copy(renaming = null) }
+
+        viewModelScope.launch {
+            try {
+                repository.renameSession(renaming.sessionId, renaming.title.trim())
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                snackBar.showError(CoreSessionRes.string.chat_error_rename)
+            }
+        }
+    }
+
+    private fun onDeleteConfirmed(visibleSessionId: String?) {
+        val target = currentState.deleting ?: return
+        updateState { copy(deleting = null) }
+
+        viewModelScope.launch {
+            try {
+                repository.deleteSession(target.id)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                snackBar.showError(CoreSessionRes.string.chat_error_delete)
+                return@launch
+            }
+            snackBar.show(CoreSessionRes.string.chat_deleted)
+
+            if (target.id != visibleSessionId) return@launch
+
+            val replacement = try {
+                createNewSession()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                snackBar.showError(CoreDesignsystemRes.string.chat_error_new)
+                return@launch
+            }
+            emitEffect(SessionsEffect.OpenSession(replacement))
+        }
+    }
+}

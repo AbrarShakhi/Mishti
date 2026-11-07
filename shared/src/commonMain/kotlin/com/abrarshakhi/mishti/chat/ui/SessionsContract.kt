@@ -17,6 +17,8 @@ data class RenameState(val sessionId: String, val title: String) {
 }
 
 sealed interface SessionsIntent : UiIntent {
+    data object DrawerClosed : SessionsIntent
+
     data object NewChatClicked : SessionsIntent
 
     data class SessionSelected(val sessionId: String) : SessionsIntent

@@ -1,6 +1,7 @@
 package com.abrarshakhi.mishti.chat.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -29,6 +30,8 @@ fun ChatRoute(sessionId: String? = null) {
 
     val viewModel: ChatViewModel = koinViewModel { parametersOf(sessionId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    SideEffect { drawerController.onSessionVisible(state.sessionId) }
 
     CollectEffects(viewModel.effects) { effect ->
         when (effect) {

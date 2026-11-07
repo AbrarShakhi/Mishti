@@ -23,8 +23,8 @@ fun App() {
             .themeSettings.collectAsStateWithLifecycle().value,
     ) {
         SnackBarProvider {
-            val navigator = koinInject<Navigator>()
-            MishtiNavigationDrawer(navigator.currentScreen) {
+            val navigator: Navigator = koinInject()
+            MishtiNavigationDrawer {
                 val forward = rememberSharedAxisTransition(forward = true)
                 val backward = rememberSharedAxisTransition(forward = false)
                 NavDisplay(

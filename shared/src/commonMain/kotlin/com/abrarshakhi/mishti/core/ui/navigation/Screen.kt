@@ -1,5 +1,6 @@
 package com.abrarshakhi.mishti.core.ui.navigation
 
+import com.abrarshakhi.mishti.settings.domain.model.AppDocument
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -28,8 +29,8 @@ sealed interface Screen {
     @Serializable
     data object PerformanceSettings : Screen
 
-//    @Serializable
-//    data class Document(val document: AppDocument) : Screen
+    @Serializable
+    data class Document(val document: AppDocument) : Screen
 
     @Serializable
     data object Models : Screen

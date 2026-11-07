@@ -1,7 +1,5 @@
 package com.abrarshakhi.mishti.chat.di
 
-import com.abrarshakhi.mishti.chat.data.local.ChatDao
-import com.abrarshakhi.mishti.chat.data.local.InMemoryChatDao
 import com.abrarshakhi.mishti.chat.data.repository.RoomChatRepository
 import com.abrarshakhi.mishti.chat.domain.repository.ChatRepository
 import com.abrarshakhi.mishti.chat.domain.usecase.CreateNewSessionUseCase
@@ -18,7 +16,6 @@ import org.koin.dsl.navigation3.navigation
 
 @OptIn(KoinExperimentalAPI::class)
 val chatModule = module {
-    single<ChatDao> { getOrNull() ?: InMemoryChatDao() }
     single<ChatRepository> { RoomChatRepository(dao = get()) }
     singleOf(::CreateNewSessionUseCase)
     viewModelOf(::SessionsViewModel)

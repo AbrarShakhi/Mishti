@@ -22,11 +22,13 @@ actual fun formatMessageTime(millis: Long): String {
 
 actual fun groupSessionsByRecency(sessions: List<ChatSession>, now: Long): List<SessionGroup> {
     val calendar = NSCalendar.currentCalendar
-    val nowDate = NSDate.dateWithTimeIntervalSince1970(now / 1000.0)
+    val nowDate = calendar.startOfDayForDate(NSDate.dateWithTimeIntervalSince1970(now / 1000.0))
 
     return sessions
         .groupBy { session ->
-            val sessionDate = NSDate.dateWithTimeIntervalSince1970(session.updatedAtMillis / 1000.0)
+            val sessionDate = calendar.startOfDayForDate(
+                NSDate.dateWithTimeIntervalSince1970(session.updatedAtMillis / 1000.0),
+            )
             val components = calendar.components(
                 NSCalendarUnitDay,
                 fromDate = sessionDate,

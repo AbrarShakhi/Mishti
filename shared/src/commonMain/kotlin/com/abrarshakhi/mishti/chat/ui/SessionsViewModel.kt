@@ -27,6 +27,7 @@ class SessionsViewModel(
                         sessions = sessions,
                         actionsFor = actionsFor?.let { open -> sessions.find { it.id == open.id } },
                         deleting = deleting?.let { open -> sessions.find { it.id == open.id } },
+                        renaming = renaming?.takeIf { draft -> sessions.any { it.id == draft.sessionId } },
                     )
                 }
             }
@@ -35,6 +36,8 @@ class SessionsViewModel(
 
     override fun handleIntent(intent: SessionsIntent) {
         when (intent) {
+            SessionsIntent.DrawerClosed -> updateState { copy(actionsFor = null, renaming = null, deleting = null) }
+
             SessionsIntent.NewChatClicked -> onNewChatClicked()
 
             is SessionsIntent.SessionSelected -> {
@@ -110,12 +113,13 @@ class SessionsViewModel(
         updateState { copy(renaming = null) }
 
         viewModelScope.launch {
-            runCatching {
-                repository.renameSession(
-                    renaming.sessionId,
-                    renaming.title.trim(),
-                )
-            }.onFailure { snackBar.showError(Res.string.chat_error_rename) }
+            try {
+                repository.renameSession(renaming.sessionId, renaming.title.trim())
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                snackBar.showError(Res.string.chat_error_rename)
+            }
         }
     }
 
@@ -124,8 +128,11 @@ class SessionsViewModel(
         updateState { copy(deleting = null) }
 
         viewModelScope.launch {
-            val deleted = runCatching { repository.deleteSession(target.id) }.isSuccess
-            if (!deleted) {
+            try {
+                repository.deleteSession(target.id)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
                 snackBar.showError(Res.string.chat_error_delete)
                 return@launch
             }
@@ -138,6 +145,7 @@ class SessionsViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
+                snackBar.showError(Res.string.chat_error_new)
                 return@launch
             }
             emitEffect(SessionsEffect.OpenSession(replacement))

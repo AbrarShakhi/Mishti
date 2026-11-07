@@ -19,3 +19,9 @@ sealed interface DeviceCapability {
 
 val DeviceCapability.isSupported: Boolean
     get() = this !is DeviceCapability.UnsupportedLowMemory
+
+internal fun deviceCapabilityFor(totalMemoryBytes: Long): DeviceCapability = when {
+    totalMemoryBytes <= 0 -> DeviceCapability.Unknown
+    totalMemoryBytes < MIN_RAM_BYTES -> DeviceCapability.UnsupportedLowMemory(totalMemoryBytes)
+    else -> DeviceCapability.Supported(totalMemoryBytes)
+}

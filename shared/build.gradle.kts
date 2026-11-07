@@ -65,6 +65,7 @@ kotlin {
             api(libs.androidx.datastore)
             api(libs.androidx.datastore.preferences)
             api(libs.androidx.room.runtime)
+            api(libs.androidx.sqlite.bundled)
             api(libs.kotlinx.serialization.core)
             api(libs.okio)
 
@@ -81,6 +82,7 @@ kotlin {
             implementation(libs.phosphoricon.compose)
         }
         androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.androidx.room.ktx)
@@ -91,6 +93,13 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.okio.fakefilesystem)
+            implementation(libs.ktor.client.mock)
+        }
+        getByName("androidHostTest").dependencies {
+            // Host tests need the desktop JNI library rather than Android's native binary.
+            implementation(libs.androidx.sqlite.bundled.jvm)
         }
         getByName("androidDeviceTest").dependencies {
             implementation(libs.androidx.test.runner)
@@ -98,9 +107,40 @@ kotlin {
     }
 }
 
+val generatedDocsDirectory = layout.buildDirectory.dir("generated/composeResources/documents")
+val bundleDocs = tasks.register<Sync>("bundleDocs") {
+    group = "build"
+    description = "Stages shared Compose resources with the repository documents."
+    listOf(
+        "docs/about.md",
+        "docs/credits.md",
+        "docs/privacy-policy.md",
+        "docs/terms-of-service.md",
+        "CONTRIBUTING.md",
+    ).forEachIndexed { index, path ->
+        inputs.file(rootProject.file(path))
+            .withPropertyName("requiredDocument$index")
+            .withPathSensitivity(PathSensitivity.RELATIVE)
+    }
+    from(layout.projectDirectory.dir("src/commonMain/composeResources"))
+    from(rootProject.fileTree("docs") { include("*.md") }) {
+        into("files/docs")
+    }
+    from(rootProject.file("CONTRIBUTING.md")) {
+        into("files/docs")
+        rename { "contributing.md" }
+    }
+    into(generatedDocsDirectory)
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+}
+
 compose.resources {
     publicResClass = true
     packageOfResClass = "com.abrarshakhi.mishti.shared.resources"
+    customDirectory(
+        sourceSetName = "commonMain",
+        directoryProvider = layout.dir(bundleDocs.map { it.destinationDir }),
+    )
 }
 
 room {
@@ -117,37 +157,7 @@ dependencies {
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
 }
 
-abstract class BundleDocsTask : DefaultTask() {
-
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.NAME_ONLY)
-    abstract val documents: ConfigurableFileCollection
-
-    @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
-
-    @TaskAction
-    fun bundle() {
-        val target = outputDir.get().asFile.resolve("docs")
-        target.deleteRecursively()
-        target.mkdirs()
-        documents.files.filter { it.isFile }.forEach { file ->
-            file.copyTo(target.resolve(file.name.lowercase()), overwrite = true)
-        }
-    }
-}
-
-val bundleDocs = tasks.register<BundleDocsTask>("bundleDocs") {
-    group = "build"
-    description = "Copies the repository's docs into the shared module's assets."
-    documents.from(
-        rootProject.fileTree("docs") { include("*.md") },
-        rootProject.file("CONTRIBUTING.md"),
-    )
-}
-
-androidComponents {
-    onVariants { variant ->
-        variant.sources.assets?.addGeneratedSourceDirectory(bundleDocs, BundleDocsTask::outputDir)
-    }
+// Keep the desktop SQLite implementation on the host test classpath.
+configurations.matching { it.name.startsWith("androidHostTest") }.configureEach {
+    exclude(group = "androidx.sqlite", module = "sqlite-bundled-android")
 }

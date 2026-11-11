@@ -139,7 +139,7 @@ Use macOS with Xcode, a JDK compatible with the Gradle wrapper, and CMake 3.22.1
 on Xcode's PATH (`/opt/homebrew/bin` and `/usr/local/bin` are included by the build phase).
 Open `iosApp/iosApp.xcodeproj`, set `TEAM_ID` in `iosApp/Configuration/Config.xcconfig`, and select
 an arm64 device or Apple Silicon simulator. Xcode builds the CPU llama.cpp backend with
-`tools/ios/build-llama.sh`, then builds and embeds the ComposeApp Kotlin framework. Native outputs stay
+`iosApp/native/build-llama.sh` (also available as the Gradle `:iosApp:buildLlama` task), then builds and embeds the ComposeApp Kotlin framework. Native outputs stay
 in Xcode's derived files; no prebuilt native binaries are checked in. The app uses the real native
 bridge on both platforms; the scripted engine is confined to tests. The Gradle `:iosApp:assemble`
 task links the device and simulator frameworks; building and signing the iOS application itself

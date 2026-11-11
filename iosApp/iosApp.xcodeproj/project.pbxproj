@@ -15,7 +15,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				llama_bridge_ios.cpp,
 			);
 			target = BB0D88BDFB7128E92BDA7838 /* iosApp */;
 		};
@@ -147,7 +146,7 @@
 			outputPaths = ();
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eu\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"\n/bin/sh \"$SRCROOT/../tools/ios/build-llama.sh\"\n";
+			shellScript = "set -eu\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"\n/bin/sh \"$SRCROOT/native/build-llama.sh\"\n";
 		};
 
 		60A1CACB52DE50D87D82C04B /* Compile Kotlin Framework */ = {

@@ -18,9 +18,27 @@ set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
 set(GGML_LLAMAFILE OFF CACHE BOOL "" FORCE)
 set(CMAKE_INSTALL_LIBDIR lib CACHE STRING "" FORCE)
 
-get_filename_component(MISHTI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../.." ABSOLUTE)
-add_subdirectory("${MISHTI_ROOT}/llama.cpp" llama)
-add_library(mishti_llama_ios STATIC "${MISHTI_ROOT}/iosApp/iosApp/llama_bridge_ios.cpp")
-target_include_directories(mishti_llama_ios PRIVATE "${MISHTI_ROOT}/llama.cpp/include" "${MISHTI_ROOT}/llama.cpp/ggml/include")
+get_filename_component(MISHTI_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
+set(CORE_LLM_NATIVE "${MISHTI_ROOT}/core/llm/native")
+set(LLAMA_SRC "${CORE_LLM_NATIVE}/llama.cpp")
+
+add_subdirectory("${LLAMA_SRC}" llama)
+
+add_library(mishti_llama_ios STATIC
+    llama_bridge_ios.cpp
+    "${CORE_LLM_NATIVE}/common/llama_bridge_common.cpp"
+)
+
+target_include_directories(mishti_llama_ios PRIVATE
+    "${LLAMA_SRC}/include"
+    "${LLAMA_SRC}/ggml/include"
+    "${CORE_LLM_NATIVE}/common"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
 target_link_libraries(mishti_llama_ios PRIVATE llama)
-install(TARGETS mishti_llama_ios llama ggml ggml-base ggml-cpu ARCHIVE DESTINATION lib PUBLIC_HEADER DESTINATION include)
+
+install(TARGETS mishti_llama_ios llama ggml ggml-base ggml-cpu
+    ARCHIVE DESTINATION lib
+    PUBLIC_HEADER DESTINATION include
+)

@@ -1,20 +1,61 @@
-#include "llama_bridge_ios.h"
-#include "llama.h"
+#include "llama_bridge_common.h"
 
 #include <algorithm>
 #include <cstring>
 #include <string>
 #include <vector>
 
-namespace {
+void common_llama_init(void) {
+    llama_backend_init();
+}
 
-struct Session {
-    llama_model *model = nullptr;
-    llama_context *ctx = nullptr;
-    const llama_vocab *vocab = nullptr;
-};
+const char *common_llama_version(void) {
+    return llama_version();
+}
 
-std::string token_text(const llama_vocab *vocab, llama_token token) {
+void common_llama_free(void) {
+    llama_backend_free();
+}
+
+int64_t common_llama_load_model(const char *path, int32_t context_tokens, int32_t threads) {
+    if (path == nullptr || context_tokens <= 0 || threads <= 0) return 0;
+
+    llama_model_params model_params = llama_model_default_params();
+    model_params.n_gpu_layers = 0;
+
+    llama_model *model = llama_model_load_from_file(path, model_params);
+    if (model == nullptr) return 0;
+
+    llama_context_params ctx_params = llama_context_default_params();
+    ctx_params.n_ctx = static_cast<uint32_t>(context_tokens);
+    ctx_params.n_threads = threads;
+    ctx_params.n_threads_batch = threads;
+
+    llama_context *ctx = llama_init_from_model(model, ctx_params);
+    if (ctx == nullptr) {
+        llama_model_free(model);
+        return 0;
+    }
+
+    auto *session = new LlamaSession{model, ctx, llama_model_get_vocab(model)};
+    return reinterpret_cast<int64_t>(session);
+}
+
+void common_llama_free_model(int64_t handle) {
+    auto *session = reinterpret_cast<LlamaSession *>(handle);
+    if (session == nullptr) return;
+    if (session->ctx) llama_free(session->ctx);
+    if (session->model) llama_model_free(session->model);
+    delete session;
+}
+
+const char *common_llama_chat_template(int64_t handle) {
+    auto *session = reinterpret_cast<LlamaSession *>(handle);
+    if (session == nullptr) return nullptr;
+    return llama_model_chat_template(session->model, nullptr);
+}
+
+std::string common_llama_token_text(const llama_vocab *vocab, llama_token token) {
     char stack_buf[128];
     int32_t n = llama_token_to_piece(vocab, token, stack_buf, sizeof(stack_buf), 0, false);
     if (n >= 0) return std::string(stack_buf, n);
@@ -25,8 +66,8 @@ std::string token_text(const llama_vocab *vocab, llama_token token) {
     return n > 0 ? std::string(heap_buf.data(), n) : std::string();
 }
 
-std::string build_prompt(const llama_model *model,
-                         const std::vector<llama_chat_message> &messages) {
+std::string common_llama_build_prompt(const llama_model *model,
+                                      const std::vector<llama_chat_message> &messages) {
     const char *tmpl = llama_model_chat_template(model, nullptr);
     if (tmpl == nullptr) {
         std::string joined;
@@ -57,82 +98,20 @@ std::string build_prompt(const llama_model *model,
     return written > 0 ? std::string(buf.data(), written) : std::string();
 }
 
-}
-
-extern "C" {
-
-void llama_bridge_init(void) {
-    llama_backend_init();
-}
-
-const char *llama_bridge_version(void) {
-    return llama_version();
-}
-
-void llama_bridge_free(void) {
-    llama_backend_free();
-}
-
-int64_t llama_bridge_load_model(const char *path, int32_t context_tokens, int32_t threads) {
-    if (path == nullptr || context_tokens <= 0 || threads <= 0) return 0;
-
-    llama_model_params model_params = llama_model_default_params();
-    model_params.n_gpu_layers = 0;
-
-    llama_model *model = llama_model_load_from_file(path, model_params);
-    if (model == nullptr) return 0;
-
-    llama_context_params ctx_params = llama_context_default_params();
-    ctx_params.n_ctx = static_cast<uint32_t>(context_tokens);
-    ctx_params.n_threads = threads;
-    ctx_params.n_threads_batch = threads;
-
-    llama_context *ctx = llama_init_from_model(model, ctx_params);
-    if (ctx == nullptr) {
-        llama_model_free(model);
-        return 0;
-    }
-
-    auto *session = new Session{model, ctx, llama_model_get_vocab(model)};
-    return reinterpret_cast<int64_t>(session);
-}
-
-void llama_bridge_free_model(int64_t handle) {
-    auto *session = reinterpret_cast<Session *>(handle);
-    if (session == nullptr) return;
-    if (session->ctx) llama_free(session->ctx);
-    if (session->model) llama_model_free(session->model);
-    delete session;
-}
-
-const char *llama_bridge_chat_template(int64_t handle) {
-    auto *session = reinterpret_cast<Session *>(handle);
-    if (session == nullptr) return nullptr;
-    return llama_model_chat_template(session->model, nullptr);
-}
-
-int32_t llama_bridge_generate(
+int32_t common_llama_generate(
     int64_t handle,
-    const char * const *roles,
-    const char * const *contents,
-    int32_t message_count,
+    const std::vector<llama_chat_message> &messages,
     float temperature,
     int32_t top_k,
     float top_p,
     int32_t max_tokens,
     const char *assistant_prefix,
-    LlamaTokenCallback callback,
-    void *user_data
+    const LlamaTokenConsumer &callback
 ) {
-    auto *session = reinterpret_cast<Session *>(handle);
-    if (session == nullptr || message_count <= 0 || roles == nullptr || contents == nullptr || max_tokens <= 0) return -1;
+    auto *session = reinterpret_cast<LlamaSession *>(handle);
+    if (session == nullptr || messages.empty() || max_tokens <= 0) return -1;
 
-    std::vector<llama_chat_message> messages(message_count);
-    for (int32_t i = 0; i < message_count; ++i) {
-        messages[i] = llama_chat_message{roles[i] ? roles[i] : "", contents[i] ? contents[i] : ""};
-    }
-
-    std::string prompt = build_prompt(session->model, messages);
+    std::string prompt = common_llama_build_prompt(session->model, messages);
     if (prompt.empty()) return -1;
     if (assistant_prefix != nullptr) {
         prompt += assistant_prefix;
@@ -177,9 +156,9 @@ int32_t llama_bridge_generate(
         llama_sampler_accept(sampler, id);
         ++generated;
 
-        const std::string piece = token_text(session->vocab, id);
+        const std::string piece = common_llama_token_text(session->vocab, id);
         if (callback != nullptr) {
-            const bool keep_going = callback(piece.c_str(), user_data);
+            const bool keep_going = callback(piece.c_str());
             if (!keep_going) break;
         }
 
@@ -189,6 +168,4 @@ int32_t llama_bridge_generate(
 
     llama_sampler_free(sampler);
     return failed ? -1 : generated;
-}
-
 }

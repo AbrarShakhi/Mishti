@@ -2,14 +2,17 @@ package com.abrarshakhi.mishti.settings.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abrarshakhi.mishti.core.domain.documents.AppDocument
+import com.abrarshakhi.mishti.core.ui.drawer.DrawerController
 import com.abrarshakhi.mishti.core.ui.navigation.Navigator
 import com.abrarshakhi.mishti.core.ui.navigation.Screen
 import com.abrarshakhi.mishti.core.ui.snackbar.SnackBarDispatcher
 import com.abrarshakhi.mishti.feature.settings.resources.document_link_failed
 import com.abrarshakhi.mishti.settings.domain.model.SettingsPlatformInfo
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -18,13 +21,15 @@ import com.abrarshakhi.mishti.feature.settings.resources.Res as FeatureSettingsR
 @Composable
 fun SettingsRoute() {
     val navigator: Navigator = koinInject()
+    val drawerController: DrawerController = koinInject()
     val info: SettingsPlatformInfo = koinInject()
+    val coroutineScope = rememberCoroutineScope()
     val viewModel: SettingsViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     SettingsScreen(
         state = state,
         versionName = info.versionName,
-        onBack = { navigator.goBack() },
+        onOpenDrawer = { coroutineScope.launch { drawerController.open() } },
         onOpenModels = { navigator.navigate(Screen.Models) },
         onOpenAppearance = { navigator.navigate(Screen.AppearanceSettings) },
         onOpenChat = { navigator.navigate(Screen.ChatSettings) },

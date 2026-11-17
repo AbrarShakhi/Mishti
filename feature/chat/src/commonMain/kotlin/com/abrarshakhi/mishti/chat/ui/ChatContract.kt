@@ -9,6 +9,7 @@ import com.abrarshakhi.mishti.core.ui.utils.UiText
 
 data class ChatUiState(
     val sessionId: String? = null,
+    val title: String = "",
     val messages: List<ChatMessage> = emptyList(),
     val draft: String = "",
     val streamingResponse: String = "",

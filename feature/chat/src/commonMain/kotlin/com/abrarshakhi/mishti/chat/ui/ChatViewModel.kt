@@ -26,14 +26,14 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
-import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignsystemRes
+import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignSystemRes
 import com.abrarshakhi.mishti.feature.chat.resources.Res as FeatureChatRes
 
-@OptIn(ExperimentalUuidApi::class)
 class ChatViewModel(
     private val requestedSessionId: String?,
     private val repository: ChatRepository,
@@ -85,9 +85,18 @@ class ChatViewModel(
 
         updateState { copy(sessionId = sessionId) }
 
+        viewModelScope.launch { observeTitle(sessionId) }
+
         repository.observeMessages(sessionId).collect { messages ->
             updateState { copy(messages = messages, isLoading = false) }
         }
+    }
+
+    private suspend fun observeTitle(sessionId: String) {
+        repository.observeSessions()
+            .map { sessions -> sessions.firstOrNull { it.id == sessionId }?.title.orEmpty() }
+            .distinctUntilChanged()
+            .collect { title -> updateState { copy(title = title) } }
     }
 
     override fun handleIntent(intent: ChatIntent) {
@@ -146,7 +155,7 @@ class ChatViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                emitEffect(ChatEffect.ShowError(uiText(CoreDesignsystemRes.string.settings_save_failed)))
+                emitEffect(ChatEffect.ShowError(uiText(CoreDesignSystemRes.string.settings_save_failed)))
             }
         }
     }
@@ -209,7 +218,11 @@ class ChatViewModel(
         }
     }
 
-    private suspend fun persistReply(sessionId: String, reply: ReplyBuffer, tokensPerSecond: Double?) {
+    private suspend fun persistReply(
+        sessionId: String,
+        reply: ReplyBuffer,
+        tokensPerSecond: Double?
+    ) {
         val finished = reply.finish()
         val content = finished.answer.trim()
         val reasoning = finished.reasoning?.takeIf { it.isNotBlank() }

@@ -1,8 +1,3 @@
-@file:OptIn(
-    androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
-)
-
 package com.abrarshakhi.mishti.settings.ui
 
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -18,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -53,11 +49,13 @@ import org.jetbrains.compose.resources.stringResource
 import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignsystemRes
 import com.abrarshakhi.mishti.feature.settings.resources.Res as FeatureSettingsRes
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun SettingsScaffold(
     title: String,
     subtitle: String,
-    onBack: () -> Unit,
+    onNavigate: () -> Unit,
+    isRootSetting: Boolean,
     modifier: Modifier = Modifier,
     content: LazyListScope.() -> Unit,
 ) {
@@ -73,9 +71,12 @@ internal fun SettingsScaffold(
                 title = { Text(title) },
                 subtitle = { Text(subtitle) },
                 navigationIcon = {
-                    IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
+                    IconButton(onClick = onNavigate, shapes = IconButtonDefaults.shapes()) {
                         Icon(
-                            MaterialTheme.icons.navigation.back.outline,
+                            if (isRootSetting)
+                                MaterialTheme.icons.navigation.menu.filled
+                            else
+                                MaterialTheme.icons.navigation.back.outline,
                             contentDescription = stringResource(CoreDesignsystemRes.string.action_back),
                         )
                     }
@@ -108,6 +109,7 @@ internal fun SettingsScaffold(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun SettingsGroup(
     modifier: Modifier = Modifier,
@@ -126,6 +128,7 @@ internal fun SettingsGroup(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal class SettingsGroupScope {
     internal val rows = mutableListOf<@Composable (shapes: ListItemShapes) -> Unit>()
 
@@ -134,6 +137,7 @@ internal class SettingsGroupScope {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun SettingsPanel(
     shapes: ListItemShapes,
@@ -196,17 +200,23 @@ internal data class SliderSpec(
     val steps: Int = 0,
 )
 
-internal fun IntRange.toFloatRange(): ClosedFloatingPointRange<Float> = first.toFloat()..last.toFloat()
+internal fun IntRange.toFloatRange(): ClosedFloatingPointRange<Float> =
+    first.toFloat()..last.toFloat()
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal fun SettingsGroupScope.sliderRow(spec: SliderSpec, onIntent: (SettingsIntent) -> Unit) {
     row { shapes ->
         SliderPanel(spec = spec, shapes = shapes, onCommit = { onIntent(spec.intent(it)) })
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SliderPanel(spec: SliderSpec, shapes: ListItemShapes, onCommit: (Float) -> Unit) {
-    var value by remember(spec.value, spec.range) { mutableFloatStateOf(spec.value.coerceIn(spec.range)) }
+    var value by remember(
+        spec.value,
+        spec.range
+    ) { mutableFloatStateOf(spec.value.coerceIn(spec.range)) }
 
     SettingsPanel(
         shapes = shapes,
@@ -241,8 +251,14 @@ internal fun ValueBadge(text: String, modifier: Modifier = Modifier) {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-internal fun RestoreDefaultsRow(shapes: ListItemShapes, defaults: String, enabled: Boolean, onClick: () -> Unit) {
+internal fun RestoreDefaultsRow(
+    shapes: ListItemShapes,
+    defaults: String,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
     SegmentedListItem(
         onClick = onClick,
         shapes = shapes,

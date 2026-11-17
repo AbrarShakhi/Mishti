@@ -1,8 +1,3 @@
-@file:OptIn(
-    androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
-)
-
 package com.abrarshakhi.mishti.models.ui
 
 import androidx.compose.foundation.layout.Column
@@ -15,6 +10,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -57,19 +53,20 @@ import com.abrarshakhi.mishti.models.domain.model.memoryFit
 import com.abrarshakhi.mishti.models.domain.repository.StorageUsage
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignsystemRes
+import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignSystemRes
 import com.abrarshakhi.mishti.feature.model.resources.Res as FeatureModelRes
 
 internal const val ShelfPage = 0
 internal const val BrowsePage = 1
 
 @Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun ModelsScreen(
     state: ModelsUiState,
     pagerState: PagerState,
     onIntent: (ModelsIntent) -> Unit,
     onImport: () -> Unit,
-    onBack: () -> Unit,
+    onOpenDrawer: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -81,7 +78,7 @@ fun ModelsScreen(
         containerColor = background,
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text(stringResource(CoreDesignsystemRes.string.models_title)) },
+                title = { Text(stringResource(CoreDesignSystemRes.string.models_title)) },
                 subtitle = {
                     Text(
                         stringResource(
@@ -92,10 +89,10 @@ fun ModelsScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack, shapes = IconButtonDefaults.shapes()) {
+                    IconButton(onClick = onOpenDrawer, shapes = IconButtonDefaults.shapes()) {
                         Icon(
-                            MaterialTheme.icons.navigation.back.outline,
-                            contentDescription = stringResource(CoreDesignsystemRes.string.action_back),
+                            MaterialTheme.icons.navigation.menu.filled,
+                            contentDescription = stringResource(CoreDesignSystemRes.string.action_back),
                         )
                     }
                 },
@@ -235,7 +232,7 @@ fun ModelsScreen(
             confirmButton = {
                 TextButton(onClick = { onIntent(ModelsIntent.DeleteConfirmed) }) {
                     Text(
-                        stringResource(CoreDesignsystemRes.string.action_delete),
+                        stringResource(CoreDesignSystemRes.string.action_delete),
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
@@ -243,7 +240,7 @@ fun ModelsScreen(
             dismissButton = {
                 TextButton(onClick = { onIntent(ModelsIntent.DeleteCancelled) }) {
                     Text(
-                        stringResource(CoreDesignsystemRes.string.action_cancel),
+                        stringResource(CoreDesignSystemRes.string.action_cancel),
                     )
                 }
             },
@@ -312,7 +309,7 @@ private fun ModelsScreenPreview() {
             pagerState = rememberPagerState(initialPage = BrowsePage) { 2 },
             onIntent = {},
             onImport = {},
-            onBack = {},
+            onOpenDrawer = {},
         )
     }
 }

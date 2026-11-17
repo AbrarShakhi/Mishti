@@ -36,7 +36,8 @@ fun GenerationSettingsScreen(
     SettingsScaffold(
         title = stringResource(FeatureSettingsRes.string.settings_generation),
         subtitle = stringResource(FeatureSettingsRes.string.settings_generation_subtitle),
-        onBack = onBack,
+        onNavigate = onBack,
+        isRootSetting = false,
         modifier = modifier,
     ) {
         item {

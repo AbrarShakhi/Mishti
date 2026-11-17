@@ -37,7 +37,8 @@ fun PerformanceSettingsScreen(
     SettingsScaffold(
         title = stringResource(FeatureSettingsRes.string.settings_performance),
         subtitle = stringResource(FeatureSettingsRes.string.settings_performance_subtitle),
-        onBack = onBack,
+        onNavigate = onBack,
+        isRootSetting = false,
         modifier = modifier,
     ) {
         item {

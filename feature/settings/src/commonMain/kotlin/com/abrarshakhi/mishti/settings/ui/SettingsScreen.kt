@@ -1,10 +1,6 @@
-@file:OptIn(
-    androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
-)
-
 package com.abrarshakhi.mishti.settings.ui
 
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
@@ -67,11 +63,12 @@ import org.jetbrains.compose.resources.stringResource
 import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignsystemRes
 import com.abrarshakhi.mishti.feature.settings.resources.Res as FeatureSettingsRes
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen(
     state: SettingsUiState,
     versionName: String,
-    onBack: () -> Unit,
+    onOpenDrawer: () -> Unit,
     onOpenModels: () -> Unit,
     onOpenAppearance: () -> Unit,
     onOpenChat: () -> Unit,
@@ -90,7 +87,8 @@ fun SettingsScreen(
     SettingsScaffold(
         title = stringResource(FeatureSettingsRes.string.settings_title),
         subtitle = stringResource(FeatureSettingsRes.string.settings_subtitle),
-        onBack = onBack,
+        onNavigate = onOpenDrawer,
+        isRootSetting = true,
         modifier = modifier,
     ) {
         item {
@@ -164,7 +162,12 @@ fun SettingsScreen(
                         leadingContent = { AppMark() },
                         trailingContent = { InternalLinkIcon() },
                         supportingContent = {
-                            Text(stringResource(FeatureSettingsRes.string.settings_version, versionName))
+                            Text(
+                                stringResource(
+                                    FeatureSettingsRes.string.settings_version,
+                                    versionName
+                                )
+                            )
                         },
                     ) {
                         Text(stringResource(FeatureSettingsRes.string.document_about))
@@ -263,6 +266,7 @@ fun SettingsScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CategoryRow(
     shapes: ListItemShapes,
@@ -277,7 +281,7 @@ private fun CategoryRow(
         onClick = onClick,
         shapes = shapes,
         leadingContent = { ShapedIcon(imageVector = icon, containerColor = iconColor) },
-        trailingContent = { if (external) ExternalLinkIcon() else InternalLinkIcon() },
+        trailingContent = { if (external) ExternalLinkIcon() },
         supportingContent = { Text(supporting) },
     ) {
         Text(title)
@@ -299,7 +303,10 @@ private fun ExternalLinkIcon() {
 
 @Composable
 private fun modelSummary(engineState: EngineState): String = when (engineState) {
-    is EngineState.Ready -> stringResource(FeatureSettingsRes.string.settings_model_ready, engineState.model.name)
+    is EngineState.Ready -> stringResource(
+        FeatureSettingsRes.string.settings_model_ready,
+        engineState.model.name
+    )
 
     is EngineState.Loading -> stringResource(
         FeatureSettingsRes.string.settings_model_loading,
@@ -322,7 +329,7 @@ private fun SettingsScreenPreview() {
                 ),
             ),
             versionName = "1.4 (4)",
-            onBack = {},
+            onOpenDrawer = {},
             onOpenModels = {},
             onOpenAppearance = {},
             onOpenChat = {},

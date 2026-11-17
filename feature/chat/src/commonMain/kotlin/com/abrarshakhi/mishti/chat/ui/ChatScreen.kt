@@ -31,6 +31,7 @@ fun ChatScreen(
                 scrollBehavior = scrollBehavior,
                 onOpenDrawer = onOpenDrawer,
                 onNewChat = onNewChat,
+                sessionTitle = state.title
             )
         },
     ) { innerPadding ->

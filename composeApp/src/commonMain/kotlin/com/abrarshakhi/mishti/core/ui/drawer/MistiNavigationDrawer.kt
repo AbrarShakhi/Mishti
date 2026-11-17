@@ -54,9 +54,9 @@ fun MishtiNavigationDrawer(content: @Composable () -> Unit) {
         when (effect) {
             is SessionsEffect.OpenSession -> {
                 navigator.resetTo(Screen.Chat(effect.sessionId))
-                scope.launch { drawerController.close() }
             }
         }
+        scope.launch { drawerController.close() }
     }
 
     LaunchedEffect(isOpen) {
@@ -65,22 +65,21 @@ fun MishtiNavigationDrawer(content: @Composable () -> Unit) {
     val navigationEventState = rememberNavigationEventState(currentInfo = NavigationEventInfo.None)
 
     fun navigate(screen: Screen) {
-        navigator.navigate(screen)
+        navigator.resetTo(screen)
         scope.launch { drawerController.close() }
     }
 
     DismissibleNavigationDrawer(
         drawerState = drawerController.state,
-        gesturesEnabled = currentScreen is Screen.Chat || isOpen,
+        gesturesEnabled = currentScreen is DrawerGestural || isOpen,
         drawerContent = {
-            AppDrawer(
+            DrawerContent(
                 state = state,
                 groups = groups,
                 currentSessionId = visibleSessionId,
                 onIntent = viewModel::onIntent,
                 onModelsClick = { navigate(Screen.Models) },
-                onSettingsClick = { navigate(Screen.Settings) },
-            )
+                onSettingsClick = { navigate(Screen.Settings) })
         },
         content = {
             content()

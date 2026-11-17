@@ -24,7 +24,9 @@ kotlin {
                 .toInt()
         compilerOptions { jvmTarget = JvmTarget.JVM_17 }
         withHostTest { isIncludeAndroidResources = true }
-        withDeviceTestBuilder { sourceSetTreeName = "test" }.configure { instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+        withDeviceTestBuilder { sourceSetTreeName = "test" }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
     sourceSets {
         commonMain.dependencies {
@@ -33,6 +35,7 @@ kotlin {
             api(libs.androidx.datastore)
             api(libs.androidx.datastore.preferences)
             api(libs.androidx.room.runtime)
+            api(libs.androidx.room.ktx)
             api(libs.androidx.sqlite.bundled)
             api(libs.okio)
             api(libs.koin.core)

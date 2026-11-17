@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abrarshakhi.mishti.core.designsystem.resources.chat_error_new
 import com.abrarshakhi.mishti.core.domain.chat.usecase.CreateNewSessionUseCase
@@ -18,7 +17,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignsystemRes
+import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignSystemRes
 
 @Composable
 fun ChatRoute(sessionId: String? = null) {
@@ -53,7 +52,7 @@ fun ChatRoute(sessionId: String? = null) {
                 } catch (e: CancellationException) {
                     throw e
                 } catch (_: Exception) {
-                    snackBarDispatcher.showError(CoreDesignsystemRes.string.chat_error_new)
+                    snackBarDispatcher.showError(CoreDesignSystemRes.string.chat_error_new)
                 }
             }
         },

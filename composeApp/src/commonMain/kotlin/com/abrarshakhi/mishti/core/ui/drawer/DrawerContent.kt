@@ -104,7 +104,7 @@ private val FadeLength = 32.dp
 private const val TopAnchorKey = "top"
 
 @Composable
-fun AppDrawer(
+fun DrawerContent(
     state: SessionsUiState,
     groups: List<SessionGroup>,
     currentSessionId: String?,
@@ -571,14 +571,14 @@ private fun DeleteDialog(session: ChatSession, onConfirm: () -> Unit, onDismiss:
 
 @Preview
 @Composable
-private fun AppDrawerPreview() {
+private fun DrawerContentPreview() {
     val now = currentTimeMillis()
     val sessions = listOf(
         ChatSession("1", "Running a model offline", now, now),
         ChatSession("2", "Dinner ideas", now - 86_400_000L, now - 86_400_000L),
     )
     MishtiTheme {
-        AppDrawer(
+        DrawerContent(
             state = SessionsUiState(sessions = sessions),
             groups = groupSessionsByRecency(sessions, now),
             currentSessionId = "1",

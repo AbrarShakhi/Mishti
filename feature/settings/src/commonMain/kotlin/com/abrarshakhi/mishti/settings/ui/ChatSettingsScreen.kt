@@ -55,7 +55,8 @@ fun ChatSettingsScreen(
     SettingsScaffold(
         title = stringResource(FeatureSettingsRes.string.settings_chat),
         subtitle = stringResource(FeatureSettingsRes.string.settings_chat_subtitle),
-        onBack = onBack,
+        onNavigate = onBack,
+        isRootSetting = false,
         modifier = modifier,
     ) {
         item {

@@ -87,7 +87,8 @@ fun AppearanceSettingsScreen(
     SettingsScaffold(
         title = stringResource(FeatureSettingsRes.string.settings_appearance),
         subtitle = stringResource(FeatureSettingsRes.string.settings_appearance_subtitle),
-        onBack = onBack,
+        onNavigate = onBack,
+        isRootSetting = false,
         modifier = modifier,
     ) {
         item {

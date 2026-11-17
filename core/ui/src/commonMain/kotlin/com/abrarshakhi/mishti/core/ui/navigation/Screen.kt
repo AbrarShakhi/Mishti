@@ -1,6 +1,7 @@
 package com.abrarshakhi.mishti.core.ui.navigation
 
 import com.abrarshakhi.mishti.core.domain.documents.AppDocument
+import com.abrarshakhi.mishti.core.ui.drawer.DrawerGestural
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,10 +13,10 @@ sealed interface Screen {
     data object Onboarding : Screen
 
     @Serializable
-    data class Chat(val sessionId: String? = null) : Screen
+    data class Chat(val sessionId: String? = null) : Screen, DrawerGestural
 
     @Serializable
-    data object Settings : Screen
+    data object Settings : Screen, DrawerGestural
 
     @Serializable
     data object AppearanceSettings : Screen
@@ -33,5 +34,5 @@ sealed interface Screen {
     data class Document(val document: AppDocument) : Screen
 
     @Serializable
-    data object Models : Screen
+    data object Models : Screen, DrawerGestural
 }

@@ -6,6 +6,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
+interface DrawerGestural
+
 class DrawerController {
 
     var activeSessionId: String? by mutableStateOf(null)

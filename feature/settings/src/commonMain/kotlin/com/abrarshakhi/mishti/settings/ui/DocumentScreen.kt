@@ -90,7 +90,8 @@ fun DocumentScreen(
     SettingsScaffold(
         title = stringResource(document.titleRes),
         subtitle = stringResource(document.subtitleRes),
-        onBack = onBack,
+        onNavigate = onBack,
+        isRootSetting = false,
         modifier = modifier,
     ) {
         item {

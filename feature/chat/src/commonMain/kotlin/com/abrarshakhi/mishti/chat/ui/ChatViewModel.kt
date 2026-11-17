@@ -16,6 +16,7 @@ import com.abrarshakhi.mishti.core.domain.llm.LlmRole
 import com.abrarshakhi.mishti.core.domain.llm.ReasoningSplit
 import com.abrarshakhi.mishti.core.domain.llm.splitReasoning
 import com.abrarshakhi.mishti.core.domain.preferences.AppPreferences
+import com.abrarshakhi.mishti.core.session.domain.ModelSelector
 import com.abrarshakhi.mishti.core.ui.mvi.MviViewModel
 import com.abrarshakhi.mishti.core.ui.utils.uiText
 import com.abrarshakhi.mishti.core.utils.currentTimeMillis
@@ -39,6 +40,7 @@ class ChatViewModel(
     private val repository: ChatRepository,
     private val engine: LlmEngine,
     private val preferences: AppPreferences,
+    private val modelSelector: ModelSelector? = null,
     private val clock: () -> Long = { currentTimeMillis() },
     private val newId: () -> String = { Uuid.random().toString() },
 ) : MviViewModel<ChatUiState, ChatIntent, ChatEffect>(ChatUiState()) {
@@ -52,18 +54,35 @@ class ChatViewModel(
             preferences.inferenceSettings.collect { settings = it }
         }
         viewModelScope.launch {
+            modelSelector?.availableModels?.collect { models ->
+                updateState {
+                    copy(
+                        availableModels = models,
+                        activeModelName = (engineState as? EngineState.Ready)?.model?.name
+                            ?: (engineState as? EngineState.Loading)?.model?.name
+                            ?: models.find { it.isSelected }?.name
+                            ?: activeModelName,
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
             combine(
                 engine.state,
                 preferences.thinkingModelIds,
                 ::Pair,
             ).collect { (engineState, thinkingIds) ->
                 val ready = engineState as? EngineState.Ready
+                val modelName = ready?.model?.name
+                    ?: (engineState as? EngineState.Loading)?.model?.name
+                    ?: currentState.availableModels.find { it.isSelected }?.name
                 updateState {
                     copy(
                         engineState = engineState,
                         canSend = draft.isNotBlank() && !isGenerating && engineState.isReady(),
                         thinkingSupported = ready?.supportsThinking == true,
                         thinkingEnabled = ready != null && ready.model.id in thinkingIds,
+                        activeModelName = modelName ?: activeModelName,
                     )
                 }
             }
@@ -105,6 +124,20 @@ class ChatViewModel(
             ChatIntent.SendClicked -> onSendClicked()
             ChatIntent.StopClicked -> onStopClicked()
             ChatIntent.ThinkingToggled -> onThinkingToggled()
+            is ChatIntent.ModelSelected -> onModelSelected(intent.modelId)
+        }
+    }
+
+    private fun onModelSelected(modelId: String) {
+        val selector = modelSelector ?: return
+        viewModelScope.launch {
+            try {
+                selector.selectModel(modelId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                emitEffect(ChatEffect.ShowError(uiText(CoreDesignSystemRes.string.settings_save_failed)))
+            }
         }
     }
 
@@ -218,11 +251,7 @@ class ChatViewModel(
         }
     }
 
-    private suspend fun persistReply(
-        sessionId: String,
-        reply: ReplyBuffer,
-        tokensPerSecond: Double?
-    ) {
+    private suspend fun persistReply(sessionId: String, reply: ReplyBuffer, tokensPerSecond: Double?) {
         val finished = reply.finish()
         val content = finished.answer.trim()
         val reasoning = finished.reasoning?.takeIf { it.isNotBlank() }

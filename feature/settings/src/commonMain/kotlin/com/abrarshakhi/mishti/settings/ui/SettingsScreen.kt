@@ -165,8 +165,8 @@ fun SettingsScreen(
                             Text(
                                 stringResource(
                                     FeatureSettingsRes.string.settings_version,
-                                    versionName
-                                )
+                                    versionName,
+                                ),
                             )
                         },
                     ) {
@@ -305,7 +305,7 @@ private fun ExternalLinkIcon() {
 private fun modelSummary(engineState: EngineState): String = when (engineState) {
     is EngineState.Ready -> stringResource(
         FeatureSettingsRes.string.settings_model_ready,
-        engineState.model.name
+        engineState.model.name,
     )
 
     is EngineState.Loading -> stringResource(

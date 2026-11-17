@@ -10,11 +10,14 @@ import com.abrarshakhi.mishti.core.domain.llm.LlmEngine
 import com.abrarshakhi.mishti.core.domain.llm.LlmMessage
 import com.abrarshakhi.mishti.core.domain.llm.LlmRole
 import com.abrarshakhi.mishti.core.domain.llm.ModelHandle
+import com.abrarshakhi.mishti.core.session.domain.ModelSelector
+import com.abrarshakhi.mishti.core.session.model.SelectableModel
 import com.abrarshakhi.mishti.core.testing.FakeAppPreferences
 import com.abrarshakhi.mishti.core.testing.FakeChatRepository
 import com.abrarshakhi.mishti.core.testing.ScriptedLlmEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
@@ -61,6 +64,27 @@ private class RecordingEngine(
     }
 }
 
+private class FakeModelSelector(initialModels: List<SelectableModel> = emptyList(), initialSelected: String? = null) :
+    ModelSelector {
+    private val _availableModels = MutableStateFlow(initialModels)
+    override val availableModels = _availableModels
+
+    private val _selectedModelId = MutableStateFlow(initialSelected)
+    override val selectedModelId = _selectedModelId
+
+    var lastSelectedModelId: String? = null
+        private set
+
+    override suspend fun selectModel(modelId: String?) {
+        lastSelectedModelId = modelId
+        _selectedModelId.value = modelId
+    }
+
+    fun setModels(models: List<SelectableModel>) {
+        _availableModels.value = models
+    }
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class ChatViewModelTest {
     @BeforeTest
@@ -86,11 +110,13 @@ class ChatViewModelTest {
         requestedSessionId: String? = null,
         engine: LlmEngine = engine(),
         preferences: FakeAppPreferences = FakeAppPreferences(),
+        modelSelector: ModelSelector? = null,
     ) = ChatViewModel(
         requestedSessionId = requestedSessionId,
         repository = repository,
         engine = engine,
         preferences = preferences,
+        modelSelector = modelSelector,
         clock = { 1_000L },
         newId = { "id-${nextId++}" },
     )
@@ -528,5 +554,31 @@ class ChatViewModelTest {
         assertTrue(state.messages.isEmpty())
         assertEquals("Hello", state.draft)
         assertTrue(state.canSend)
+    }
+
+    @Test
+    fun `available models are observed and populate state`() = runTest {
+        val testModels = listOf(
+            SelectableModel(id = "m1", name = "Model One", isSelected = true),
+            SelectableModel(id = "m2", name = "Model Two", isSelected = false),
+        )
+        val selector = FakeModelSelector(initialModels = testModels, initialSelected = "m1")
+        val vm = viewModel(modelSelector = selector)
+        advanceUntilIdle()
+
+        assertEquals(testModels, vm.state.value.availableModels)
+        assertEquals("Model One", vm.state.value.activeModelName)
+    }
+
+    @Test
+    fun `selecting a model delegates to model selector`() = runTest {
+        val selector = FakeModelSelector()
+        val vm = viewModel(modelSelector = selector)
+        advanceUntilIdle()
+
+        vm.onIntent(ChatIntent.ModelSelected("m2"))
+        advanceUntilIdle()
+
+        assertEquals("m2", selector.lastSelectedModelId)
     }
 }

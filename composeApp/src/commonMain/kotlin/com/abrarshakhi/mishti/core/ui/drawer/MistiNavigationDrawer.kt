@@ -79,7 +79,8 @@ fun MishtiNavigationDrawer(content: @Composable () -> Unit) {
                 currentSessionId = visibleSessionId,
                 onIntent = viewModel::onIntent,
                 onModelsClick = { navigate(Screen.Models) },
-                onSettingsClick = { navigate(Screen.Settings) })
+                onSettingsClick = { navigate(Screen.Settings) },
+            )
         },
         content = {
             content()

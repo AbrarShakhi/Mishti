@@ -5,14 +5,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     state: ChatUiState,
@@ -23,6 +30,8 @@ fun ChatScreen(
     modifier: Modifier = Modifier,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    var showAddSheet by rememberSaveable { mutableStateOf(false) }
+    var showModelSheet by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -31,7 +40,7 @@ fun ChatScreen(
                 scrollBehavior = scrollBehavior,
                 onOpenDrawer = onOpenDrawer,
                 onNewChat = onNewChat,
-                sessionTitle = state.title
+                sessionTitle = state.title,
             )
         },
     ) { innerPadding ->
@@ -39,7 +48,8 @@ fun ChatScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .consumeWindowInsets(innerPadding),
+                .consumeWindowInsets(innerPadding)
+                .imePadding(),
         ) {
             Crossfade(
                 targetState = ChatContent.of(state),
@@ -71,17 +81,35 @@ fun ChatScreen(
 
             ChatComposer(
                 draft = state.draft,
-                engineState = state.engineState,
                 canSend = state.canSend,
                 canStop = state.canStop,
-                thinkingSupported = state.thinkingSupported,
-                thinkingEnabled = state.thinkingEnabled,
+                activeModelName = state.activeModelName,
                 onDraftChange = { onIntent(ChatIntent.DraftChanged(it)) },
                 onSend = { onIntent(ChatIntent.SendClicked) },
                 onStop = { onIntent(ChatIntent.StopClicked) },
-                onThinkingToggle = { onIntent(ChatIntent.ThinkingToggled) },
+                onAddClick = { showAddSheet = true },
+                onModelClick = { showModelSheet = true },
+                onVoiceClick = { /* Standby for voice input */ },
             )
         }
+    }
+
+    if (showAddSheet) {
+        AddOptionsModalSheet(
+            thinkingSupported = state.thinkingSupported,
+            thinkingEnabled = state.thinkingEnabled,
+            onThinkingToggle = { onIntent(ChatIntent.ThinkingToggled) },
+            onDismiss = { showAddSheet = false },
+        )
+    }
+
+    if (showModelSheet) {
+        ModelSelectorModalSheet(
+            availableModels = state.availableModels,
+            onSelectModel = { onIntent(ChatIntent.ModelSelected(it)) },
+            onManageModels = onOpenModels,
+            onDismiss = { showModelSheet = false },
+        )
     }
 }
 

@@ -31,6 +31,9 @@ kotlin {
             api(project(":core:domain"))
             api(project(":core:ui"))
             implementation(project(":core:device"))
+            implementation(project(":core:storage"))
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose.viewmodel)
             implementation(libs.jetbrains.lifecycle.viewmodel.compose)
             implementation(libs.kotlinx.coroutines.core)
         }

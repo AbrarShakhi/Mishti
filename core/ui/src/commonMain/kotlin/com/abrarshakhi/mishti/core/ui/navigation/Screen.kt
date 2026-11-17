@@ -13,7 +13,9 @@ sealed interface Screen {
     data object Onboarding : Screen
 
     @Serializable
-    data class Chat(val sessionId: String? = null) : Screen, DrawerGestural
+    data class Chat(val sessionId: String? = null) :
+        Screen,
+        DrawerGestural
 
     @Serializable
     data object Settings : Screen, DrawerGestural

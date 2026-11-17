@@ -31,9 +31,11 @@ fun ModelsRoute() {
     LaunchedEffect(state.isLoading) {
         if (!state.isLoading && !initialPageChosen) {
             initialPageChosen = true
-            if (state.shelf.isEmpty() && state.transfers.isEmpty()) pagerState.scrollToPage(
-                BrowsePage
-            )
+            if (state.shelf.isEmpty() && state.transfers.isEmpty()) {
+                pagerState.scrollToPage(
+                    BrowsePage,
+                )
+            }
         }
     }
 

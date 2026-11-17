@@ -33,6 +33,15 @@
     <string name="chat_error_open">Could not open this conversation.</string>
     <string name="chat_error_send">Could not send that message.</string>
     <string name="chat_error_generation">Generation failed.</string>
+    <string name="chat_add_options_title">Chat Options</string>
+    <string name="chat_thinking_description">Step-by-step reasoning</string>
+    <string name="chat_thinking_unsupported">This model does not support reasoning</string>
+    <string name="chat_select_model_title">Select Model</string>
+    <string name="chat_no_model_selected">Choose Model</string>
+    <string name="chat_no_models_installed">No models installed on device</string>
+    <string name="chat_manage_models">Browse models</string>
+    <string name="chat_action_menu">Add option</string>
+    <string name="chat_action_voice">Voice input</string>
     <string-array name="chat_suggestions">
         <item>Explain how rainbows form</item>
         <item>Write a haiku about the monsoon</item>

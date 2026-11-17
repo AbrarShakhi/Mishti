@@ -16,6 +16,7 @@ val chatModule = module {
             repository = get(),
             engine = get(),
             preferences = get(),
+            modelSelector = get(),
         )
     }
     navigation<Screen.Chat> { screen ->

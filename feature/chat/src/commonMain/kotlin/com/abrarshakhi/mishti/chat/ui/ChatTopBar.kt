@@ -20,7 +20,7 @@ internal fun ChatTopBar(
     scrollBehavior: TopAppBarScrollBehavior,
     onOpenDrawer: () -> Unit,
     onNewChat: () -> Unit,
-    sessionTitle: String
+    sessionTitle: String,
 ) {
     TopAppBar(
         title = {

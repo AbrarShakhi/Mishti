@@ -2,6 +2,7 @@ package com.abrarshakhi.mishti.chat.ui
 
 import com.abrarshakhi.mishti.core.domain.chat.model.ChatMessage
 import com.abrarshakhi.mishti.core.domain.llm.EngineState
+import com.abrarshakhi.mishti.core.session.model.SelectableModel
 import com.abrarshakhi.mishti.core.ui.mvi.UiEffect
 import com.abrarshakhi.mishti.core.ui.mvi.UiIntent
 import com.abrarshakhi.mishti.core.ui.mvi.UiState
@@ -23,6 +24,8 @@ data class ChatUiState(
     val engineState: EngineState = EngineState.Idle,
     val thinkingSupported: Boolean = false,
     val thinkingEnabled: Boolean = false,
+    val availableModels: List<SelectableModel> = emptyList(),
+    val activeModelName: String? = null,
 ) : UiState
 
 sealed interface ChatIntent : UiIntent {
@@ -33,6 +36,8 @@ sealed interface ChatIntent : UiIntent {
     data object StopClicked : ChatIntent
 
     data object ThinkingToggled : ChatIntent
+
+    data class ModelSelected(val modelId: String) : ChatIntent
 }
 
 sealed interface ChatEffect : UiEffect {

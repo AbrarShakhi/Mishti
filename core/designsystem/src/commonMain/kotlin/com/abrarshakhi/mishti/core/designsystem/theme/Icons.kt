@@ -36,10 +36,12 @@ import com.phosphor.icons.filled.HandFistFill
 import com.phosphor.icons.filled.HeartFill
 import com.phosphor.icons.filled.LightbulbFill
 import com.phosphor.icons.filled.MagnifyingGlassFill
+import com.phosphor.icons.filled.MicrophoneFill
 import com.phosphor.icons.filled.MoonStarsFill
 import com.phosphor.icons.filled.PaintRollerFill
 import com.phosphor.icons.filled.PaperPlaneTiltFill
 import com.phosphor.icons.filled.PencilFill
+import com.phosphor.icons.filled.PlusFill
 import com.phosphor.icons.filled.SealWarningFill
 import com.phosphor.icons.filled.ShieldCheckFill
 import com.phosphor.icons.filled.ShuffleFill
@@ -78,10 +80,12 @@ import com.phosphor.icons.regular.HandFist
 import com.phosphor.icons.regular.Heart
 import com.phosphor.icons.regular.Lightbulb
 import com.phosphor.icons.regular.MagnifyingGlass
+import com.phosphor.icons.regular.Microphone
 import com.phosphor.icons.regular.MoonStars
 import com.phosphor.icons.regular.PaintRoller
 import com.phosphor.icons.regular.PaperPlaneTilt
 import com.phosphor.icons.regular.Pencil
+import com.phosphor.icons.regular.Plus
 import com.phosphor.icons.regular.SealWarning
 import com.phosphor.icons.regular.ShieldCheck
 import com.phosphor.icons.regular.Shuffle
@@ -117,6 +121,8 @@ data class ActionIcons(
     val autoBrightness: MishtiIcon,
     val lightTheme: MishtiIcon,
     val darkTheme: MishtiIcon,
+    val add: MishtiIcon,
+    val microphone: MishtiIcon
 )
 
 @Immutable
@@ -147,7 +153,11 @@ data class NavigationIcons(
 data class VisualIcons(val warning: MishtiIcon, val notOnline: MishtiIcon, val error: MishtiIcon)
 
 @Immutable
-data class MishtiIcons(val actions: ActionIcons, val navigation: NavigationIcons, val visuals: VisualIcons)
+data class MishtiIcons(
+    val actions: ActionIcons,
+    val navigation: NavigationIcons,
+    val visuals: VisualIcons
+)
 
 @Composable
 fun defaultMishtiIcons(): MishtiIcons = MishtiIcons(
@@ -187,6 +197,8 @@ fun defaultMishtiIcons(): MishtiIcons = MishtiIcons(
         autoBrightness = MishtiIcon(PhIcons.Filled.CircleHalfFill, PhIcons.Regular.CircleHalf),
         lightTheme = MishtiIcon(PhIcons.Filled.LightbulbFill, PhIcons.Regular.Lightbulb),
         darkTheme = MishtiIcon(PhIcons.Filled.MoonStarsFill, PhIcons.Regular.MoonStars),
+        add = MishtiIcon(PhIcons.Filled.PlusFill, PhIcons.Regular.Plus),
+        microphone = MishtiIcon(PhIcons.Filled.MicrophoneFill, PhIcons.Regular.Microphone)
     ),
     navigation = NavigationIcons(
         back = MishtiIcon(PhIcons.Filled.ArrowCircleLeftFill, PhIcons.Regular.ArrowCircleLeft),

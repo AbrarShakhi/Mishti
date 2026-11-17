@@ -1,6 +1,7 @@
 package com.abrarshakhi.mishti.core.di
 
 import com.abrarshakhi.mishti.chat.di.chatModule
+import com.abrarshakhi.mishti.core.session.di.sessionModule
 import com.abrarshakhi.mishti.core.storage.database.di.databaseModule
 import com.abrarshakhi.mishti.models.di.modelsModule
 import com.abrarshakhi.mishti.onboarding.di.onboardingModule
@@ -16,6 +17,7 @@ fun setupKoin(config: KoinAppDeclaration? = null) {
             composeAppModule,
             platformModule,
             databaseModule,
+            sessionModule,
             splashModule,
             onboardingModule,
             chatModule,

@@ -32,6 +32,7 @@ kotlin {
             implementation(project(":core:designsystem"))
             implementation(project(":core:ui"))
             implementation(project(":core:device"))
+            implementation(project(":core:session"))
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.compose.ui.tooling.preview)

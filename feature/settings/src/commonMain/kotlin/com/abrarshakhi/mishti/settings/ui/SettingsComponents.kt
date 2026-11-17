@@ -73,10 +73,11 @@ internal fun SettingsScaffold(
                 navigationIcon = {
                     IconButton(onClick = onNavigate, shapes = IconButtonDefaults.shapes()) {
                         Icon(
-                            if (isRootSetting)
+                            if (isRootSetting) {
                                 MaterialTheme.icons.navigation.menu.filled
-                            else
-                                MaterialTheme.icons.navigation.back.outline,
+                            } else {
+                                MaterialTheme.icons.navigation.back.outline
+                            },
                             contentDescription = stringResource(CoreDesignsystemRes.string.action_back),
                         )
                     }
@@ -200,8 +201,7 @@ internal data class SliderSpec(
     val steps: Int = 0,
 )
 
-internal fun IntRange.toFloatRange(): ClosedFloatingPointRange<Float> =
-    first.toFloat()..last.toFloat()
+internal fun IntRange.toFloatRange(): ClosedFloatingPointRange<Float> = first.toFloat()..last.toFloat()
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal fun SettingsGroupScope.sliderRow(spec: SliderSpec, onIntent: (SettingsIntent) -> Unit) {
@@ -215,7 +215,7 @@ internal fun SettingsGroupScope.sliderRow(spec: SliderSpec, onIntent: (SettingsI
 private fun SliderPanel(spec: SliderSpec, shapes: ListItemShapes, onCommit: (Float) -> Unit) {
     var value by remember(
         spec.value,
-        spec.range
+        spec.range,
     ) { mutableFloatStateOf(spec.value.coerceIn(spec.range)) }
 
     SettingsPanel(
@@ -253,12 +253,7 @@ internal fun ValueBadge(text: String, modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-internal fun RestoreDefaultsRow(
-    shapes: ListItemShapes,
-    defaults: String,
-    enabled: Boolean,
-    onClick: () -> Unit
-) {
+internal fun RestoreDefaultsRow(shapes: ListItemShapes, defaults: String, enabled: Boolean, onClick: () -> Unit) {
     SegmentedListItem(
         onClick = onClick,
         shapes = shapes,

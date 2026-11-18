@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img alt="Platform" src="https://img.shields.io/badge/platform-Android-3DDC84">
+  <img alt="Platforms" src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS-3DDC84">
   <img alt="Min SDK" src="https://img.shields.io/badge/minSdk-30%20(Android%2011)-blue">
   <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-2.4.20-7F52FF">
   <img alt="UI" src="https://img.shields.io/badge/UI-Jetpack%20Compose%20%C2%B7%20Material%203-4285F4">
@@ -13,9 +13,9 @@
 
 ---
 
-Mishti is a Compose Multiplatform offline chat app targeting Android and iOS. It downloads a small open-weights model to your device
-and runs it locally through [llama.cpp](https://github.com/ggml-org/llama.cpp), so conversations
-never leave the phone. After the model is downloaded, no network connection is needed to use it.
+Mishti is a Compose Multiplatform offline chat app for Android and iOS. It runs downloaded chat
+models on your device with [llama.cpp](https://github.com/ggml-org/llama.cpp). On supported devices,
+the bundled Whistle model turns speech into editable draft text offline.
 
 There is no account, no server and no telemetry.
 
@@ -47,12 +47,14 @@ Uncomment once the images are in place.
 
 ## Features
 
-- **Fully offline inference.** llama.cpp runs the model on the device's CPU through a JNI bridge.
-  Nothing is sent anywhere.
+- **Fully offline chat.** llama.cpp runs the chat model on the device's CPU after download.
 - **Conversations that persist.** Sessions and messages are stored in a local database, featuring
   rename, delete, and a conversation drawer functionality.
 - **Streaming replies.** Tokens appear dynamically as they are produced, and generation can be
   interrupted mid-reply, preserving the partial answer.
+- **Live dictation.** Tap the chat microphone to see words as you speak. Tap again to add the
+  transcript to your editable draft. Dictation uses Whistle on Android ARM64 and iOS and runs for
+  up to 30 seconds per recording.
 - **Toggleable thinking process.** Enables or disables model-supported reasoning or "thinking"
   outputs, allowing users to view or hide the model's step-by-step cognitive process depending on
   capability.
@@ -89,13 +91,12 @@ python3 tools/hub.py validate
 
 The script fills in the size, SHA-256, parameter count and context length from Hugging Face.
 
-Weights are fetched from Hugging Face. Each model carries its own upstream license, shown in the
-app: Llama 3.2 and Gemma, for example, have their own terms rather than an OSI license.
+Chat model weights are fetched from Hugging Face. Each chat model carries its own upstream license,
+shown in the app. The Whistle speech model is bundled with the app under Apache License 2.0.
 
 ## Requirements
 
-- Android 11 (API 30) or newer
-- `arm64-v8a` or `x86_64`
+- Android 11 (API 30) or newer on `arm64-v8a` or `x86_64`, or iOS 27.2 or newer
 - At least 3.2 GB of RAM reported by the system, and more for the larger models
 - Free storage for whichever models you download
 
@@ -133,6 +134,10 @@ Then:
 The first build compiles ggml and llama.cpp from source and takes a while. Debug builds are
 restricted to `arm64-v8a` to keep that cost down; release builds add `x86_64`.
 
+Builds fetch and verify the pinned Cactus runtime and Whistle model, then bundle the model so
+dictation works offline. To populate the build cache for all three native targets, run
+`./gradlew :core:speech:prepareWhistleArtifacts` with an internet connection.
+
 ## Building for iOS
 
 Use macOS with Xcode, a JDK compatible with the Gradle wrapper, and CMake 3.22.1 or newer available
@@ -145,6 +150,13 @@ bridge on both platforms; the scripted engine is confined to tests. The Gradle `
 task links the device and simulator frameworks; building and signing the iOS application itself
 requires Xcode. On other hosts, `:composeApp:compileIosMainKotlinMetadata` checks shared iOS metadata
 but does not validate native linking or Swift compilation.
+
+Mishti targets iOS 27.2 to support the published Whistle runtime. To build for an Apple Silicon
+simulator, run this on a Mac with a compatible Xcode and simulator SDK installed.
+
+```bash
+xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator build
+```
 
 Android keeps the native database path and reads the existing native DataStore preferences file.
 Early CMP preferences at their former path are retained when present. Exported database schemas and
@@ -165,6 +177,7 @@ source sets. There is no desktop target.
 | `:core:designsystem` | Theme, typography, palettes, fonts, shared icons and common text |
 | `:core:device` | Device capabilities and platform clock |
 | `:core:llm` | llama.cpp engine implementation and platform bridges |
+| `:core:speech` | Microphone capture and on-device Whistle dictation |
 | `:core:storage` | Room database, migrations, conversation persistence and DataStore |
 | `:core:ui` | Generic MVI, navigation, snackbars, Markdown and reusable components |
 | `:core:session` | Session list presentation, actions, grouping and title formatting |
@@ -201,7 +214,7 @@ Cross-module resource access uses explicit generated resource namespaces.
 | DI         | Koin 4.2                                     |
 | Storage    | Room 2.8, DataStore Preferences              |
 | Networking | Ktor 3.6                                     |
-| Inference  | llama.cpp (`b11577`) via JNI, NDK 28.2       |
+| Inference  | llama.cpp (`b11577`) for chat, Whistle and Cactus 4.0.0 for dictation |
 | Build      | AGP 9.4, Gradle 9.7, JVM 17 target           |
 
 ## Status
@@ -216,11 +229,11 @@ Mishti is usable but young. Known limitations, in the interest of not surprising
 
 ## Privacy
 
-Mishti has no accounts, analytics, ads or crash reporting, and the model runs on your phone, so your
-conversations are never sent anywhere. The app goes online only to fetch model catalogs (when you
-open Mishtir Bhandar) and to download models from Hugging Face. Its data is left out of Android
-backups and device transfers. The draft
-[Privacy Policy](docs/privacy-policy.md) lists every request and everything stored on the phone.
+Mishti has no accounts, analytics, ads or crash reporting. Chat and voice input are processed on
+your device. Dictation holds microphone audio in memory and saves the transcript in your
+conversation only when you send it. The app uses the network to fetch chat model catalogs and
+download chat models. The draft [Privacy Policy](docs/privacy-policy.md) covers microphone
+permission, storage and backups on both platforms.
 
 ## Documentation
 
@@ -230,8 +243,7 @@ documents and have not been reviewed by a lawyer.
 - [About Mishti](docs/about.md)
 - [Privacy Policy](docs/privacy-policy.md) (draft)
 - [Terms of Service](docs/terms-of-service.md) (draft)
-- [Credits](docs/credits.md): llama.cpp, the model catalogs, every library, typeface and model
-  license
+- [Credits](docs/credits.md) for Whistle, Cactus, llama.cpp, model catalogs, libraries and typefaces
 - [Contributing](CONTRIBUTING.md): report bugs, suggest models, translate, or send code
 
 These pages are also built into the Android and iOS apps (Settings → About). Keep their sources
@@ -243,13 +255,16 @@ needed. You can run `./gradlew :feature:settings:bundleDocs` to inspect the gene
 
 ## License
 
-Mishti is released under the [MIT License](LICENSE). Models you download keep their own licenses;
-see [Credits](docs/credits.md).
+Mishti's source code is released under the [MIT License](LICENSE). The bundled Whistle model and
+Cactus runtime are distributed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+Downloaded chat models keep their own licenses. See [Credits](docs/credits.md).
 
 ## Credits
 
 Mishti is built on [llama.cpp](https://github.com/ggml-org/llama.cpp) by Georgi Gerganov and
-contributors. Its second catalog comes
+contributors. Cactus Compute provides the [Whistle model](https://huggingface.co/Cactus-Compute/whistle)
+and the [Cactus runtime](https://huggingface.co/Cactus-Compute/cactus) for voice dictation.
+Mishti's second catalog comes
 from [PocketPal AI](https://github.com/a-ghorbani/pocketpal-ai)'s
 [pocketpal-device-rules](https://github.com/a-ghorbani/pocketpal-device-rules), fetched unmodified
 and never bundled. The typefaces (Inter, Lora, JetBrains Mono) are under the SIL Open Font License.

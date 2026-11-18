@@ -1,7 +1,7 @@
 # About Mishti
 
-**Mishti** (মিষ্টি) means *sweet* in Bengali. It is an Android app that runs a small language model
-entirely on your phone, so you can chat with an AI without sending a word anywhere.
+**Mishti** (মিষ্টি) means *sweet* in Bengali. It is an app for Android and iOS that runs a small
+language model on your phone. Chat and voice dictation are processed on your device.
 
 ## Why Mishti exists
 
@@ -12,8 +12,11 @@ and no telemetry.
 
 ## What it does
 
-- **Private chat.** Conversations are stored only on your phone, with a drawer to rename, revisit
+- **Private chat.** Conversations are stored on your device, with a drawer to rename, revisit
   and delete them. Replies stream in as they are written, and you can stop a reply mid-way.
+- **Offline dictation.** Tap the chat microphone to see words appear as you speak. Tap again to
+  add the transcript to your editable draft. The app includes the Whistle speech model from
+  Cactus Compute.
 - **Mishtir Bhandar, the sweet shop.** *Mishtir Bhandar* (মিষ্টির ভাণ্ডার) means a store of sweets. It
   is where models live:
     - **My shelf** holds the models you have downloaded or imported, and the one you are chatting
@@ -30,14 +33,15 @@ and no telemetry.
 
 ## Requirements
 
-- Android 11 or newer
-- An `arm64-v8a` or `x86_64` processor
+- Android 11 or newer with an `arm64-v8a` or `x86_64` processor, or iOS 27.2 or newer
+- Voice dictation is available on Android ARM64 and iOS
 - At least 3.2 GB of memory, and more for larger models
 - Free storage for the models you download
 
 ## Open source
 
-Mishti is free and open source under the [MIT License](../LICENSE).
+Mishti's source code is open source under the [MIT License](../LICENSE). Bundled third-party
+components, including Whistle and the Cactus runtime, have their own licenses.
 
 - Source code: <https://github.com/AbrarShakhi/Mishti>
 - Releases: <https://github.com/AbrarShakhi/Mishti/releases>

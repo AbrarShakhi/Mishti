@@ -4,16 +4,17 @@
 > describe how Mishti behaves. It has not been reviewed by a lawyer and is not a legal document.
 > It may change before Mishti is published on an app store.
 
-**Last updated:** 8 October 2026
+**Last updated:** 18 November 2026
 
-These terms apply when you use Mishti, the Android app published at
+These terms apply when you use Mishti for Android or iOS. The project is published at
 <https://github.com/AbrarShakhi/Mishti>. By installing or using Mishti, you agree to them.
 
 ## 1. The app
 
-Mishti is free, open-source software that runs language models on your phone. Its source code
-is released under the [MIT License](../LICENSE). Nothing in these terms limits the rights the MIT
-License gives you over the code.
+Mishti is free, open-source software that runs chat and speech models on your phone. Its source
+code is released under the [MIT License](../LICENSE). The bundled Whistle speech model and Cactus
+runtime are distributed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+Your rights to these components are governed by their respective licenses. See [Credits](credits.md).
 
 ## 2. AI output
 
@@ -23,10 +24,12 @@ License gives you over the code.
   advice. Check anything important with a reliable source.
 - You are responsible for how you use the replies and for anything you choose to share or act
   on.
+- Voice dictation can miss words or produce incorrect text. Check transcripts for accuracy before
+  sending or sharing them.
 
 ## 3. Models and catalogs
 
-- Models are made by third parties and downloaded from Hugging Face. **Each model has its own
+- Chat models are made by third parties and downloaded from Hugging Face. **Each model has its own
   license and usage terms** (for example the Llama 3.2 Community License or the Gemma Terms of
   Use), shown on the model's details in Mishtir Bhandar and on its Hugging Face page. By
   downloading a model you agree to follow its terms.
@@ -39,14 +42,15 @@ License gives you over the code.
 ## 4. Acceptable use
 
 Do not use Mishti to break the law, to harm others, or in ways that a model's license forbids.
+Follow applicable recording and consent laws when using voice dictation.
 
 ## 5. Your phone and your data
 
 Mishti stores conversations, settings and models on your phone, as described in the
 [Privacy Policy](privacy-policy.md). Models need large downloads, free storage and memory, and
-running them uses battery and can make your phone warm. Mishti's data is left out of Android
-backups and device transfers, so it cannot be restored if the app is removed or the phone is
-lost. You are responsible for your data charges.
+running them uses battery and can make your phone warm. Mishti excludes its data from Android
+backups and device transfers. On iOS, saved app data may be included in system backups according
+to your device settings. You are responsible for your data charges.
 
 ## 6. No warranty
 
@@ -56,8 +60,8 @@ fitness for a particular purpose and non-infringement, as set out in the MIT Lic
 ## 7. Limitation of liability
 
 To the fullest extent the law allows, the developer is not liable for any damages arising from
-using or being unable to use Mishti, its catalogs or the models it downloads, including lost
-data, inaccurate output, or costs of data use.
+using or being unable to use Mishti, including its catalogs, chat models and dictation. This
+includes lost data, inaccurate output and data charges.
 
 ## 8. Changes
 

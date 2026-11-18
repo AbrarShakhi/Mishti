@@ -5,7 +5,15 @@ Mishti stands on the work of many people. Thank you.
 ## Inference
 
 - **[llama.cpp](https://github.com/ggml-org/llama.cpp)** (`b11577`) by Georgi Gerganov and
-  contributors, including the ggml tensor library. MIT License. It runs every model in Mishti.
+  contributors, including the ggml tensor library. MIT License. It runs Mishti's chat models.
+- **Whistle** by Cactus Compute is the bundled speech-to-text model used for chat dictation.
+  Apache License 2.0. [Model and license](https://huggingface.co/Cactus-Compute/whistle)
+- **Cactus runtime 4.0.0** by Cactus Compute runs Whistle on the device. Apache License 2.0.
+  [Runtime and license](https://huggingface.co/Cactus-Compute/cactus)
+
+Mishti bundles the Apache License 2.0 text shipped with both artifacts.
+[Whistle license file](https://huggingface.co/Cactus-Compute/whistle/resolve/ad73f1468dd5203791e0cc81d31544c553563645/LICENSE) ·
+[Cactus runtime license file](https://huggingface.co/Cactus-Compute/cactus/resolve/1a028f5a3972b67dd8d8752f882113d475e7ec4c/releases/4.0.0/LICENSE)
 
 ## Model catalogs
 
@@ -17,8 +25,8 @@ Mishti stands on the work of many people. Thank you.
 
 ## Models in the Mishtir Bhandar catalog
 
-Model files are downloaded from Hugging Face and remain under their creators' licenses. Mishti does
-not ship any model inside the app.
+The chat models listed here are downloaded from Hugging Face and remain under their creators'
+licenses.
 
 | Model              | Made by      | Hugging Face file                                                                                                   | Licence                     |
 |--------------------|--------------|---------------------------------------------------------------------------------------------------------------------|-----------------------------|

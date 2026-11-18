@@ -4,19 +4,19 @@
 > describe how Mishti behaves. It has not been reviewed by a lawyer and is not a legal document.
 > It may change before Mishti is published on an app store.
 
-- **Last updated:** 8 October 2026
-- **App:** Mishti for Android (`com.abrarshakhi.mishti`)
+- **Last updated:** 18 November 2026
+- **App:** Mishti for Android and iOS
 - **Developer:** MD. Shakhiul Abrar
 
-Mishti is built so that your conversations stay on your phone. This policy explains exactly what the
-app stores, what it sends over the network, and why.
+Mishti processes conversations and voice input on your device. This policy explains what the app
+stores, what it sends over the network, and why.
 
 ## The short version
 
 - Mishti has **no accounts, no servers, no analytics, no advertising and no crash reporting**.
 - Mishti's data is **left out of Android backups and device transfers**.
-- The language model runs **on your phone**. Your messages and the model's replies are never sent
-  anywhere by Mishti.
+- Chat and dictation run **on your device**. Mishti processes microphone audio in memory, and
+  saves a transcript in your conversation history only when you send it as a message.
 - Mishti uses the network only to **download models and model catalogs**, and only when you open
   Mishtir Bhandar or start a download.
 
@@ -29,10 +29,20 @@ app stores, what it sends over the network, and why.
 | Model files you download or import                                                              | The app's private storage  | So the model can run offline                  |
 | Saved copies of the model catalogs                                                              | The app's private storage  | So the shop shows a list without a connection |
 
-This data stays in the app's private storage, which other apps cannot read. Mishti does not read
-your contacts, photos, location, microphone, camera or other files. When you import a model, Mishti
-reads only the file you pick in the system file picker, copies it into its own storage, and never
-changes or deletes the original.
+Mishti stores this data in its private app storage. When you import a model, Mishti reads the file
+you pick in the system file picker and copies it into its own storage, keeping the original intact.
+
+## Voice input and microphone access
+
+When you tap the microphone in chat, Mishti asks for microphone permission if needed. With
+permission, it records until you tap stop or the 30-second limit is reached. Leaving chat or
+putting the app in the background cancels the active recording. You can change microphone access
+in your device settings.
+
+The bundled Whistle model and Cactus runtime process microphone audio in memory on your device.
+Audio, live previews and the finished transcript stay on your device during dictation, which
+works offline. The transcript goes into your editable draft. Mishti saves it as part of your
+conversation only if you send the draft.
 
 ## What Mishti sends over the network
 
@@ -55,28 +65,33 @@ that answers them. Those services handle that information under their own polici
 - Hugging Face: <https://huggingface.co/privacy>
 - GitHub: <https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement>
 
-Once a model is downloaded, chatting needs no connection at all.
+Once a chat model is downloaded, chatting works offline. The speech model comes with the app,
+so dictation can also run offline from the first use.
 
-## Android backup and device transfer
+## Backups and device transfers
 
-Mishti opts out of Android backup. Its conversations, settings, models and saved catalogs are
-**not** included in Google Cloud backups, and they are **not** copied when you move to a new phone
-with Android's device-to-device transfer. Your data exists only on the phone where you created it,
-so uninstalling Mishti or losing the phone removes it permanently.
+On Android, Mishti excludes its conversations, settings, models and saved catalogs from cloud
+backups and device-to-device transfers.
+
+On iOS, your device backup settings determine whether saved app data, including conversations and
+settings, is included in iCloud or computer backups.
+[Apple's backup guide](https://support.apple.com/en-us/108771)
 
 ## Permissions
 
 | Permission                           | Why it is needed                                            |
 |--------------------------------------|-------------------------------------------------------------|
 | Internet                             | To download models and catalogs                             |
-| Foreground service (data sync)       | To keep a download or import running when you leave the app |
-| Notifications (Android 13 and later) | To show download and import progress; you can decline it    |
+| Foreground service (Android)         | To keep a download or import running when you leave the app |
+| Notifications (Android 13 and later) | To show download and import progress. You can decline it.   |
+| Microphone (optional)                | To turn speech into an editable chat draft on your device   |
 
 ## Deleting your data
 
 - Delete a single conversation from the conversation drawer (long-press, then Delete).
 - Delete a model from Mishtir Bhandar → My shelf.
-- Remove everything by clearing Mishti's storage in Android Settings, or by uninstalling the app.
+- Remove local app data by clearing Mishti's storage in Android Settings or by deleting the app.
+  Manage any existing iOS backups separately in your device or computer backup settings.
 
 Because Mishti has no servers, the developer holds no copy of your data and cannot access, export or
 delete it for you.

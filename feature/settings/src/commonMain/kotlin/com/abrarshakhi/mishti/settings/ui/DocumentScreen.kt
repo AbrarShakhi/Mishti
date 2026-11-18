@@ -1,8 +1,3 @@
-@file:OptIn(
-    androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
-)
-
 package com.abrarshakhi.mishti.settings.ui
 
 import androidx.compose.foundation.layout.Box
@@ -31,23 +26,13 @@ import com.abrarshakhi.mishti.core.designsystem.theme.MishtiTheme
 import com.abrarshakhi.mishti.core.designsystem.theme.Spacing
 import com.abrarshakhi.mishti.core.domain.documents.AppDocument
 import com.abrarshakhi.mishti.core.ui.components.MarkdownReply
-import com.abrarshakhi.mishti.feature.settings.resources.document_about
-import com.abrarshakhi.mishti.feature.settings.resources.document_about_subtitle
-import com.abrarshakhi.mishti.feature.settings.resources.document_contributing
-import com.abrarshakhi.mishti.feature.settings.resources.document_contributing_subtitle
-import com.abrarshakhi.mishti.feature.settings.resources.document_credits
-import com.abrarshakhi.mishti.feature.settings.resources.document_credits_subtitle
-import com.abrarshakhi.mishti.feature.settings.resources.document_draft_subtitle
 import com.abrarshakhi.mishti.feature.settings.resources.document_missing
-import com.abrarshakhi.mishti.feature.settings.resources.document_privacy
-import com.abrarshakhi.mishti.feature.settings.resources.document_terms
 import com.abrarshakhi.mishti.settings.domain.model.DocumentLink
 import com.abrarshakhi.mishti.settings.domain.model.resolveDocumentLink
 import com.abrarshakhi.mishti.settings.ui.components.SettingsScaffold
 import com.abrarshakhi.mishti.settings.ui.utils.subtitleRes
 import com.abrarshakhi.mishti.settings.ui.utils.titleRes
 import com.abrarshakhi.mishti.settings.ui.viewmodels.contracts.DocumentUiState
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignsystemRes
 import com.abrarshakhi.mishti.feature.settings.resources.Res as FeatureSettingsRes
@@ -111,7 +96,10 @@ fun DocumentScreen(
                         }
 
                         else -> CompositionLocalProvider(LocalUriHandler provides linkHandler) {
-                            MarkdownReply(markdown = state.markdown, modifier = Modifier.fillMaxWidth())
+                            MarkdownReply(
+                                markdown = state.markdown,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
                         }
                     }
                 }

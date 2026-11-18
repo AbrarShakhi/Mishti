@@ -1,15 +1,9 @@
 package com.abrarshakhi.mishti.settings.ui
 
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItemShapes
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedListItem
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.Preview
 import com.abrarshakhi.mishti.core.designsystem.resources.models_title
@@ -18,8 +12,6 @@ import com.abrarshakhi.mishti.core.designsystem.theme.icons
 import com.abrarshakhi.mishti.core.domain.documents.AppDocument
 import com.abrarshakhi.mishti.core.domain.llm.EngineState
 import com.abrarshakhi.mishti.core.domain.llm.ModelHandle
-import com.abrarshakhi.mishti.core.ui.components.AppMark
-import com.abrarshakhi.mishti.core.ui.components.ShapedIcon
 import com.abrarshakhi.mishti.feature.settings.resources.document_about
 import com.abrarshakhi.mishti.feature.settings.resources.document_contributing
 import com.abrarshakhi.mishti.feature.settings.resources.document_credits
@@ -33,11 +25,6 @@ import com.abrarshakhi.mishti.feature.settings.resources.settings_contribute_sub
 import com.abrarshakhi.mishti.feature.settings.resources.settings_credits_subtitle
 import com.abrarshakhi.mishti.feature.settings.resources.settings_generation
 import com.abrarshakhi.mishti.feature.settings.resources.settings_generation_subtitle
-import com.abrarshakhi.mishti.feature.settings.resources.settings_model_failed
-import com.abrarshakhi.mishti.feature.settings.resources.settings_model_idle
-import com.abrarshakhi.mishti.feature.settings.resources.settings_model_loading
-import com.abrarshakhi.mishti.feature.settings.resources.settings_model_ready
-import com.abrarshakhi.mishti.feature.settings.resources.settings_opens_browser
 import com.abrarshakhi.mishti.feature.settings.resources.settings_performance
 import com.abrarshakhi.mishti.feature.settings.resources.settings_performance_subtitle
 import com.abrarshakhi.mishti.feature.settings.resources.settings_privacy_subtitle
@@ -60,7 +47,6 @@ import com.abrarshakhi.mishti.feature.settings.resources.settings_title
 import com.abrarshakhi.mishti.feature.settings.resources.settings_version
 import com.abrarshakhi.mishti.settings.domain.model.ProjectLinks
 import com.abrarshakhi.mishti.settings.ui.components.CategoryRow
-import com.abrarshakhi.mishti.settings.ui.components.InternalLinkIcon
 import com.abrarshakhi.mishti.settings.ui.components.SettingsGroup
 import com.abrarshakhi.mishti.settings.ui.components.SettingsScaffold
 import com.abrarshakhi.mishti.settings.ui.components.modelSummary
@@ -162,22 +148,17 @@ fun SettingsScreen(
         item {
             SettingsGroup(title = stringResource(FeatureSettingsRes.string.settings_section_about)) {
                 row { shapes ->
-                    SegmentedListItem(
-                        onClick = { onOpenDocument(AppDocument.About) },
+                    CategoryRow(
                         shapes = shapes,
-                        leadingContent = { AppMark() },
-                        trailingContent = { InternalLinkIcon() },
-                        supportingContent = {
-                            Text(
-                                stringResource(
-                                    FeatureSettingsRes.string.settings_version,
-                                    versionName,
-                                ),
-                            )
-                        },
-                    ) {
-                        Text(stringResource(FeatureSettingsRes.string.document_about))
-                    }
+                        icon = MaterialTheme.icons.navigation.favorite.filled,
+                        iconColor = aboutColor,
+                        title = stringResource(FeatureSettingsRes.string.document_about),
+                        supporting = stringResource(
+                            FeatureSettingsRes.string.settings_version,
+                            versionName,
+                        ),
+                        onClick = { onOpenDocument(AppDocument.About) },
+                    )
                 }
                 row { shapes ->
                     CategoryRow(

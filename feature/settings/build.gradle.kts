@@ -58,6 +58,10 @@ kotlin {
     }
 }
 
+dependencies {
+    "androidRuntimeClasspath"(libs.compose.ui.tooling)
+}
+
 val generatedDocsDirectory = layout.buildDirectory.dir("generated/composeResources/documents")
 val bundleDocs =
     tasks.register<Sync>("bundleDocs") {

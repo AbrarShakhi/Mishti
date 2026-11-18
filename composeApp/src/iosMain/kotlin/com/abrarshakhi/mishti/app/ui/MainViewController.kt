@@ -1,5 +1,3 @@
-@file:Suppress("ktlint:standard:function-naming")
-
 package com.abrarshakhi.mishti.app.ui
 
 import androidx.compose.ui.window.ComposeUIViewController

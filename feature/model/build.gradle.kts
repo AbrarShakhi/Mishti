@@ -70,6 +70,10 @@ kotlin {
     }
 }
 
+dependencies {
+    "androidRuntimeClasspath"(libs.compose.ui.tooling)
+}
+
 compose.resources {
     generateResClass = always
     publicResClass = true

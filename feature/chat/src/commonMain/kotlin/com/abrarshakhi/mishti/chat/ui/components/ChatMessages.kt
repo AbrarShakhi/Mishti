@@ -43,6 +43,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -188,6 +189,7 @@ private fun UserMessage(
                     text = text,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.End,
                 )
             }
         }
@@ -272,7 +274,6 @@ private fun AssistantMessage(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MessageHeader(name: String, color: Color, createdAtMillis: Long?, edge: AccentEdge) {
     val time = createdAtMillis?.let { rememberMessageTime(it) }
@@ -331,7 +332,10 @@ private fun MessageActions(text: String, tokensPerSecond: Double?, modifier: Mod
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (text.isNotBlank()) {
-            CopyButton(text = text, contentDescription = stringResource(FeatureChatRes.string.chat_copy_reply))
+            CopyButton(
+                text = text,
+                contentDescription = stringResource(FeatureChatRes.string.chat_copy_reply),
+            )
         }
 
         if (tokensPerSecond != null) {

@@ -34,8 +34,8 @@ android {
                 .get()
                 .toInt()
 
-        versionCode = 5
-        versionName = "1.2.0-beta.1"
+        versionCode = 6
+        versionName = "1.2"
 
         externalNativeBuild {
             cmake {

@@ -1,6 +1,6 @@
 package com.abrarshakhi.mishti.onboarding.di
 
-import com.abrarshakhi.mishti.core.ui.navigation.Screen
+import com.abrarshakhi.mishti.core.ui.utils.Screen
 import com.abrarshakhi.mishti.onboarding.ui.OnboardingRoute
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module

@@ -1,0 +1,437 @@
+package com.abrarshakhi.mishti.chat.ui.viewmodels
+
+import androidx.lifecycle.viewModelScope
+import com.abrarshakhi.mishti.chat.ui.viewmodels.contracts.ChatEffect
+import com.abrarshakhi.mishti.chat.ui.viewmodels.contracts.ChatIntent
+import com.abrarshakhi.mishti.chat.ui.viewmodels.contracts.ChatUiState
+import com.abrarshakhi.mishti.chat.ui.viewmodels.contracts.VoiceInput
+import com.abrarshakhi.mishti.core.designsystem.resources.settings_save_failed
+import com.abrarshakhi.mishti.core.domain.chat.model.ChatMessage
+import com.abrarshakhi.mishti.core.domain.chat.model.MessageAuthor
+import com.abrarshakhi.mishti.core.domain.chat.model.UNTITLED_SESSION
+import com.abrarshakhi.mishti.core.domain.chat.repository.ChatRepository
+import com.abrarshakhi.mishti.core.domain.llm.EngineState
+import com.abrarshakhi.mishti.core.domain.llm.GenerationEvent
+import com.abrarshakhi.mishti.core.domain.llm.GenerationParams
+import com.abrarshakhi.mishti.core.domain.llm.InferenceSettings
+import com.abrarshakhi.mishti.core.domain.llm.LlmEngine
+import com.abrarshakhi.mishti.core.domain.llm.LlmMessage
+import com.abrarshakhi.mishti.core.domain.llm.LlmRole
+import com.abrarshakhi.mishti.core.domain.llm.ReasoningSplit
+import com.abrarshakhi.mishti.core.domain.llm.splitReasoning
+import com.abrarshakhi.mishti.core.domain.preferences.AppPreferences
+import com.abrarshakhi.mishti.core.session.domain.ModelSelector
+import com.abrarshakhi.mishti.core.speech.SpeechError
+import com.abrarshakhi.mishti.core.speech.SpeechEvent
+import com.abrarshakhi.mishti.core.speech.SpeechRecognizer
+import com.abrarshakhi.mishti.core.speech.SpeechSession
+import com.abrarshakhi.mishti.core.ui.utils.uiText
+import com.abrarshakhi.mishti.core.ui.viewmodels.MviViewModel
+import com.abrarshakhi.mishti.core.utils.currentTimeMillis
+import com.abrarshakhi.mishti.feature.chat.resources.chat_error_generation
+import com.abrarshakhi.mishti.feature.chat.resources.chat_error_open
+import com.abrarshakhi.mishti.feature.chat.resources.chat_error_send
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_error_microphone
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_error_permission
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_error_recognition
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_no_speech
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.uuid.Uuid
+import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignSystemRes
+import com.abrarshakhi.mishti.feature.chat.resources.Res as FeatureChatRes
+
+class ChatViewModel(
+    private val requestedSessionId: String?,
+    private val repository: ChatRepository,
+    private val engine: LlmEngine,
+    private val preferences: AppPreferences,
+    private val speechRecognizer: SpeechRecognizer,
+    private val modelSelector: ModelSelector? = null,
+    private val clock: () -> Long = { currentTimeMillis() },
+    private val newId: () -> String = { Uuid.random().toString() },
+) : MviViewModel<ChatUiState, ChatIntent, ChatEffect>(
+    ChatUiState(voiceInput = if (speechRecognizer.isSupported) VoiceInput.Idle else VoiceInput.Unavailable),
+) {
+
+    private var settings: InferenceSettings = InferenceSettings()
+    private var generationJob: Job? = null
+    private var speechSession: SpeechSession? = null
+    private var speechJob: Job? = null
+
+    init {
+        viewModelScope.launch { openSession() }
+        viewModelScope.launch {
+            preferences.inferenceSettings.collect { settings = it }
+        }
+        viewModelScope.launch {
+            modelSelector?.availableModels?.collect { models ->
+                updateState {
+                    copy(
+                        availableModels = models,
+                        activeModelName = (engineState as? EngineState.Ready)?.model?.name
+                            ?: (engineState as? EngineState.Loading)?.model?.name
+                            ?: models.find { it.isSelected }?.name
+                            ?: activeModelName,
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
+            combine(
+                engine.state,
+                preferences.thinkingModelIds,
+                ::Pair,
+            ).collect { (engineState, thinkingIds) ->
+                val ready = engineState as? EngineState.Ready
+                val modelName = ready?.model?.name
+                    ?: (engineState as? EngineState.Loading)?.model?.name
+                    ?: currentState.availableModels.find { it.isSelected }?.name
+                updateState {
+                    copy(
+                        engineState = engineState,
+                        canSend = draft.isNotBlank() && !isGenerating && engineState.isReady(),
+                        thinkingSupported = ready?.supportsThinking == true,
+                        thinkingEnabled = ready != null && ready.model.id in thinkingIds,
+                        activeModelName = modelName ?: activeModelName,
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun openSession() {
+        val sessionId = try {
+            requestedSessionId ?: repository.latestSessionId() ?: repository.createSession(
+                UNTITLED_SESSION,
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            updateState { copy(isLoading = false) }
+            emitEffect(ChatEffect.ShowError(uiText(FeatureChatRes.string.chat_error_open)))
+            return
+        }
+
+        updateState { copy(sessionId = sessionId) }
+
+        viewModelScope.launch { observeTitle(sessionId) }
+
+        repository.observeMessages(sessionId).collect { messages ->
+            updateState { copy(messages = messages, isLoading = false) }
+        }
+    }
+
+    private suspend fun observeTitle(sessionId: String) {
+        repository.observeSessions()
+            .map { sessions -> sessions.firstOrNull { it.id == sessionId }?.title.orEmpty() }
+            .distinctUntilChanged()
+            .collect { title -> updateState { copy(title = title) } }
+    }
+
+    override fun handleIntent(intent: ChatIntent) {
+        when (intent) {
+            is ChatIntent.DraftChanged -> onDraftChanged(intent.text)
+            ChatIntent.SendClicked -> onSendClicked()
+            ChatIntent.StopClicked -> onStopClicked()
+            ChatIntent.VoiceClicked -> onVoiceClicked()
+            is ChatIntent.VoicePermissionResult -> onVoicePermissionResult(intent.granted)
+            ChatIntent.VoiceCancelled -> cancelVoiceInput()
+            ChatIntent.ThinkingToggled -> onThinkingToggled()
+            is ChatIntent.ModelSelected -> onModelSelected(intent.modelId)
+        }
+    }
+
+    private fun onVoiceClicked() {
+        when (currentState.voiceInput) {
+            VoiceInput.Idle -> {
+                updateState { copy(voiceInput = VoiceInput.RequestingPermission) }
+                emitEffect(ChatEffect.RequestMicrophonePermission)
+            }
+
+            VoiceInput.Preparing, VoiceInput.Listening -> {
+                updateState { copy(voiceInput = VoiceInput.Finishing) }
+                speechSession?.stop()
+            }
+
+            else -> Unit
+        }
+    }
+
+    private fun onVoicePermissionResult(granted: Boolean) {
+        if (currentState.voiceInput != VoiceInput.RequestingPermission) return
+        if (!granted) {
+            updateState { copy(voiceInput = VoiceInput.Idle) }
+            emitEffect(ChatEffect.ShowError(uiText(FeatureChatRes.string.chat_voice_error_permission)))
+            return
+        }
+
+        val session = speechRecognizer.start()
+        speechSession = session
+        updateState { copy(voiceInput = VoiceInput.Preparing) }
+        speechJob = viewModelScope.launch {
+            try {
+                session.events.collect { event ->
+                    if (speechSession === session) handleSpeechEvent(event)
+                }
+            } finally {
+                if (speechSession === session) {
+                    speechSession = null
+                    updateState { copy(voiceInput = VoiceInput.Idle, voicePreview = "") }
+                }
+            }
+        }
+    }
+
+    private fun handleSpeechEvent(event: SpeechEvent) {
+        when (event) {
+            SpeechEvent.Listening -> updateState {
+                if (voiceInput == VoiceInput.Preparing) copy(voiceInput = VoiceInput.Listening) else this
+            }
+
+            is SpeechEvent.Preview -> updateState { copy(voicePreview = event.text) }
+
+            is SpeechEvent.Final -> {
+                val draft = currentState.draft
+                val separator = if (draft.isEmpty() || draft.last().isWhitespace()) "" else " "
+                onDraftChanged(draft + separator + event.text)
+            }
+
+            is SpeechEvent.Failed -> {
+                val message = when (event.error) {
+                    SpeechError.Microphone -> FeatureChatRes.string.chat_voice_error_microphone
+                    SpeechError.Recognition -> FeatureChatRes.string.chat_voice_error_recognition
+                    SpeechError.NoSpeech -> FeatureChatRes.string.chat_voice_no_speech
+                }
+                emitEffect(ChatEffect.ShowError(uiText(message)))
+            }
+        }
+    }
+
+    private fun cancelVoiceInput() {
+        if (!currentState.voiceInput.isActive) return
+        speechSession = null
+        speechJob?.cancel()
+        speechJob = null
+        updateState { copy(voiceInput = VoiceInput.Idle, voicePreview = "") }
+    }
+
+    private fun onModelSelected(modelId: String) {
+        val selector = modelSelector ?: return
+        viewModelScope.launch {
+            try {
+                selector.selectModel(modelId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                emitEffect(ChatEffect.ShowError(uiText(CoreDesignSystemRes.string.settings_save_failed)))
+            }
+        }
+    }
+
+    private fun onDraftChanged(text: String) = updateState {
+        copy(draft = text, canSend = text.isNotBlank() && !isGenerating && engineState.isReady())
+    }
+
+    private fun onSendClicked() {
+        if (!currentState.canSend || currentState.voiceInput.isActive) return
+        val sessionId = currentState.sessionId ?: return
+
+        val message = ChatMessage(
+            id = newId(),
+            author = MessageAuthor.User,
+            content = currentState.draft.trim(),
+            createdAtMillis = clock(),
+        )
+
+        val history = currentState.messages + message
+
+        updateState { copy(draft = "", canSend = false) }
+
+        viewModelScope.launch {
+            try {
+                repository.appendMessage(sessionId, message)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                updateState { copy(draft = message.content, canSend = true) }
+                emitEffect(ChatEffect.ShowError(uiText(FeatureChatRes.string.chat_error_send)))
+                return@launch
+            }
+            generateReply(sessionId, history)
+        }
+    }
+
+    private fun onStopClicked() {
+        generationJob?.cancel()
+    }
+
+    private fun onThinkingToggled() {
+        val ready = currentState.engineState as? EngineState.Ready ?: return
+        if (!ready.supportsThinking) return
+        val enabled = !currentState.thinkingEnabled
+        viewModelScope.launch {
+            try {
+                preferences.setThinking(ready.model.id, enabled)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                emitEffect(ChatEffect.ShowError(uiText(CoreDesignSystemRes.string.settings_save_failed)))
+            }
+        }
+    }
+
+    private fun generateReply(sessionId: String, history: List<ChatMessage>) {
+        val splitsReasoning = currentState.thinkingSupported
+        val thinking = splitsReasoning && currentState.thinkingEnabled
+        generationJob = viewModelScope.launch {
+            val reply = ReplyBuffer(splitsReasoning, clock)
+            updateState {
+                copy(
+                    isGenerating = true,
+                    canStop = true,
+                    streamingResponse = "",
+                    streamingReasoning = null,
+                    isReasoning = false,
+                    reasoningMillis = null,
+                )
+            }
+
+            var throughput: Double? = null
+            try {
+                val prompt = buildList {
+                    val instruction = settings.systemPrompt.trim()
+                    if (instruction.isNotEmpty()) {
+                        add(LlmMessage(LlmRole.System, instruction))
+                    }
+                    addAll(history.filter { it.content.isNotBlank() }.map { it.toLlmMessage() })
+                }
+
+                engine.generate(prompt, settings.generation.withThinking(thinking))
+                    .collect { event ->
+                        when (event) {
+                            is GenerationEvent.Token -> {
+                                val split = reply.append(event.text)
+                                updateState {
+                                    copy(
+                                        streamingResponse = split.answer,
+                                        streamingReasoning = split.reasoning,
+                                        isReasoning = split.isReasoning,
+                                        reasoningMillis = reply.reasoningMillis,
+                                    )
+                                }
+                            }
+
+                            is GenerationEvent.Completed -> {
+                                throughput = event.tokensPerSecond()
+                            }
+                        }
+                    }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                emitEffect(ChatEffect.ShowError(uiText(FeatureChatRes.string.chat_error_generation)))
+            } finally {
+                withContext(NonCancellable) {
+                    persistReply(sessionId, reply, throughput)
+                }
+            }
+        }
+    }
+
+    private suspend fun persistReply(sessionId: String, reply: ReplyBuffer, tokensPerSecond: Double?) {
+        val finished = reply.finish()
+        val content = finished.answer.trim()
+        val reasoning = finished.reasoning?.takeIf { it.isNotBlank() }
+        if (content.isNotEmpty() || reasoning != null) {
+            val message = ChatMessage(
+                id = newId(),
+                author = MessageAuthor.Assistant,
+                content = content,
+                createdAtMillis = clock(),
+                tokensPerSecond = tokensPerSecond,
+                reasoning = reasoning,
+                reasoningMillis = reply.reasoningMillis.takeIf { reasoning != null },
+            )
+            runCatching { repository.appendMessage(sessionId, message) }
+        }
+        updateState {
+            copy(
+                streamingResponse = "",
+                streamingReasoning = null,
+                isReasoning = false,
+                reasoningMillis = null,
+                isGenerating = false,
+                canStop = false,
+                canSend = draft.isNotBlank() && engineState.isReady(),
+            )
+        }
+    }
+}
+
+private class ReplyBuffer(private val splitsReasoning: Boolean, private val clock: () -> Long) {
+    private val raw = StringBuilder()
+    private var firstTokenAtMillis: Long? = null
+
+    var reasoningMillis: Long? = null
+        private set
+
+    fun append(piece: String): ReasoningSplit {
+        if (firstTokenAtMillis == null) firstTokenAtMillis = clock()
+        raw.append(piece)
+        val split = split(complete = false)
+        if (reasoningMillis == null && split.reasoning != null && !split.isReasoning) {
+            reasoningMillis = elapsedMillis()
+        }
+        return split
+    }
+
+    fun finish(): ReasoningSplit {
+        val split = split(complete = true)
+        if (reasoningMillis == null && split.reasoning != null) reasoningMillis = elapsedMillis()
+        return split
+    }
+
+    private fun split(complete: Boolean): ReasoningSplit = if (splitsReasoning) {
+        splitReasoning(raw.toString(), complete)
+    } else {
+        ReasoningSplit(reasoning = null, answer = raw.toString(), isReasoning = false)
+    }
+
+    private fun elapsedMillis(): Long? = firstTokenAtMillis?.let { clock() - it }
+}
+
+private const val ThinkingTokenFactor = 2
+
+private fun GenerationParams.withThinking(enabled: Boolean) = if (enabled) {
+    copy(
+        thinking = true,
+        maxTokens = maxTokens * ThinkingTokenFactor,
+    )
+} else {
+    this
+}
+
+private fun EngineState.isReady() = this is EngineState.Ready
+
+private fun GenerationEvent.Completed.tokensPerSecond(): Double? = if (durationMillis > 0 &&
+    tokenCount > 0
+) {
+    tokenCount * 1000.0 / durationMillis
+} else {
+    null
+}
+
+private fun ChatMessage.toLlmMessage() = LlmMessage(
+    role = when (author) {
+        MessageAuthor.User -> LlmRole.User
+        MessageAuthor.Assistant -> LlmRole.Assistant
+    },
+    content = content,
+)

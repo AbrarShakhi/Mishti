@@ -54,6 +54,22 @@ class ModuleArchitectureTest {
     }
 
     @Test
+    fun `authored Kotlin files match their package directories`() {
+        val packageDeclaration = Regex("""(?m)^package[ \t]+(\S+)""")
+        for (module in modules.keys) {
+            val modulePath = module.drop(1).replace(':', '/')
+            for (sourceSet in root.resolve("$modulePath/src").listFiles().orEmpty()) {
+                val kotlinRoot = sourceSet.resolve("kotlin")
+                for (file in kotlinRoot.walkTopDown().filter { it.isFile && it.extension == "kt" }) {
+                    val expected = file.parentFile.relativeTo(kotlinRoot).path.replace(File.separatorChar, '.')
+                    val actual = packageDeclaration.find(file.readText())?.groupValues?.get(1)
+                    assertEquals(expected, actual, file.relativeTo(root).path)
+                }
+            }
+        }
+    }
+
+    @Test
     fun `fonts animations and documents have separate resource owners`() {
         val resources = modules.keys.associateWith { module ->
             root.resolve("${module.drop(1).replace(':', '/')}/src/commonMain/composeResources")

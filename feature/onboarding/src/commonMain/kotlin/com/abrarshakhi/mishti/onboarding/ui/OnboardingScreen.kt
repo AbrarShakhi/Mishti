@@ -62,13 +62,16 @@ import com.abrarshakhi.mishti.feature.onboarding.resources.onboarding_personaliz
 import com.abrarshakhi.mishti.feature.onboarding.resources.onboarding_private_body
 import com.abrarshakhi.mishti.feature.onboarding.resources.onboarding_private_title
 import com.abrarshakhi.mishti.feature.onboarding.resources.onboarding_skip
+import com.abrarshakhi.mishti.onboarding.ui.components.OnboardingPage
+import com.abrarshakhi.mishti.onboarding.ui.components.PageContent
+import com.abrarshakhi.mishti.onboarding.ui.components.PageIndicator
+import com.abrarshakhi.mishti.onboarding.ui.components.SkipButton
+import com.abrarshakhi.mishti.onboarding.ui.utils.offsetOf
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.absoluteValue
 import com.abrarshakhi.mishti.feature.onboarding.resources.Res as FeatureOnboardingRes
-
-private data class OnboardingPage(val animationPath: String, val title: StringResource, val body: StringResource)
 
 private val Pages = listOf(
     OnboardingPage(
@@ -87,8 +90,6 @@ private val Pages = listOf(
         body = FeatureOnboardingRes.string.onboarding_personalize_body,
     ),
 )
-
-private const val ArtParallax = 0.3f
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -194,89 +195,6 @@ fun OnboardingScreen(onContinue: () -> Unit, modifier: Modifier = Modifier) {
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun SkipButton(visible: Boolean, onClick: () -> Unit) {
-    AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
-        TextButton(onClick = onClick) { Text(stringResource(FeatureOnboardingRes.string.onboarding_skip)) }
-    }
-}
-
-private fun PagerState.offsetOf(page: Int): Float = (currentPage - page) + currentPageOffsetFraction
-
-@Composable
-private fun PageContent(page: OnboardingPage, isActive: Boolean, offset: Float) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = Spacing.ExtraExtraLarge),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        OnboardingAnimation(
-            animationPath = page.animationPath,
-            isActive = isActive,
-            modifier = Modifier
-                .weight(1f, fill = false)
-                .widthIn(max = 360.dp)
-                .aspectRatio(1f, matchHeightConstraintsFirst = true)
-                .graphicsLayer { translationX = offset * size.width * ArtParallax },
-        )
-        Spacer(Modifier.height(Spacing.ExtraLarge))
-        Text(
-            text = stringResource(page.title),
-            style = MaterialTheme.typography.headlineMediumEmphasized,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.graphicsLayer { alpha = 1f - offset.absoluteValue },
-        )
-        Spacer(Modifier.height(Spacing.Medium))
-        Text(
-            text = stringResource(page.body),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .widthIn(max = 420.dp)
-                .graphicsLayer { alpha = 1f - offset.absoluteValue },
-        )
-    }
-}
-
-@Composable
-private fun PageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier = Modifier) {
-    val pageDescription = stringResource(FeatureOnboardingRes.string.onboarding_page, currentPage + 1, pageCount)
-    Row(
-        modifier = modifier.clearAndSetSemantics {
-            contentDescription = pageDescription
-        },
-        horizontalArrangement = Arrangement.spacedBy(Spacing.Small),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        repeat(pageCount) { index ->
-            val selected = index == currentPage
-            val width by animateDpAsState(
-                targetValue = if (selected) 24.dp else 8.dp,
-                animationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
-                label = "IndicatorWidth",
-            )
-            val color by animateColorAsState(
-                targetValue = if (selected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.outlineVariant
-                },
-                animationSpec = MaterialTheme.motionScheme.defaultEffectsSpec(),
-                label = "IndicatorColor",
-            )
-            Box(
-                modifier = Modifier
-                    .size(width = width, height = 8.dp)
-                    .background(color, CircleShape),
-            )
         }
     }
 }

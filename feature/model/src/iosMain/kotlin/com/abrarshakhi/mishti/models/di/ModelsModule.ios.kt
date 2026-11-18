@@ -1,11 +1,11 @@
 package com.abrarshakhi.mishti.models.di
 
 import com.abrarshakhi.mishti.core.device.DeviceCapabilityProvider
-import com.abrarshakhi.mishti.models.data.DownloadNotifier
-import com.abrarshakhi.mishti.models.data.IosModelImportSource
-import com.abrarshakhi.mishti.models.data.ModelImportSource
 import com.abrarshakhi.mishti.models.data.catalog.DeviceProfile
 import com.abrarshakhi.mishti.models.data.catalog.DeviceProfileProvider
+import com.abrarshakhi.mishti.models.data.download.DownloadNotifier
+import com.abrarshakhi.mishti.models.data.importing.IosModelImportSource
+import com.abrarshakhi.mishti.models.data.importing.ModelImportSource
 import kotlinx.cinterop.ExperimentalForeignApi
 import okio.FileSystem
 import okio.Path.Companion.toPath

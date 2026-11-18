@@ -1,8 +1,8 @@
 package com.abrarshakhi.mishti.chat.di
 
 import com.abrarshakhi.mishti.chat.ui.ChatRoute
-import com.abrarshakhi.mishti.chat.ui.ChatViewModel
-import com.abrarshakhi.mishti.core.ui.navigation.Screen
+import com.abrarshakhi.mishti.chat.ui.viewmodels.ChatViewModel
+import com.abrarshakhi.mishti.core.ui.utils.Screen
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module

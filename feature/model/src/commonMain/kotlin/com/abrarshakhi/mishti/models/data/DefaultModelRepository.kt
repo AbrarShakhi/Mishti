@@ -4,7 +4,12 @@ import com.abrarshakhi.mishti.core.domain.preferences.AppPreferences
 import com.abrarshakhi.mishti.core.storage.models.InstalledModelDao
 import com.abrarshakhi.mishti.core.storage.models.InstalledModelEntity
 import com.abrarshakhi.mishti.core.utils.currentTimeMillis
+import com.abrarshakhi.mishti.models.data.download.DownloadNotifier
+import com.abrarshakhi.mishti.models.data.download.DownloadProgress
+import com.abrarshakhi.mishti.models.data.download.DownloadRequest
+import com.abrarshakhi.mishti.models.data.download.ModelDownloader
 import com.abrarshakhi.mishti.models.data.gguf.GgufReader
+import com.abrarshakhi.mishti.models.data.importing.ModelImporter
 import com.abrarshakhi.mishti.models.data.mapper.toDomain
 import com.abrarshakhi.mishti.models.domain.model.CatalogModel
 import com.abrarshakhi.mishti.models.domain.model.ModelOrigin
@@ -151,7 +156,7 @@ class DefaultModelRepository(
                 throw error
             } catch (error: Exception) {
                 val problem = when (error) {
-                    is DownloadFailure -> error.error
+                    is ModelTransferFailure -> error.error
                     is IOException -> TransferError.Network
                     else -> TransferError.Unknown
                 }

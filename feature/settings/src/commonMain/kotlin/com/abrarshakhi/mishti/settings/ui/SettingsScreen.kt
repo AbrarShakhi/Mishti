@@ -59,6 +59,12 @@ import com.abrarshakhi.mishti.feature.settings.resources.settings_terms_subtitle
 import com.abrarshakhi.mishti.feature.settings.resources.settings_title
 import com.abrarshakhi.mishti.feature.settings.resources.settings_version
 import com.abrarshakhi.mishti.settings.domain.model.ProjectLinks
+import com.abrarshakhi.mishti.settings.ui.components.CategoryRow
+import com.abrarshakhi.mishti.settings.ui.components.InternalLinkIcon
+import com.abrarshakhi.mishti.settings.ui.components.SettingsGroup
+import com.abrarshakhi.mishti.settings.ui.components.SettingsScaffold
+import com.abrarshakhi.mishti.settings.ui.components.modelSummary
+import com.abrarshakhi.mishti.settings.ui.viewmodels.contracts.SettingsUiState
 import org.jetbrains.compose.resources.stringResource
 import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignsystemRes
 import com.abrarshakhi.mishti.feature.settings.resources.Res as FeatureSettingsRes
@@ -264,58 +270,6 @@ fun SettingsScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun CategoryRow(
-    shapes: ListItemShapes,
-    icon: ImageVector,
-    iconColor: Color,
-    title: String,
-    supporting: String,
-    onClick: () -> Unit,
-    external: Boolean = false,
-) {
-    SegmentedListItem(
-        onClick = onClick,
-        shapes = shapes,
-        leadingContent = { ShapedIcon(imageVector = icon, containerColor = iconColor) },
-        trailingContent = { if (external) ExternalLinkIcon() },
-        supportingContent = { Text(supporting) },
-    ) {
-        Text(title)
-    }
-}
-
-@Composable
-private fun InternalLinkIcon() {
-    Icon(MaterialTheme.icons.navigation.arrowOut.filled, contentDescription = null)
-}
-
-@Composable
-private fun ExternalLinkIcon() {
-    Icon(
-        MaterialTheme.icons.navigation.browser.filled,
-        contentDescription = stringResource(FeatureSettingsRes.string.settings_opens_browser),
-    )
-}
-
-@Composable
-private fun modelSummary(engineState: EngineState): String = when (engineState) {
-    is EngineState.Ready -> stringResource(
-        FeatureSettingsRes.string.settings_model_ready,
-        engineState.model.name,
-    )
-
-    is EngineState.Loading -> stringResource(
-        FeatureSettingsRes.string.settings_model_loading,
-        engineState.model.name,
-    )
-
-    is EngineState.Failed -> stringResource(FeatureSettingsRes.string.settings_model_failed)
-
-    EngineState.Idle -> stringResource(FeatureSettingsRes.string.settings_model_idle)
 }
 
 @Preview

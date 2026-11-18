@@ -18,6 +18,14 @@ import com.abrarshakhi.mishti.feature.settings.resources.settings_performance_su
 import com.abrarshakhi.mishti.feature.settings.resources.settings_threads
 import com.abrarshakhi.mishti.feature.settings.resources.settings_threads_hint
 import com.abrarshakhi.mishti.feature.settings.resources.settings_tokens
+import com.abrarshakhi.mishti.settings.ui.components.RestoreDefaultsRow
+import com.abrarshakhi.mishti.settings.ui.components.SettingsGroup
+import com.abrarshakhi.mishti.settings.ui.components.SettingsScaffold
+import com.abrarshakhi.mishti.settings.ui.components.SliderSpec
+import com.abrarshakhi.mishti.settings.ui.components.sliderRow
+import com.abrarshakhi.mishti.settings.ui.utils.toFloatRange
+import com.abrarshakhi.mishti.settings.ui.viewmodels.contracts.SettingsIntent
+import com.abrarshakhi.mishti.settings.ui.viewmodels.contracts.SettingsUiState
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt

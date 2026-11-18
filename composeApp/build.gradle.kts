@@ -86,4 +86,15 @@ tasks.withType<Test>().configureEach {
     inputs.files(rootProject.fileTree("core") { include("*/build.gradle.kts") })
     inputs.files(rootProject.fileTree("feature") { include("*/build.gradle.kts") })
     inputs.files(rootProject.file("androidApp/build.gradle.kts"), file("build.gradle.kts"))
+    inputs
+        .files(
+            rootProject.fileTree(".") {
+                include(
+                    "androidApp/src/*/kotlin/**/*.kt",
+                    "composeApp/src/*/kotlin/**/*.kt",
+                    "core/*/src/*/kotlin/**/*.kt",
+                    "feature/*/src/*/kotlin/**/*.kt",
+                )
+            },
+        ).withPathSensitivity(PathSensitivity.RELATIVE)
 }

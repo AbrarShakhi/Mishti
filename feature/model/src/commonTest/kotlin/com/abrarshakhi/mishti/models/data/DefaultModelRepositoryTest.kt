@@ -5,9 +5,13 @@ package com.abrarshakhi.mishti.models.data
 import com.abrarshakhi.mishti.core.storage.models.InstalledModelDao
 import com.abrarshakhi.mishti.core.storage.models.InstalledModelEntity
 import com.abrarshakhi.mishti.core.testing.FakeAppPreferences
-import com.abrarshakhi.mishti.models.catalogModel
+import com.abrarshakhi.mishti.models.data.download.ModelDownloader
+import com.abrarshakhi.mishti.models.data.importing.ImportMetadata
+import com.abrarshakhi.mishti.models.data.importing.ModelImportSource
+import com.abrarshakhi.mishti.models.data.importing.ModelImporter
 import com.abrarshakhi.mishti.models.domain.model.TransferError
 import com.abrarshakhi.mishti.models.domain.model.TransferStatus
+import com.abrarshakhi.mishti.models.fixtures.catalogModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond

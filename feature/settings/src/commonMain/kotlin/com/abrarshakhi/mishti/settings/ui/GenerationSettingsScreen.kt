@@ -19,6 +19,15 @@ import com.abrarshakhi.mishti.feature.settings.resources.settings_top_k
 import com.abrarshakhi.mishti.feature.settings.resources.settings_top_k_hint
 import com.abrarshakhi.mishti.feature.settings.resources.settings_top_p
 import com.abrarshakhi.mishti.feature.settings.resources.settings_top_p_hint
+import com.abrarshakhi.mishti.settings.ui.components.RestoreDefaultsRow
+import com.abrarshakhi.mishti.settings.ui.components.SettingsGroup
+import com.abrarshakhi.mishti.settings.ui.components.SettingsScaffold
+import com.abrarshakhi.mishti.settings.ui.components.SliderSpec
+import com.abrarshakhi.mishti.settings.ui.components.sliderRow
+import com.abrarshakhi.mishti.settings.ui.utils.decimal
+import com.abrarshakhi.mishti.settings.ui.utils.toFloatRange
+import com.abrarshakhi.mishti.settings.ui.viewmodels.contracts.SettingsIntent
+import com.abrarshakhi.mishti.settings.ui.viewmodels.contracts.SettingsUiState
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 import com.abrarshakhi.mishti.feature.settings.resources.Res as FeatureSettingsRes
@@ -95,11 +104,6 @@ fun GenerationSettingsScreen(
             }
         }
     }
-}
-
-private fun decimal(value: Float): String {
-    val hundredths = (value * 100).roundToInt()
-    return "${hundredths / 100}.${(hundredths % 100).toString().padStart(2, '0')}"
 }
 
 @Preview

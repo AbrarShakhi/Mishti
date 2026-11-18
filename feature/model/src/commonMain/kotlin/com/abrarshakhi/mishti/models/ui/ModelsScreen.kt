@@ -51,13 +51,19 @@ import com.abrarshakhi.mishti.models.domain.model.ModelOrigin
 import com.abrarshakhi.mishti.models.domain.model.ShelfModel
 import com.abrarshakhi.mishti.models.domain.model.memoryFit
 import com.abrarshakhi.mishti.models.domain.repository.StorageUsage
+import com.abrarshakhi.mishti.models.ui.components.BrowseTab
+import com.abrarshakhi.mishti.models.ui.components.ModelDetailsSheet
+import com.abrarshakhi.mishti.models.ui.components.ShelfTab
+import com.abrarshakhi.mishti.models.ui.utils.BrowsePage
+import com.abrarshakhi.mishti.models.ui.utils.CatalogItem
+import com.abrarshakhi.mishti.models.ui.utils.ShelfPage
+import com.abrarshakhi.mishti.models.ui.utils.formatSize
+import com.abrarshakhi.mishti.models.ui.viewmodels.contracts.ModelsIntent
+import com.abrarshakhi.mishti.models.ui.viewmodels.contracts.ModelsUiState
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import com.abrarshakhi.mishti.core.designsystem.resources.Res as CoreDesignSystemRes
 import com.abrarshakhi.mishti.feature.model.resources.Res as FeatureModelRes
-
-internal const val ShelfPage = 0
-internal const val BrowsePage = 1
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

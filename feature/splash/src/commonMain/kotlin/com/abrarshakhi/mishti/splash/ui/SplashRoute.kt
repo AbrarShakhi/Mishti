@@ -1,7 +1,7 @@
 package com.abrarshakhi.mishti.splash.ui
 
 import androidx.compose.runtime.Composable
-import com.abrarshakhi.mishti.core.ui.navigation.Navigator
+import com.abrarshakhi.mishti.core.ui.utils.Navigator
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 

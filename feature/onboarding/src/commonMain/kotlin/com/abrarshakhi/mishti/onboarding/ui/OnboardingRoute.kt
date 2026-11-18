@@ -3,8 +3,8 @@ package com.abrarshakhi.mishti.onboarding.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import com.abrarshakhi.mishti.core.domain.preferences.AppPreferences
-import com.abrarshakhi.mishti.core.ui.navigation.Navigator
-import com.abrarshakhi.mishti.core.ui.navigation.Screen
+import com.abrarshakhi.mishti.core.ui.utils.Navigator
+import com.abrarshakhi.mishti.core.ui.utils.Screen
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 

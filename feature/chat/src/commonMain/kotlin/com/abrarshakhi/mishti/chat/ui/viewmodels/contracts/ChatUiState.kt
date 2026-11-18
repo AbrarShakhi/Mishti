@@ -1,0 +1,31 @@
+package com.abrarshakhi.mishti.chat.ui.viewmodels.contracts
+
+import com.abrarshakhi.mishti.core.domain.chat.model.ChatMessage
+import com.abrarshakhi.mishti.core.domain.llm.EngineState
+import com.abrarshakhi.mishti.core.session.model.SelectableModel
+import com.abrarshakhi.mishti.core.ui.utils.UiText
+import com.abrarshakhi.mishti.core.ui.viewmodels.contracts.UiEffect
+import com.abrarshakhi.mishti.core.ui.viewmodels.contracts.UiIntent
+import com.abrarshakhi.mishti.core.ui.viewmodels.contracts.UiState
+
+data class ChatUiState(
+    val sessionId: String? = null,
+    val title: String = "",
+    val messages: List<ChatMessage> = emptyList(),
+    val draft: String = "",
+    val streamingResponse: String = "",
+    val streamingReasoning: String? = null,
+    val isReasoning: Boolean = false,
+    val reasoningMillis: Long? = null,
+    val isGenerating: Boolean = false,
+    val canSend: Boolean = false,
+    val canStop: Boolean = false,
+    val isLoading: Boolean = true,
+    val engineState: EngineState = EngineState.Idle,
+    val thinkingSupported: Boolean = false,
+    val thinkingEnabled: Boolean = false,
+    val availableModels: List<SelectableModel> = emptyList(),
+    val activeModelName: String? = null,
+    val voiceInput: VoiceInput = VoiceInput.Unavailable,
+    val voicePreview: String = "",
+) : UiState

@@ -34,14 +34,21 @@ import com.abrarshakhi.mishti.feature.settings.resources.settings_pre_instructio
 import com.abrarshakhi.mishti.feature.settings.resources.settings_response_limit
 import com.abrarshakhi.mishti.feature.settings.resources.settings_response_limit_hint
 import com.abrarshakhi.mishti.feature.settings.resources.settings_tokens
+import com.abrarshakhi.mishti.settings.ui.components.PreInstructionField
+import com.abrarshakhi.mishti.settings.ui.components.SettingsGroup
+import com.abrarshakhi.mishti.settings.ui.components.SettingsPanel
+import com.abrarshakhi.mishti.settings.ui.components.SettingsScaffold
+import com.abrarshakhi.mishti.settings.ui.components.SliderSpec
+import com.abrarshakhi.mishti.settings.ui.components.sliderRow
+import com.abrarshakhi.mishti.settings.ui.utils.toFloatRange
+import com.abrarshakhi.mishti.settings.ui.viewmodels.contracts.SettingsIntent
+import com.abrarshakhi.mishti.settings.ui.viewmodels.contracts.SettingsUiState
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
 import com.abrarshakhi.mishti.feature.settings.resources.Res as FeatureSettingsRes
-
-private const val PersistDebounceMillis = 350L
 
 @Composable
 fun ChatSettingsScreen(
@@ -93,49 +100,6 @@ fun ChatSettingsScreen(
             }
         }
     }
-}
-
-@Composable
-private fun PreInstructionField(value: String, onCommit: (String) -> Unit) {
-    val focusManager = LocalFocusManager.current
-    var text by remember { mutableStateOf(value) }
-    var editing by remember { mutableStateOf(false) }
-    val savedValue by rememberUpdatedState(value)
-    val currentOnCommit by rememberUpdatedState(onCommit)
-
-    LaunchedEffect(value) {
-        if (!editing && value != text) text = value
-    }
-
-    LaunchedEffect(text, editing) {
-        if (editing && text != savedValue) {
-            delay(PersistDebounceMillis.milliseconds)
-            if (text != savedValue) currentOnCommit(text)
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose { if (text != savedValue) currentOnCommit(text) }
-    }
-
-    OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
-        placeholder = { Text(stringResource(FeatureSettingsRes.string.settings_pre_instruction_placeholder)) },
-        minLines = 3,
-        maxLines = 6,
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.Sentences,
-            imeAction = ImeAction.Done,
-        ),
-        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-        modifier = Modifier
-            .fillMaxWidth()
-            .onFocusChanged { focus ->
-                editing = focus.isFocused
-                if (!focus.isFocused && text != savedValue) currentOnCommit(text)
-            },
-    )
 }
 
 @Preview

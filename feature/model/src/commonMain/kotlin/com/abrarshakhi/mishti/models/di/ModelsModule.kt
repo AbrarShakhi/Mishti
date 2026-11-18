@@ -1,10 +1,8 @@
 package com.abrarshakhi.mishti.models.di
 
 import com.abrarshakhi.mishti.core.domain.llm.SelectedModelSource
-import com.abrarshakhi.mishti.core.ui.navigation.Screen
+import com.abrarshakhi.mishti.core.ui.utils.Screen
 import com.abrarshakhi.mishti.models.data.DefaultModelRepository
-import com.abrarshakhi.mishti.models.data.ModelDownloader
-import com.abrarshakhi.mishti.models.data.ModelImporter
 import com.abrarshakhi.mishti.models.data.ModelStorage
 import com.abrarshakhi.mishti.models.data.PreferencesSelectedModelSource
 import com.abrarshakhi.mishti.models.data.catalog.CatalogFetcher
@@ -14,11 +12,13 @@ import com.abrarshakhi.mishti.models.data.catalog.DeviceProfileProvider
 import com.abrarshakhi.mishti.models.data.catalog.FileCatalogStore
 import com.abrarshakhi.mishti.models.data.catalog.KtorCatalogFetcher
 import com.abrarshakhi.mishti.models.data.catalog.MishtiCatalogParser
+import com.abrarshakhi.mishti.models.data.download.ModelDownloader
+import com.abrarshakhi.mishti.models.data.importing.ModelImporter
 import com.abrarshakhi.mishti.models.domain.model.CatalogSource
 import com.abrarshakhi.mishti.models.domain.repository.CatalogRepository
 import com.abrarshakhi.mishti.models.domain.repository.ModelRepository
 import com.abrarshakhi.mishti.models.ui.ModelsRoute
-import com.abrarshakhi.mishti.models.ui.ModelsViewModel
+import com.abrarshakhi.mishti.models.ui.viewmodels.ModelsViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import kotlinx.coroutines.CoroutineScope

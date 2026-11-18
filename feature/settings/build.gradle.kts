@@ -1,3 +1,8 @@
+/*
+ * @file: ./feature/settings/build.gradle.kts
+ * @module: feature:settings
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

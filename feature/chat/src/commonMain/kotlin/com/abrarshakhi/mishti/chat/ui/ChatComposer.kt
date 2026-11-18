@@ -152,7 +152,6 @@ internal fun ChatComposer(
                     )
                 }
 
-                // In unfocused state, voice button is on line 1
                 AnimatedVisibility(
                     visible = !isExpanded,
                     enter = fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
@@ -171,13 +170,12 @@ internal fun ChatComposer(
                 }
             }
 
-            // Second row: Only shown when focused / expanded
             AnimatedVisibility(
                 visible = isExpanded,
                 enter = expandVertically(MaterialTheme.motionScheme.defaultSpatialSpec()) +
-                        fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
+                    fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
                 exit = shrinkVertically(MaterialTheme.motionScheme.fastSpatialSpec()) +
-                        fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
+                    fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
             ) {
                 Row(
                     modifier = Modifier
@@ -229,11 +227,7 @@ internal fun ChatComposer(
 }
 
 @Composable
-private fun ModelSelectorPill(
-    modelName: String?,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun ModelSelectorPill(modelName: String?, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Surface(
         onClick = onClick,
         shape = CircleShape,

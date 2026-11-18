@@ -1,3 +1,8 @@
+/*
+ * @file: ./composeApp/build.gradle.kts
+ * @module: composeApp
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

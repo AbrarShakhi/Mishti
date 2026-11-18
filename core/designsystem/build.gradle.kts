@@ -1,3 +1,8 @@
+/*
+ * @file: ./core/designsystem/build.gradle.kts
+ * @module: core:designsystem
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

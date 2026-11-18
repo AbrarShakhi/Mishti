@@ -17,7 +17,7 @@ set(GGML_NATIVE    OFF CACHE BOOL "" FORCE)
 add_subdirectory(${LLAMA_SRC} build-llama)
 
 add_library(mishti_llama SHARED
-    llama_bridge.cpp
+    llama_bridge_android.cpp
     ${CORE_LLM_NATIVE}/common/llama_bridge_common.cpp
 )
 

@@ -1,3 +1,8 @@
+/*
+ * @file: ./core/device/build.gradle.kts
+ * @module: core:device
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

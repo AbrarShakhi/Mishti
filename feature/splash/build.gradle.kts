@@ -1,3 +1,8 @@
+/*
+ * @file: ./feature/splash/build.gradle.kts
+ * @module: feature:splash
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

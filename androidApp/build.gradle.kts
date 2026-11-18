@@ -1,5 +1,5 @@
 /*
- * @file: androidApp/build.gradle.kts
+ * @file: ./androidApp/build.gradle.kts
  * @module: androidApp
  */
 

@@ -1,3 +1,8 @@
+/*
+ * @file: ./iosApp/build.gradle.kts
+ * @module: iosApp
+ */
+
 import org.gradle.internal.os.OperatingSystem
 
 plugins { base }

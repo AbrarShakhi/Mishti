@@ -1,3 +1,8 @@
+/*
+ * @file: ./core/storage/build.gradle.kts
+ * @module: core:storage
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

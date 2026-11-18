@@ -1,3 +1,8 @@
+/*
+ * @file: ./settings.gradle.kts
+ * Top-level settings
+ */
+
 rootProject.name = "Mishti"
 
 pluginManagement {
@@ -39,6 +44,7 @@ include(":core:domain")
 include(":core:designsystem")
 include(":core:device")
 include(":core:llm")
+include(":core:speech")
 include(":core:storage")
 include(":core:ui")
 include(":core:session")

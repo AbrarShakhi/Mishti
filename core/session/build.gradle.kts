@@ -1,3 +1,8 @@
+/*
+ * @file: ./core/session/build.gradle.kts
+ * @module: core:session
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

@@ -1,3 +1,8 @@
+/*
+ * @file: ./feature/onboarding/build.gradle.kts
+ * @module: feature:onboarding
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

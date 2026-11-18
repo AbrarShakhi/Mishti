@@ -1,3 +1,8 @@
+/*
+ * @file: ./feature/chat/build.gradle.kts
+ * @module: feature:chat
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

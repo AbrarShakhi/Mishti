@@ -1,3 +1,8 @@
+/*
+ * @file: ./feature/model/build.gradle.kts
+ * @module: feature:model
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

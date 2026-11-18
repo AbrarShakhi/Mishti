@@ -122,7 +122,7 @@ data class ActionIcons(
     val lightTheme: MishtiIcon,
     val darkTheme: MishtiIcon,
     val add: MishtiIcon,
-    val microphone: MishtiIcon
+    val microphone: MishtiIcon,
 )
 
 @Immutable
@@ -153,11 +153,7 @@ data class NavigationIcons(
 data class VisualIcons(val warning: MishtiIcon, val notOnline: MishtiIcon, val error: MishtiIcon)
 
 @Immutable
-data class MishtiIcons(
-    val actions: ActionIcons,
-    val navigation: NavigationIcons,
-    val visuals: VisualIcons
-)
+data class MishtiIcons(val actions: ActionIcons, val navigation: NavigationIcons, val visuals: VisualIcons)
 
 @Composable
 fun defaultMishtiIcons(): MishtiIcons = MishtiIcons(
@@ -198,7 +194,7 @@ fun defaultMishtiIcons(): MishtiIcons = MishtiIcons(
         lightTheme = MishtiIcon(PhIcons.Filled.LightbulbFill, PhIcons.Regular.Lightbulb),
         darkTheme = MishtiIcon(PhIcons.Filled.MoonStarsFill, PhIcons.Regular.MoonStars),
         add = MishtiIcon(PhIcons.Filled.PlusFill, PhIcons.Regular.Plus),
-        microphone = MishtiIcon(PhIcons.Filled.MicrophoneFill, PhIcons.Regular.Microphone)
+        microphone = MishtiIcon(PhIcons.Filled.MicrophoneFill, PhIcons.Regular.Microphone),
     ),
     navigation = NavigationIcons(
         back = MishtiIcon(PhIcons.Filled.ArrowCircleLeftFill, PhIcons.Regular.ArrowCircleLeft),

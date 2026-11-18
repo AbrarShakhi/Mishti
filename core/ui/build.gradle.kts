@@ -1,3 +1,8 @@
+/*
+ * @file: ./core/testing/build.gradle.kts
+ * @module: core:ui
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompileCommon
 

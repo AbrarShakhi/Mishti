@@ -1,3 +1,8 @@
+/*
+ * @file: ./core/testing/build.gradle.kts
+ * @module: core:testing
+ */
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

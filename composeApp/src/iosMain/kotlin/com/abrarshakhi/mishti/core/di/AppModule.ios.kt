@@ -5,6 +5,7 @@ import com.abrarshakhi.mishti.core.device.IosDeviceCapabilityProvider
 import com.abrarshakhi.mishti.core.domain.llm.LlmEngine
 import com.abrarshakhi.mishti.core.llm.data.LlamaBridgeRegistry
 import com.abrarshakhi.mishti.core.llm.data.LlamaEngine
+import com.abrarshakhi.mishti.core.speech.createSpeechRecognizer
 import com.abrarshakhi.mishti.core.storage.database.produceDatabaseBuilder
 import com.abrarshakhi.mishti.core.storage.preferences.data.produceDataStorePath
 import org.koin.core.module.Module
@@ -17,6 +18,7 @@ internal actual val platformModule: Module
         singleOf(::produceDataStorePath)
         singleOf(::produceDatabaseBuilder)
         singleOf(::IosDeviceCapabilityProvider).bind<DeviceCapabilityProvider>()
+        singleOf(::createSpeechRecognizer)
         single<LlmEngine> {
             LlamaEngine(
                 bridge = checkNotNull(LlamaBridgeRegistry.bridge) {

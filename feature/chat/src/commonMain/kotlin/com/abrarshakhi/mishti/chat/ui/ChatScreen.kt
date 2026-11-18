@@ -81,7 +81,7 @@ fun ChatScreen(
 
             ChatComposer(
                 draft = state.draft,
-                canSend = state.canSend,
+                canSend = state.canSend && !state.voiceInput.isActive,
                 canStop = state.canStop,
                 activeModelName = state.activeModelName,
                 onDraftChange = { onIntent(ChatIntent.DraftChanged(it)) },
@@ -89,7 +89,9 @@ fun ChatScreen(
                 onStop = { onIntent(ChatIntent.StopClicked) },
                 onAddClick = { showAddSheet = true },
                 onModelClick = { showModelSheet = true },
-                onVoiceClick = { /* Standby for voice input */ },
+                voiceInput = state.voiceInput,
+                voicePreview = state.voicePreview,
+                onVoiceClick = { onIntent(ChatIntent.VoiceClicked) },
             )
         }
     }

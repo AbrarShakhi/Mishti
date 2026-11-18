@@ -40,7 +40,7 @@ android {
         externalNativeBuild {
             cmake {
                 arguments += "-DCMAKE_BUILD_TYPE=Release"
-                arguments += "-DBUILD_SHARED_LIBS=ON"
+                arguments += listOf("-DBUILD_SHARED_LIBS=ON", "-DANDROID_STL=c++_shared")
             }
         }
     }
@@ -77,6 +77,10 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+tasks.matching { it.name.startsWith("configureCMake") || it.name.startsWith("buildCMake") }.configureEach {
+    dependsOn(":core:speech:prepareWhistleAndroid")
 }
 
 dependencies {

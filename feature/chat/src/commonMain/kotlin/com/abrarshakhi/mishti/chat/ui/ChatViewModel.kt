@@ -17,12 +17,20 @@ import com.abrarshakhi.mishti.core.domain.llm.ReasoningSplit
 import com.abrarshakhi.mishti.core.domain.llm.splitReasoning
 import com.abrarshakhi.mishti.core.domain.preferences.AppPreferences
 import com.abrarshakhi.mishti.core.session.domain.ModelSelector
+import com.abrarshakhi.mishti.core.speech.SpeechError
+import com.abrarshakhi.mishti.core.speech.SpeechEvent
+import com.abrarshakhi.mishti.core.speech.SpeechRecognizer
+import com.abrarshakhi.mishti.core.speech.SpeechSession
 import com.abrarshakhi.mishti.core.ui.mvi.MviViewModel
 import com.abrarshakhi.mishti.core.ui.utils.uiText
 import com.abrarshakhi.mishti.core.utils.currentTimeMillis
 import com.abrarshakhi.mishti.feature.chat.resources.chat_error_generation
 import com.abrarshakhi.mishti.feature.chat.resources.chat_error_open
 import com.abrarshakhi.mishti.feature.chat.resources.chat_error_send
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_error_microphone
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_error_permission
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_error_recognition
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_no_speech
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -40,13 +48,18 @@ class ChatViewModel(
     private val repository: ChatRepository,
     private val engine: LlmEngine,
     private val preferences: AppPreferences,
+    private val speechRecognizer: SpeechRecognizer,
     private val modelSelector: ModelSelector? = null,
     private val clock: () -> Long = { currentTimeMillis() },
     private val newId: () -> String = { Uuid.random().toString() },
-) : MviViewModel<ChatUiState, ChatIntent, ChatEffect>(ChatUiState()) {
+) : MviViewModel<ChatUiState, ChatIntent, ChatEffect>(
+    ChatUiState(voiceInput = if (speechRecognizer.isSupported) VoiceInput.Idle else VoiceInput.Unavailable),
+) {
 
     private var settings: InferenceSettings = InferenceSettings()
     private var generationJob: Job? = null
+    private var speechSession: SpeechSession? = null
+    private var speechJob: Job? = null
 
     init {
         viewModelScope.launch { openSession() }
@@ -123,9 +136,86 @@ class ChatViewModel(
             is ChatIntent.DraftChanged -> onDraftChanged(intent.text)
             ChatIntent.SendClicked -> onSendClicked()
             ChatIntent.StopClicked -> onStopClicked()
+            ChatIntent.VoiceClicked -> onVoiceClicked()
+            is ChatIntent.VoicePermissionResult -> onVoicePermissionResult(intent.granted)
+            ChatIntent.VoiceCancelled -> cancelVoiceInput()
             ChatIntent.ThinkingToggled -> onThinkingToggled()
             is ChatIntent.ModelSelected -> onModelSelected(intent.modelId)
         }
+    }
+
+    private fun onVoiceClicked() {
+        when (currentState.voiceInput) {
+            VoiceInput.Idle -> {
+                updateState { copy(voiceInput = VoiceInput.RequestingPermission) }
+                emitEffect(ChatEffect.RequestMicrophonePermission)
+            }
+
+            VoiceInput.Preparing, VoiceInput.Listening -> {
+                updateState { copy(voiceInput = VoiceInput.Finishing) }
+                speechSession?.stop()
+            }
+
+            else -> Unit
+        }
+    }
+
+    private fun onVoicePermissionResult(granted: Boolean) {
+        if (currentState.voiceInput != VoiceInput.RequestingPermission) return
+        if (!granted) {
+            updateState { copy(voiceInput = VoiceInput.Idle) }
+            emitEffect(ChatEffect.ShowError(uiText(FeatureChatRes.string.chat_voice_error_permission)))
+            return
+        }
+
+        val session = speechRecognizer.start()
+        speechSession = session
+        updateState { copy(voiceInput = VoiceInput.Preparing) }
+        speechJob = viewModelScope.launch {
+            try {
+                session.events.collect { event ->
+                    if (speechSession === session) handleSpeechEvent(event)
+                }
+            } finally {
+                if (speechSession === session) {
+                    speechSession = null
+                    updateState { copy(voiceInput = VoiceInput.Idle, voicePreview = "") }
+                }
+            }
+        }
+    }
+
+    private fun handleSpeechEvent(event: SpeechEvent) {
+        when (event) {
+            SpeechEvent.Listening -> updateState {
+                if (voiceInput == VoiceInput.Preparing) copy(voiceInput = VoiceInput.Listening) else this
+            }
+
+            is SpeechEvent.Preview -> updateState { copy(voicePreview = event.text) }
+
+            is SpeechEvent.Final -> {
+                val draft = currentState.draft
+                val separator = if (draft.isEmpty() || draft.last().isWhitespace()) "" else " "
+                onDraftChanged(draft + separator + event.text)
+            }
+
+            is SpeechEvent.Failed -> {
+                val message = when (event.error) {
+                    SpeechError.Microphone -> FeatureChatRes.string.chat_voice_error_microphone
+                    SpeechError.Recognition -> FeatureChatRes.string.chat_voice_error_recognition
+                    SpeechError.NoSpeech -> FeatureChatRes.string.chat_voice_no_speech
+                }
+                emitEffect(ChatEffect.ShowError(uiText(message)))
+            }
+        }
+    }
+
+    private fun cancelVoiceInput() {
+        if (!currentState.voiceInput.isActive) return
+        speechSession = null
+        speechJob?.cancel()
+        speechJob = null
+        updateState { copy(voiceInput = VoiceInput.Idle, voicePreview = "") }
     }
 
     private fun onModelSelected(modelId: String) {
@@ -146,7 +236,7 @@ class ChatViewModel(
     }
 
     private fun onSendClicked() {
-        if (!currentState.canSend) return
+        if (!currentState.canSend || currentState.voiceInput.isActive) return
         val sessionId = currentState.sessionId ?: return
 
         val message = ChatMessage(

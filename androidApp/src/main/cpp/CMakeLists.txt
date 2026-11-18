@@ -32,3 +32,7 @@ target_link_libraries(mishti_llama
     android
     log
 )
+
+if(ANDROID_ABI STREQUAL "arm64-v8a")
+    add_subdirectory(${MISHTI_ROOT}/core/speech/native/android build-speech)
+endif()

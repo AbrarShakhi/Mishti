@@ -60,4 +60,13 @@
         <item>Explain recursion with an example</item>
         <item>Help me practise for a job interview</item>
     </string-array>
+    <string name="chat_voice_unavailable">Voice input is unavailable on this device</string>
+    <string name="chat_voice_stop">Stop recording</string>
+    <string name="chat_voice_preparing">Preparing microphone…</string>
+    <string name="chat_voice_listening">Listening…</string>
+    <string name="chat_voice_finishing">Finishing transcription…</string>
+    <string name="chat_voice_error_permission">Allow microphone access in device settings to use voice input.</string>
+    <string name="chat_voice_error_microphone">Could not record from the microphone. Try again.</string>
+    <string name="chat_voice_error_recognition">Could not transcribe the recording. Try again.</string>
+    <string name="chat_voice_no_speech">No speech was detected.</string>
 </resources>

@@ -16,6 +16,7 @@ val chatModule = module {
             repository = get(),
             engine = get(),
             preferences = get(),
+            speechRecognizer = get(),
             modelSelector = get(),
         )
     }

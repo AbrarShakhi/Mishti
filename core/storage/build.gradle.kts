@@ -40,12 +40,12 @@ kotlin {
             api(libs.androidx.datastore)
             api(libs.androidx.datastore.preferences)
             api(libs.androidx.room.runtime)
-            api(libs.androidx.room.ktx)
             api(libs.androidx.sqlite.bundled)
             api(libs.okio)
             api(libs.koin.core)
             implementation(libs.kotlinx.coroutines.core)
         }
+        androidMain.dependencies { api(libs.androidx.room.ktx) }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)

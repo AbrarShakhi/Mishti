@@ -1,0 +1,5 @@
+headers = cactus.h
+headerFilter = cactus.h
+package = com.abrarshakhi.mishti.core.speech.cinterop
+staticLibraries = libcactus.a
+linkerOpts = -lc++

@@ -1,12 +1,16 @@
 package com.abrarshakhi.mishti.chat.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.abrarshakhi.mishti.core.designsystem.resources.chat_error_new
 import com.abrarshakhi.mishti.core.domain.chat.usecase.CreateNewSessionUseCase
+import com.abrarshakhi.mishti.core.speech.rememberMicrophonePermissionRequest
 import com.abrarshakhi.mishti.core.ui.drawer.DrawerController
 import com.abrarshakhi.mishti.core.ui.mvi.CollectEffects
 import com.abrarshakhi.mishti.core.ui.navigation.Navigator
@@ -29,12 +33,26 @@ fun ChatRoute(sessionId: String? = null) {
 
     val viewModel: ChatViewModel = koinViewModel { parametersOf(sessionId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val requestMicrophone = rememberMicrophonePermissionRequest {
+        viewModel.onIntent(ChatIntent.VoicePermissionResult(it))
+    }
+
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
+        viewModel.onIntent(ChatIntent.VoiceCancelled)
+    }
+    DisposableEffect(viewModel) {
+        onDispose { viewModel.onIntent(ChatIntent.VoiceCancelled) }
+    }
 
     SideEffect { drawerController.onSessionVisible(state.sessionId) }
 
     CollectEffects(viewModel.effects) { effect ->
         when (effect) {
             is ChatEffect.ShowError -> snackBarDispatcher.showError(effect.text)
+
+            ChatEffect.RequestMicrophonePermission -> {
+                if (viewModel.state.value.voiceInput == VoiceInput.RequestingPermission) requestMicrophone()
+            }
         }
     }
 

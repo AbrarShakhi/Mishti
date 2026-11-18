@@ -12,13 +12,18 @@ import com.abrarshakhi.mishti.core.domain.llm.LlmRole
 import com.abrarshakhi.mishti.core.domain.llm.ModelHandle
 import com.abrarshakhi.mishti.core.session.domain.ModelSelector
 import com.abrarshakhi.mishti.core.session.model.SelectableModel
+import com.abrarshakhi.mishti.core.speech.SpeechEvent
+import com.abrarshakhi.mishti.core.speech.SpeechRecognizer
+import com.abrarshakhi.mishti.core.speech.SpeechSession
 import com.abrarshakhi.mishti.core.testing.FakeAppPreferences
 import com.abrarshakhi.mishti.core.testing.FakeChatRepository
 import com.abrarshakhi.mishti.core.testing.ScriptedLlmEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -85,6 +90,32 @@ private class FakeModelSelector(initialModels: List<SelectableModel> = emptyList
     }
 }
 
+private class FakeSpeechRecognizer :
+    SpeechRecognizer,
+    SpeechSession {
+    override val isSupported = true
+    private val updates = Channel<SpeechEvent>(Channel.UNLIMITED)
+    override val events = updates.receiveAsFlow()
+    var starts = 0
+        private set
+    var stopped = false
+        private set
+
+    override fun start(): SpeechSession {
+        starts++
+        return this
+    }
+
+    override fun stop() {
+        stopped = true
+    }
+
+    fun emit(event: SpeechEvent) {
+        updates.trySend(event).getOrThrow()
+        if (event is SpeechEvent.Final || event is SpeechEvent.Failed) updates.close()
+    }
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class ChatViewModelTest {
     @BeforeTest
@@ -111,17 +142,73 @@ class ChatViewModelTest {
         engine: LlmEngine = engine(),
         preferences: FakeAppPreferences = FakeAppPreferences(),
         modelSelector: ModelSelector? = null,
+        speechRecognizer: SpeechRecognizer = FakeSpeechRecognizer(),
     ) = ChatViewModel(
         requestedSessionId = requestedSessionId,
         repository = repository,
         engine = engine,
         preferences = preferences,
+        speechRecognizer = speechRecognizer,
         modelSelector = modelSelector,
         clock = { 1_000L },
         newId = { "id-${nextId++}" },
     )
 
     private suspend fun LlmEngine.ready() = load(ModelHandle(id = "test-model", name = "Test", path = "/tmp/test.gguf"))
+
+    @Test
+    fun `dictation previews the latest words and appends the final result to the edited draft`() = runTest {
+        val speech = FakeSpeechRecognizer()
+        val repository = FakeChatRepository(existingSessionId = "s1")
+        val vm = viewModel(repository = repository, speechRecognizer = speech)
+        vm.onIntent(ChatIntent.DraftChanged("Typed"))
+        vm.onIntent(ChatIntent.VoiceClicked)
+        vm.onIntent(ChatIntent.VoicePermissionResult(true))
+        speech.emit(SpeechEvent.Listening)
+        speech.emit(SpeechEvent.Preview("hello whirl"))
+        speech.emit(SpeechEvent.Preview("hello world"))
+        advanceUntilIdle()
+        assertEquals("hello world", vm.state.value.voicePreview)
+        assertEquals("Typed", vm.state.value.draft)
+
+        vm.onIntent(ChatIntent.DraftChanged("Edited draft"))
+        vm.onIntent(ChatIntent.VoiceClicked)
+        assertTrue(speech.stopped)
+        speech.emit(SpeechEvent.Final("hello world"))
+        advanceUntilIdle()
+        assertEquals("Edited draft hello world", vm.state.value.draft)
+        assertEquals("", vm.state.value.voicePreview)
+        assertEquals(VoiceInput.Idle, vm.state.value.voiceInput)
+        assertTrue(vm.state.value.messages.isEmpty())
+    }
+
+    @Test
+    fun `microphone permission denial preserves the draft`() = runTest {
+        val speech = FakeSpeechRecognizer()
+        val vm = viewModel(speechRecognizer = speech)
+        vm.onIntent(ChatIntent.DraftChanged("Keep this"))
+        vm.onIntent(ChatIntent.VoiceClicked)
+        vm.onIntent(ChatIntent.VoicePermissionResult(false))
+        advanceUntilIdle()
+        assertEquals(0, speech.starts)
+        assertEquals("Keep this", vm.state.value.draft)
+        assertEquals(VoiceInput.Idle, vm.state.value.voiceInput)
+    }
+
+    @Test
+    fun `canceling a session discards its queued transcription`() = runTest {
+        val speech = FakeSpeechRecognizer()
+        val vm = viewModel(speechRecognizer = speech)
+        vm.onIntent(ChatIntent.DraftChanged("Keep this"))
+        vm.onIntent(ChatIntent.VoiceClicked)
+        vm.onIntent(ChatIntent.VoicePermissionResult(true))
+        advanceUntilIdle()
+        vm.onIntent(ChatIntent.VoiceCancelled)
+        speech.emit(SpeechEvent.Final("Discard this"))
+        advanceUntilIdle()
+        assertEquals("Keep this", vm.state.value.draft)
+        assertEquals(VoiceInput.Idle, vm.state.value.voiceInput)
+    }
 
     @Test
     fun `resumes the most recent session instead of creating one`() = runTest {

@@ -29,6 +29,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -54,6 +55,11 @@ import com.abrarshakhi.mishti.feature.chat.resources.chat_composer_placeholder
 import com.abrarshakhi.mishti.feature.chat.resources.chat_no_model_selected
 import com.abrarshakhi.mishti.feature.chat.resources.chat_send
 import com.abrarshakhi.mishti.feature.chat.resources.chat_stop
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_finishing
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_listening
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_preparing
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_stop
+import com.abrarshakhi.mishti.feature.chat.resources.chat_voice_unavailable
 import org.jetbrains.compose.resources.stringResource
 import com.abrarshakhi.mishti.feature.chat.resources.Res as FeatureChatRes
 
@@ -71,6 +77,8 @@ internal fun ChatComposer(
     onStop: () -> Unit,
     onAddClick: () -> Unit,
     onModelClick: () -> Unit,
+    voiceInput: VoiceInput,
+    voicePreview: String,
     onVoiceClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -157,16 +165,11 @@ internal fun ChatComposer(
                     enter = fadeIn(MaterialTheme.motionScheme.defaultEffectsSpec()),
                     exit = fadeOut(MaterialTheme.motionScheme.fastEffectsSpec()),
                 ) {
-                    IconButton(
+                    VoiceInputButton(
+                        state = voiceInput,
                         onClick = onVoiceClick,
                         modifier = Modifier.size(40.dp),
-                    ) {
-                        Icon(
-                            imageVector = MaterialTheme.icons.navigation.chat.filled,
-                            contentDescription = stringResource(FeatureChatRes.string.chat_action_voice),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                    )
                 }
             }
 
@@ -202,16 +205,11 @@ internal fun ChatComposer(
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    IconButton(
+                    VoiceInputButton(
+                        state = voiceInput,
                         onClick = onVoiceClick,
                         modifier = Modifier.size(36.dp),
-                    ) {
-                        Icon(
-                            imageVector = MaterialTheme.icons.actions.microphone.filled,
-                            contentDescription = stringResource(FeatureChatRes.string.chat_action_voice),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                    )
 
                     SendButton(
                         canSend = canSend,
@@ -222,6 +220,55 @@ internal fun ChatComposer(
                     )
                 }
             }
+
+            VoiceInputPreview(voiceInput, voicePreview)
+        }
+    }
+}
+
+@Composable
+private fun VoiceInputButton(state: VoiceInput, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val canStop = state == VoiceInput.Preparing || state == VoiceInput.Listening
+    val label = when {
+        state == VoiceInput.Unavailable -> FeatureChatRes.string.chat_voice_unavailable
+        canStop -> FeatureChatRes.string.chat_voice_stop
+        else -> FeatureChatRes.string.chat_action_voice
+    }
+    IconButton(onClick = onClick, enabled = canStop || state == VoiceInput.Idle, modifier = modifier) {
+        Icon(
+            imageVector = if (canStop) {
+                MaterialTheme.icons.actions.pause.filled
+            } else {
+                MaterialTheme.icons.actions.microphone.filled
+            },
+            contentDescription = stringResource(label),
+            tint = if (canStop) MaterialTheme.colorScheme.error else LocalContentColor.current,
+        )
+    }
+}
+
+@Composable
+private fun VoiceInputPreview(state: VoiceInput, preview: String) {
+    val label = when (state) {
+        VoiceInput.Preparing -> FeatureChatRes.string.chat_voice_preparing
+        VoiceInput.Listening -> FeatureChatRes.string.chat_voice_listening
+        VoiceInput.Finishing -> FeatureChatRes.string.chat_voice_finishing
+        else -> return
+    }
+    Column(Modifier.fillMaxWidth().padding(horizontal = Spacing.Small, vertical = Spacing.ExtraSmall)) {
+        Text(
+            text = stringResource(label),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        if (preview.isNotBlank()) {
+            Text(
+                text = preview,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }

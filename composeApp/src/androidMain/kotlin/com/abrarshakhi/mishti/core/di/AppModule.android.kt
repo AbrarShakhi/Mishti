@@ -6,6 +6,7 @@ import com.abrarshakhi.mishti.core.domain.llm.LlamaBridge
 import com.abrarshakhi.mishti.core.domain.llm.LlmEngine
 import com.abrarshakhi.mishti.core.llm.data.AndroidLlamaBridge
 import com.abrarshakhi.mishti.core.llm.data.LlamaEngine
+import com.abrarshakhi.mishti.core.speech.createSpeechRecognizer
 import com.abrarshakhi.mishti.core.storage.database.produceDatabaseBuilder
 import com.abrarshakhi.mishti.core.storage.preferences.data.produceDataStorePath
 import org.koin.core.module.Module
@@ -20,4 +21,5 @@ internal actual val platformModule: Module
         singleOf(::AndroidDeviceCapabilityProvider).bind<DeviceCapabilityProvider>()
         singleOf(::AndroidLlamaBridge).bind<LlamaBridge>()
         single<LlmEngine> { LlamaEngine(bridge = get()) }
+        singleOf(::createSpeechRecognizer)
     }

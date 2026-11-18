@@ -46,6 +46,7 @@ kotlin {
             implementation(project(":core:storage"))
             api(project(":core:llm"))
             implementation(project(":core:device"))
+            implementation(project(":core:speech"))
             implementation(project(":core:session"))
             implementation(project(":feature:chat"))
             implementation(project(":feature:model"))
